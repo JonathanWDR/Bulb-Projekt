@@ -7,7 +7,6 @@ const PORT = process.env.PORT ?? 3000;
 
 app.use(express.json());
 
-// Generic single‐endpoint approach:
 app.post("/api/command", async (req, res) => {
   const { command, value } = req.body;
   if (!command) {
@@ -21,19 +20,6 @@ app.post("/api/command", async (req, res) => {
     return res.status(500).json({ error: err.message });
   }
 });
-
-/*
-  Or, if you prefer separate endpoints:
-
-app.post('/api/on',    async (req, res) => { await sendCommand({ command:'on' }); res.sendStatus(202); });
-app.post('/api/off',   async (req, res) => { await sendCommand({ command:'off' }); res.sendStatus(202); });
-app.post('/api/brightness', async (req, res) => {
-  const { brightness } = req.body;
-  await sendCommand({ command:'brightness', value: brightness });
-  res.sendStatus(202);
-});
-// etc...
-*/
 
 app.listen(PORT, () => {
   console.log(`🚀 Producer HTTP API listening on port ${PORT}`);
