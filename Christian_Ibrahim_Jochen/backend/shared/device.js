@@ -20,6 +20,5 @@ class MockDevice {
 }
 export function createDevice() {
   //später dann echtes Device
-  console.log("🔧 [MOCK] createDevice() aufgerufen, liefere MockDevice");
   return new MockDevice();
 }
