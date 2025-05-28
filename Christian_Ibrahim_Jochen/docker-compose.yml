@@ -1,0 +1,40 @@
+version: "3.8"
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
+  producer:
+    build:
+      context: ./
+      dockerfile: backend/producer/Dockerfile
+    environment:
+      RABBIT_URL: "amqp://rabbitmq"
+    ports:
+      - "3000:3000"
+    depends_on:
+      - rabbitmq
+
+  consumer:
+    build:
+      context: ./
+      dockerfile: backend/consumer/Dockerfile
+    environment:
+      RABBIT_URL: "amqp://rabbitmq"
+      TP_LINK_EMAIL: "you@example.com"
+      TP_LINK_PASS: "yourpass"
+      DEVICE_ID: "your-device-id"
+    depends_on:
+      - rabbitmq
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "8080:80"
+    depends_on:
+      - producer
+      - consumer
