@@ -1,0 +1,23 @@
+version: "3.8"
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
+  producer:
+    build:
+      context: ./backend
+      dockerfile: producer/Dockerfile
+    env_file: .env
+    depends_on:
+      - rabbitmq
+
+  consumer:
+    build:
+      context: ./backend
+      dockerfile: consumer/Dockerfile
+    env_file: .env
+    depends_on:
+      - rabbitmq

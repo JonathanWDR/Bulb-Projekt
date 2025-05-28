@@ -1,12 +1,14 @@
-import { connect, ChannelWrapper } from "amqp-connection-manager";
+import { connect } from "amqp-connection-manager";
 
 const QUEUE = "lamp-commands";
 
 export function createChannel() {
   const conn = connect([process.env.RABBIT_URL]);
+  conn.on("connect", () => console.log("✅ RabbitMQ connected at", process.env.RABBIT_URL));
+  conn.on("disconnect", ({ err }) => console.error("❌ RabbitMQ disconnected", err));
   const ch = conn.createChannel({
     json: true,
-    setup: (c) => c.assertQueue(QUEUE, { durable: true }).then(() => c.prefetch(1)),
+    setup: (ch) => ch.assertQueue(QUEUE, { durable: true }).then(() => ch.prefetch(1)),
   });
   return ch;
 }
@@ -14,10 +16,8 @@ export function createChannel() {
 export async function sendCommand(cmd) {
   const ch = createChannel();
   await ch.waitForConnect();
-  await ch.sendToQueue(QUEUE, cmd, { persistent: true });
-}
-
-export function consumeCommands(onMessage) {
-  const ch = createChannel();
-  ch.waitForConnect().then(() => ch.consume(QUEUE, onMessage));
+  console.log("⏳ [producer] Connected to RabbitMQ at", process.env.RABBIT_URL);
+  console.log("⏳ [producer] Sending command →", cmd);
+  await ch.sendToQueue("lamp-commands", cmd, { persistent: true });
+  console.log("📤 [producer] Sent command to queue ✔");
 }
