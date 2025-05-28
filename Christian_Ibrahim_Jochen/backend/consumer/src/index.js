@@ -1,35 +1,42 @@
-// import { tp-client } from "../../shared/tp-client.js";
-// import { initKasa } from "../shared/kasaClient.js";
+import { createChannel } from "../../shared/rabbitmq.js";
 
-async function handleMsg(msg) {
-  const ch = msg.fields.channel;
-  const device = await initKasa();
-  const cmd = JSON.parse(msg.content.toString());
+// Name der Queue
+const QUEUE = "lamp-commands";
 
-  try {
-    switch (cmd.command) {
-      case "on":
-        await device.turnOn();
-        break;
-      case "off":
-        await device.turnOff();
-        break;
-      case "brightness":
-        await device.setBrightness(Number(cmd.value));
-        break;
-      case "color":
-        await device.setColour(cmd.value);
-        break;
-      default:
-        throw new Error("Unknown command");
+async function startConsumer() {
+  // Channel einrichten (durable Queue + prefetch(1))
+  const ch = createChannel();
+
+  await ch.waitForConnect();
+  console.log("🕒 Consumer waiting for messages…");
+
+  // Hier kommen die Nachrichten rein
+  await ch.consume(QUEUE, async (msg) => {
+    if (!msg) return;
+
+    // 1) Raw-Log
+    console.log("📥 [consumer] Message arrived:", msg.content.toString());
+
+    let cmd;
+    try {
+      cmd = JSON.parse(msg.content.toString());
+    } catch (err) {
+      console.error("⚠️ Invalid JSON:", err);
+      return ch.ack(msg);
     }
-    ch.ack(msg);
-    console.log("Done:", cmd);
-  } catch (e) {
-    console.error("Error, requeuing:", e);
-    ch.nack(msg, false, true);
-  }
+
+    try {
+      // 2) Verarbeite den Befehl (Stub oder echte TP-Link-Aufrufe)
+      console.log("✅ [consumer] Executing", cmd);
+      // z.B. await device.turnOn() etc.
+
+      // 3) Nur wenn alles geklappt hat:
+      ch.ack(msg);
+    } catch (err) {
+      console.error("❌ [consumer] Fehler, requeue:", err);
+      ch.nack(msg, false, true); // Nachricht bleibt in der Queue
+    }
+  });
 }
 
-// consumeCommands(handleMsg);
-console.log("🕒 Consumer waiting for messages…");
+startConsumer().catch((err) => console.error(err));

@@ -1,9 +1,11 @@
 import { connect } from "amqp-connection-manager";
 
+const RABBIT_URL = process.env.RABBIT_URL || "amqp://localhost";
+
 const QUEUE = "lamp-commands";
 
 export function createChannel() {
-  const conn = connect([process.env.RABBIT_URL]);
+  const conn = connect([RABBIT_URL]);
   conn.on("connect", () => console.log("✅ RabbitMQ connected at", process.env.RABBIT_URL));
   conn.on("disconnect", ({ err }) => console.error("❌ RabbitMQ disconnected", err));
   const ch = conn.createChannel({
@@ -14,6 +16,8 @@ export function createChannel() {
 }
 
 export async function sendCommand(cmd) {
+  console.log(process.env.RABBIT_URL);
+
   const ch = createChannel();
   await ch.waitForConnect();
   console.log("⏳ [producer] Connected to RabbitMQ at", process.env.RABBIT_URL);
