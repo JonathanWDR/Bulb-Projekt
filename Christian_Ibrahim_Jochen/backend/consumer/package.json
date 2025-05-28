@@ -4,5 +4,6 @@
   },
   "dependencies": {
     "amqp-connection-manager": "^4.0.0"
-  }
+  },
+    "type": "module"
 }
