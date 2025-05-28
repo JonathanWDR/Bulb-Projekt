@@ -1,3 +1,5 @@
+//to play around and run fomr the terminal like this:
+// node index.js on
 import { sendCommand } from "../../shared/rabbitmq.js";
 
 async function main() {
