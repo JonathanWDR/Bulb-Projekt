@@ -12,8 +12,8 @@ async function startConsumer() {
 
   await channel.consume("lamp-commands", async (msg) => {
     if (!msg) return;
-    const cmd = JSON.parse(msg.content.toString());
     try {
+      const cmd = JSON.parse(msg.content.toString());
       switch (cmd.command) {
         case "on":
           await device.turnOn();
