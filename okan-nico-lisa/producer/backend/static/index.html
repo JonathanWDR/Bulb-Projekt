@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>Bulb Control</title>
+</head>
+<body>
+  <h1>Bulb Control</h1>
+
+  <button onclick="send('on')">An</button>
+  <button onclick="send('off')">Aus</button>
+
+  <br><br>
+  
+  Helligkeit: <input type="range" id="brightness" min="0" max="100" value="50" oninput="send('brightness',{value:this.value})"><br><br>
+  Farbe: <input type="color" id="color" onchange="send('color',{value:this.value})"><br><br>
+  Morse: <input type="text" id="morse" placeholder="... --- ..."><button onclick="send('morse',{code:document.getElementById('morse').value})">Senden</button>
+
+  <script>
+    async function send(action, body = {}) {
+      const res = await fetch(`/lamp/${action}`, {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify(body)
+      });
+      const data = await res.json();
+      console.log('Response from server:', data);
+    }
+  </script>
+</body>
+</html>
