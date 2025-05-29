@@ -1,5 +1,11 @@
-FROM node:18-alpine
+FROM node:18-alpine3.21
 WORKDIR /usr/src/app/backend/consumer
+
+# Update Alpine packages to fix vulnerabilities
+RUN apk update && apk upgrade --no-cache
+
+# Install curl
+RUN apk add --no-cache curl
 
 # Install consumer deps
 COPY backend/consumer/package*.json ./
