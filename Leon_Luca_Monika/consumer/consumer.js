@@ -1,16 +1,32 @@
 import amqp from 'amqplib';
 import * as TPLink from 'tplink-bulbs';
+import { WebSocketServer } from 'ws';
 
-const email = 'email'
-const password = 'password'
+// Morsecode-Tabelle
+const morseTable = {
+  'A': '.-', 'B': '-...', 'C': '-.-.', 'D': '-..', 'E': '.',
+  'F': '..-.', 'G': '--.', 'H': '....', 'I': '..', 'J': '.---',
+  'K': '-.-', 'L': '.-..', 'M': '--', 'N': '-.', 'O': '---',
+  'P': '.--.', 'Q': '--.-', 'R': '.-.', 'S': '...', 'T': '-',
+  'U': '..-', 'V': '...-', 'W': '.--', 'X': '-..-', 'Y': '-.--',
+  'Z': '--..', '0': '-----', '1': '.----', '2': '..---', '3': '...--',
+  '4': '....-', '5': '.....', '6': '-....', '7': '--...', '8': '---..',
+  '9': '----.', ' ': ' '
+};
+
+// Morsecode-Timings
+const dot = 300; // ms
+const dash = dot * 3;
+const gap = dot;
+const letterGap = dot * 3;
+const wordGap = dot * 7;
+
+const email = 'email';
+const password = 'password';
 const deviceIdToFind = 'devideid';
 
-console.log(TPLink)
-
 const cloudApi = await TPLink.API.cloudLogin(email, password);
-
 const devices = await cloudApi.listDevicesByType('SMART.TAPOBULB');
-
 const targetDevice = devices.find(device => device.deviceId === deviceIdToFind);
 
 const lampState = {
@@ -22,18 +38,32 @@ const lampState = {
 let device = null;
 
 if (!targetDevice) {
-    console.log(`Device with id "${deviceIdToFind}" not found!`);
+  console.log(`Device with id "${deviceIdToFind}" not found!`);
+  process.exit(1);
 } else {
-    device = await TPLink.API.loginDevice(email, password, targetDevice);
-    const deviceInfo = await device.getDeviceInfo();
-    console.log('Device info:', deviceInfo);
-    lampState.poweredOn = deviceInfo.device_on;
-    lampState.brightness = deviceInfo.brightness;
-    lampState.color = 'unknown';
+  device = await TPLink.API.loginDevice(email, password, targetDevice);
+  const deviceInfo = await device.getDeviceInfo();
+  console.log('Device info:', deviceInfo);
+  lampState.poweredOn = deviceInfo.device_on;
+  lampState.brightness = deviceInfo.brightness;
+  lampState.color = 'unknown';
 
-    consumeLampCommands();
+  consumeLampCommands();
 }
 
+// WebSocket-Server für Status-Updates
+const wss = new WebSocketServer({ port: 3002 });
+function broadcastLampState() {
+  const data = JSON.stringify(lampState);
+  wss.clients.forEach(client => {
+    if (client.readyState === 1) { // 1 = OPEN
+      client.send(data);
+    }
+  });
+}
+wss.on('connection', ws => {
+  ws.send(JSON.stringify(lampState));
+});
 
 async function consumeLampCommands() {
   const queueName = 'lamp-commands';
@@ -51,7 +81,7 @@ async function consumeLampCommands() {
         let cmd;
         try {
           cmd = JSON.parse(rawValue);
-          console.log("JSON", cmd)
+          console.log("JSON", cmd);
         } catch (err) {
           console.error('Invalid JSON message:', rawValue);
           channel.ack(msg);
@@ -59,33 +89,96 @@ async function consumeLampCommands() {
         }
 
         switch (cmd.command) {
-          case 'on':
-            lampState.poweredOn = true;
-            await device.turnOn();
-            console.log('Lamp is now ON');
+          case 'setState':
+            if (cmd.value === 'on') {
+              await device.turnOn();
+              lampState.poweredOn = true;
+              broadcastLampState();
+              console.log('Lamp state set to ON');
+            } else if (cmd.value === 'off') {
+              await device.turnOff();
+              lampState.poweredOn = false;
+              broadcastLampState();
+              console.log('Lamp state set to OFF');
+            } else {
+              console.log('Invalid state value. Use "on" or "off".');
+            }
             break;
-          case 'off':
-            lampState.poweredOn = false;
-            await device.turnOff();
-            console.log('Lamp is now OFF');
-            break;
-          case 'brightness':
+          case 'setBrightness':
             if (
               typeof cmd.value === 'number' &&
               cmd.value >= 0 &&
               cmd.value <= 100
             ) {
-              lampState.brightness = cmd.value;
               await device.setBrightness(cmd.value);
+              lampState.brightness = cmd.value;
+              broadcastLampState();
               console.log(`Lamp brightness set to ${cmd.value}`);
             } else {
               console.log('Brightness must be a number between 0 and 100.');
             }
             break;
-          case 'color':
-            lampState.color = cmd.value;
+          case 'setColor':
             await device.setColour(cmd.value);
+            lampState.color = cmd.value;
+            broadcastLampState();
             console.log(`Lamp color set to ${cmd.value}`);
+            break;
+          case 'showMorseCode':
+            if (typeof cmd.value === 'string' && cmd.value.trim()) {
+              const plainText = cmd.value.trim();
+              const morseCode = plainText.toUpperCase().split('').map(c => morseTable[c] || '').join(' ');
+              console.log(`Showing Morse code: ${morseCode}`);
+
+              async function blinkMorse(code) {
+                let i = 0;
+                while (i < code.length) {
+                  const symbol = code[i];
+                  if (symbol === '.') {
+                    await device.turnOn();
+                    lampState.poweredOn = true;
+                    broadcastLampState();
+                    await new Promise(res => setTimeout(res, dot));
+                    await device.turnOff();
+                    lampState.poweredOn = false;
+                    broadcastLampState();
+                    // gap zwischen Symbolen (außer nach letztem Symbol im Buchstaben)
+                    if (code[i + 1] === '.' || code[i + 1] === '-') {
+                      await new Promise(res => setTimeout(res, gap));
+                    }
+                    i++;
+                  } else if (symbol === '-') {
+                    await device.turnOn();
+                    lampState.poweredOn = true;
+                    broadcastLampState();
+                    await new Promise(res => setTimeout(res, dash));
+                    await device.turnOff();
+                    lampState.poweredOn = false;
+                    broadcastLampState();
+                    // gap zwischen Symbolen (außer nach letztem Symbol im Buchstaben)
+                    if (code[i + 1] === '.' || code[i + 1] === '-') {
+                      await new Promise(res => setTimeout(res, gap));
+                    }
+                    i++;
+                  } else if (symbol === ' ') {
+                    // Prüfe, ob nächstes Zeichen auch ein Leerzeichen ist (Wortabstand)
+                    if (code[i + 1] === ' ') {
+                      await new Promise(res => setTimeout(res, wordGap));
+                      i += 2; // Zwei Leerzeichen überspringen
+                    } else {
+                      await new Promise(res => setTimeout(res, letterGap));
+                      i++;
+                    }
+                  } else {
+                    i++;
+                  }
+                }
+              }
+
+              await blinkMorse(morseCode);
+            } else {
+              console.log('Invalid Morse code input. Please provide a non-empty string.');
+            }
             break;
           default:
             console.log(`Unknown command: ${cmd.command}`);

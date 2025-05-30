@@ -1,0 +1,8 @@
+# Node modules in any subfolder
+**/node_modules/
+
+# package-lock files in any subfolder
+**/package-lock.json
+
+# .env files in any subfolder
+**/.env
