@@ -1,15 +1,18 @@
 import amqp from 'amqplib';
 import * as TPLink from 'tplink-bulbs';
 
-const email = 'email'
-const password = 'password'
-const deviceIdToFind = 'devideid';
+import 'dotenv/config';
+
+const email = process.env.TP_EMAIL;
+const password = process.env.TP_PASSWORD;
+const deviceIdToFind = process.env.TP_DEVICE_ID;
 
 console.log(TPLink)
 
 const cloudApi = await TPLink.API.cloudLogin(email, password);
 
 const devices = await cloudApi.listDevicesByType('SMART.TAPOBULB');
+console.log("Gefundene Geräte:", devices);
 
 const targetDevice = devices.find(device => device.deviceId === deviceIdToFind);
 
