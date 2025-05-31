@@ -1,0 +1,25 @@
+body {
+    background-color: #121212;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.container {
+    position: relative;
+}
+
+.glow-img {
+    width: 300px;
+    height: auto;
+    border-radius: 20px;
+    transition: box-shadow 0.5s ease;
+}
+
+/* Leuchtender Rand aktiv */
+.glow-on {
+    box-shadow: 0 0 40px 15px rgba(255, 200, 0, 0.8);
+}
