@@ -7,8 +7,8 @@
   "scripts": {
     "start:consumer": "node consumer/consumer.js",
     "start:producer": "node producer/producer.js",
-    "build:bulbs": "tsc -p bulbs",
-    "demo:bulbs": "npx tsc bulbs/examples/demo.ts && node bulbs/examples/demo.js"
+    "build:bulbs": "tsc -p src",
+    "demo:bulbs": "npx tsc src/examples/demo.ts && node src/examples/demo.js"
   },
   "dependencies": {
     "amqplib": "^0.10.5",
