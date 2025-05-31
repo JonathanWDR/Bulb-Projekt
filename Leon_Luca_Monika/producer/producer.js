@@ -25,37 +25,6 @@ async function sendLampCommand(commandType, commandValue) {
     }
 }
 
-/*
-async function setLampState(state) {
-    // commandType is either 'on' or 'off'
-    const commandType = state ? 'on' : 'off';
-
-    await sendLampCommand(commandType, null);
-}
-
-async function setLampBrightness(brightness) {
-    const commandType = 'brightness'; 
-   
-    // Ensure value is between 0 and 100
-    const commandValue = Math.max(0, Math.min(100, brightness)); 
-    await sendLampCommand(commandType, commandValue);
-}
-
-
-async function setLampColor(color) {
- const commandType = 'color';
-    // Uses hexa-values
-    const commandValue = /^#([0-9A-F]{3}){1,2}$/i.test(color) ? color : 'unknown'; // Default to white if invalid
-    await sendLampCommand(commandType, commandValue);
-}
-
-async function showMorseCode(morseCode) {
-    const commandType = 'showMorseCode';
-    if (typeof morseCode !== 'string' || !morseCode.trim()) {
-        morseCode = '';
-    }
-    await sendLampCommand(commandType, morseCode);
-}*/
 
 async function setLampState(state) {
     const commandType = 'setState';
