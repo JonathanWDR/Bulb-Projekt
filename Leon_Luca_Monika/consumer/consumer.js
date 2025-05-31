@@ -2,6 +2,8 @@ import amqp from 'amqplib';
 import * as TPLink from 'tplink-bulbs';
 import { WebSocketServer } from 'ws';
 
+import 'dotenv/config';
+
 // Morsecode-Tabelle
 const morseTable = {
   'A': '.-', 'B': '-...', 'C': '-.-.', 'D': '-..', 'E': '.',
@@ -21,12 +23,16 @@ const gap = dot;
 const letterGap = dot * 3;
 const wordGap = dot * 7;
 
-const email = 'email';
-const password = 'password';
-const deviceIdToFind = 'devideid';
+
+const email = process.env.TP_EMAIL;
+const password = process.env.TP_PASSWORD;
+const deviceIdToFind = process.env.TP_DEVICE_ID;
 
 const cloudApi = await TPLink.API.cloudLogin(email, password);
 const devices = await cloudApi.listDevicesByType('SMART.TAPOBULB');
+
+console.log("Devices found:", devices);
+
 const targetDevice = devices.find(device => device.deviceId === deviceIdToFind);
 
 const lampState = {

@@ -1,16 +1,18 @@
 {
-  "name": "consumer",
+  "name": "leon_luca_monika",
   "version": "1.0.0",
-  "main": "consumer.js",
+  "description": "Queue: Lamps",
+  "main": "index.js",
+  "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": "",
   "dependencies": {
     "amqplib": "^0.10.8",
-    "tplink-bulbs": "^1.0.1",
-    "ws": "^8.18.2"
+    "dotenv": "^16.5.0",
+    "tplink-bulbs": "^1.0.1"
   }
 }

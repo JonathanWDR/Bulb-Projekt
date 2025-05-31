@@ -26,39 +26,46 @@ async function sendLampCommand(commandType, commandValue) {
 }
 
 async function setLampState(state) {
-    const commandType = 'setState';
-    //Hier nur true oder false übergeben
-    const commandValue = state ? 'on' : 'off';
-    await sendLampCommand(commandType, commandValue);
+    // commandType is either 'on' or 'off'
+    const commandType = state ? 'on' : 'off';
+
+    await sendLampCommand(commandType, null);
 }
 
 async function setLampBrightness(brightness) {
-    const commandType = 'setBrightness';
-    //Hier nur eine Zahl zwischen 0 und 100 übergeben
-    const commandValue = Math.max(0, Math.min(100, brightness)); // Ensure value is between 0 and 100
+    const commandType = 'brightness'; 
+   
+    // Ensure value is between 0 and 100
+    const commandValue = Math.max(0, Math.min(100, brightness)); 
     await sendLampCommand(commandType, commandValue);
 }
 
 
 async function setLampColor(color) {
-    const commandType = 'setColor';
-    //Hier nur hexadecimal Farbwerte übergeben, z.B. '#FF5733'
+ const commandType = 'color';
+    // Uses hexa-values
     const commandValue = /^#([0-9A-F]{3}){1,2}$/i.test(color) ? color : 'unknown'; // Default to white if invalid
     await sendLampCommand(commandType, commandValue);
 }
 
 async function showMorseCode(morseCode) {
     const commandType = 'showMorseCode';
-    //Hier nur Strings als Klartext übergeben, die in Morsecode umgewandelt werden sollen
     if (typeof morseCode !== 'string' || !morseCode.trim()) {
         morseCode = '';
     }
     await sendLampCommand(commandType, morseCode);
 }
 
-module.exports = {
-    setLampState,
-    setLampBrightness,
-    setLampColor,
-    showMorseCode
+export {
+  setLampState,
+  setLampBrightness,
+  setLampColor,
+  showMorseCode
 };
+
+// Test
+(async () => {
+  await setLampState(true);
+  await setLampBrightness(50);
+  //await setLampColor('#00FF00');
+})();
