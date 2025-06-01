@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lamp Control UI</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        button, input {
+            padding: 10px;
+            margin: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        button {
+            background-color: #007BFF;
+            color: white;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        input {
+            width: 200px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Lamp Control</h1>
+    <button id="turnOn">Turn On</button>
+    <button id="turnOff">Turn Off</button>
+    <br>
+    <label for="brightness">Brightness (0-100):</label>
+    <input type="number" id="brightness" min="0" max="100">
+    <button id="setBrightness">Set Brightness</button>
+    <br>
+    <label for="colorPicker">Color (Hex or Name):</label>
+    <input type="text" id="colorPicker" placeholder="#FF5733 or red">
+    <button id="setColor">Set Color</button>
+    <br>
+    <label for="morseInput">Morse Code:</label>
+    <input type="text" id="morseInput" placeholder="TEST">
+    <button id="showMorse">Show Morse Code</button>
+
+    <script>
+        const ws = new WebSocket("ws://localhost:3003");
+
+        ws.onopen = () => {
+            console.log("WebSocket connected");
+        };
+
+        ws.onmessage = (event) => {
+            const state = JSON.parse(event.data);
+            console.log("Lamp state updated:", state);
+        };
+
+        ws.onclose = () => {
+            console.log("WebSocket disconnected");
+        };
+
+        ws.onerror = (error) => {
+            console.error("WebSocket error:", error);
+        };
+
+        function sendCommand(commandType, commandValue) {
+            if (ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({ commandType, commandValue }));
+                alert(`Command "${commandType}" with value "${commandValue}" sent successfully.`);
+            } else {
+                alert("WebSocket is not connected.");
+            }
+        }
+
+        document.getElementById('turnOn').addEventListener('click', () => {
+            sendCommand('setState', 'on');
+        });
+
+        document.getElementById('turnOff').addEventListener('click', () => {
+            sendCommand('setState', 'off');
+        });
+
+        document.getElementById('setBrightness').addEventListener('click', () => {
+            const brightness = parseInt(document.getElementById('brightness').value, 10); // Konvertiere zu int
+            if (!isNaN(brightness) && brightness >= 0 && brightness <= 100) {
+                sendCommand('setBrightness', brightness);
+            } else {
+                alert('Brightness must be between 0 and 100.');
+            }
+        });
+
+        document.getElementById('setColor').addEventListener('click', () => {
+            const color = document.getElementById('colorPicker').value;
+            sendCommand('setColor', color);
+        });
+
+        document.getElementById('showMorse').addEventListener('click', () => {
+            const morseCode = document.getElementById('morseInput').value.trim();
+            sendCommand('showMorseCode', morseCode);
+        });
+    </script>
+</body>
+</html>

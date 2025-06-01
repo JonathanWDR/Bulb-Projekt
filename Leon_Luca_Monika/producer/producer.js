@@ -1,96 +1,94 @@
 import amqp from 'amqplib';
+import { WebSocketServer } from 'ws';
 
-async function sendLampCommand(commandType, commandValue) {
-    const queueName = 'lamp-commands';
-
-    try {
-        const connection = await amqp.connect('amqp://localhost');
-        const channel = await connection.createChannel();
-
-        await channel.assertQueue(queueName, { durable: false });
-
-        const command = { command: commandType, value: commandValue };
-
-        const msgBuffer = Buffer.from(JSON.stringify(command));
-        channel.sendToQueue(queueName, msgBuffer);
-        console.log('[x] Sent:', command);
-
-        setTimeout(async () => {
-            await channel.close();
-            await connection.close();
-        }, 500);
-
-    } catch (error) {
-        console.error('Error in producer:', error);
-    }
-}
-
-
-async function setLampState(state) {
-    const commandType = 'setState';
-    //Hier nur true oder false übergeben
-    const commandValue = state ? 'on' : 'off';
-    await sendLampCommand(commandType, commandValue);
-}
-
-async function setLampBrightness(brightness) {
-    const commandType = 'setBrightness';
-    //Hier nur eine Zahl zwischen 0 und 100 übergeben
-    const commandValue = Math.max(0, Math.min(100, brightness));
-    await sendLampCommand(commandType, commandValue);
-}
-
-/*
-// Alte Funktion
-async function setLampColor(color) {
-    const commandType = 'setColor';
-    //Hier nur hexadecimal Farbwerte übergeben, z.B. '#FF5733'
-    const commandValue = /^#([0-9A-F]{3}){1,2}$/i.test(color) ? color : 'unknown'; 
-    await sendLampCommand(commandType, commandValue);
-}*/
-
-
-async function setLampColor(color) {
-    const commandType = 'setColor';
-    // Nur einfache Farbnamen als String erlauben
-    const allowedColors = ['red', 'green', 'blue', 'orange', 'violet', 'yellow', 'pink', 'cyan', 'white'];
-
-    const commandValue = typeof color === 'string' && allowedColors.includes(color.toLowerCase())
-        ? color.toLowerCase()
-        : 'white'; // fallback
-
-    await sendLampCommand(commandType, commandValue);
-}
-
-async function showMorseCode(morseCode) {
-    const commandType = 'showMorseCode';
-    //Hier nur Strings als Klartext übergeben, die in Morsecode umgewandelt werden sollen
-    if (typeof morseCode !== 'string' || !morseCode.trim()) {
-        morseCode = '';
-    }
-    await sendLampCommand(commandType, morseCode);
-}
-
-export {
-    setLampState,
-    setLampBrightness,
-    setLampColor,
-    showMorseCode
+// Lampenstatus
+const lampState = {
+  poweredOn: false,
+  brightness: 100,
+  color: '#ffffff',
 };
 
-// Test
-(async () => {
-    try {
-        await setLampState(true);
+// Funktion zum Senden von Befehlen an RabbitMQ
+async function sendLampCommand(commandType, commandValue) {
+  const queueName = 'lamp-commands';
 
-        await setLampBrightness(50);
+  try {
+    const connection = await amqp.connect('amqp://localhost');
+    const channel = await connection.createChannel();
 
-        await setLampColor('red');
+    await channel.assertQueue(queueName, { durable: false });
 
-        await showMorseCode('SOS');
+    const command = { command: commandType, value: commandValue };
+    const msgBuffer = Buffer.from(JSON.stringify(command));
+    channel.sendToQueue(queueName, msgBuffer);
+    console.log('[x] Sent:', command);
 
-        console.log('Alle Befehle wurden gesendet.');
-    } catch (error) {
-        console.error('Fehler beim Senden der Befehle:', error);
+    setTimeout(async () => {
+      await channel.close();
+      await connection.close();
+    }, 500);
+  } catch (error) {
+    console.error('Error in producer:', error);
+  }
+}
+
+// WebSocket-Server für Echtzeitkommunikation
+const wss = new WebSocketServer({ port: 3003 });
+console.log('WebSocket server running on ws://localhost:3003');
+
+// Funktion zum Broadcasten des Lampenstatus
+function broadcastLampState() {
+  const data = JSON.stringify(lampState);
+  wss.clients.forEach(client => {
+    if (client.readyState === 1) { // 1 = OPEN
+      client.send(data);
     }
-})();
+  });
+}
+
+// WebSocket-Verbindung
+wss.on('connection', ws => {
+  console.log('Client connected');
+  ws.send(JSON.stringify(lampState)); // Sende aktuellen Lampenstatus an neuen Client
+
+  ws.on('message', async (message) => {
+    try {
+      const { commandType, commandValue } = JSON.parse(message);
+
+      switch (commandType) {
+        case 'setState':
+          lampState.poweredOn = commandValue === 'on';
+          broadcastLampState();
+          await sendLampCommand(commandType, commandValue);
+          break;
+        case 'setBrightness':
+          const brightness = parseInt(commandValue, 10); // Konvertiere zu int
+          if (!isNaN(brightness) && brightness >= 0 && brightness <= 100) {
+            lampState.brightness = brightness;
+            broadcastLampState();
+            await sendLampCommand(commandType, brightness);
+          } else {
+            console.error('Invalid brightness value:', commandValue);
+          }
+          break;
+        case 'setColor':
+          lampState.color = commandValue;
+          broadcastLampState();
+          await sendLampCommand(commandType, commandValue);
+          break;
+        case 'showMorseCode':
+          await sendLampCommand(commandType, commandValue);
+          console.log(`Morse Code "${commandValue}" sent`);
+          break;
+        default:
+          console.log('Unknown command:', commandType);
+      }
+    } catch (error) {
+      console.error('Error processing WebSocket message:', error);
+    }
+  });
+
+  ws.on('close', () => {
+    console.log('Client disconnected');
+  });
+});
