@@ -76,10 +76,6 @@ export {
     setLampBrightness,
     setLampColor,
     showMorseCode
-    setLampState,
-    setLampBrightness,
-    setLampColor,
-    showMorseCode
 };
 
 // Test
@@ -90,11 +86,9 @@ export {
         await setLampState(true);
 
         await setLampBrightness(50);
-        await setLampBrightness(50);
 
         await setLampColor('red');
 
-        await showMorseCode('SOS');
         await showMorseCode('SOS');
 
         console.log('Alle Befehle wurden gesendet.');
