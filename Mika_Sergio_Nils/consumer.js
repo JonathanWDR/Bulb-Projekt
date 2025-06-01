@@ -1,6 +1,7 @@
 import amqp from 'amqplib';
 import * as TPLink from 'tplink-bulbs';
 import dotenv from 'dotenv';
+import { transmitMorseCode } from './morseCode.js'; 
 
 dotenv.config();
 
@@ -86,6 +87,14 @@ async function consumeLampCommands() {
             lampState.color = cmd.value;
             await device.setColour(cmd.value);
             console.log(`Lamp color set to ${cmd.value}`);
+            break;
+          case 'morse':
+            if (typeof cmd.value === 'string') {
+              console.log(`Sending morse code for: ${cmd.value}`);
+              await transmitMorseCode(cmd.value, device, lampState);
+            } else {
+              console.log('Morse value must be a string.');
+            }
             break;
           default:
             console.log(`Unknown command: ${cmd.command}`);

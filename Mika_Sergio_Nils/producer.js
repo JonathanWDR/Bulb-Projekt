@@ -1,6 +1,6 @@
 import amqp from 'amqplib';
 
-async function produceLampCommands() {
+async function produceLampCommands(commandType, value) {
   const queueName = 'lamp-commands';
 
   try {
@@ -9,8 +9,8 @@ async function produceLampCommands() {
 
     await channel.assertQueue(queueName, { durable: false });
 
-    const command = { command: 'color', value: 'red' };
-
+    const command = { command: commandType, value: value };
+  
     const msgBuffer = Buffer.from(JSON.stringify(command));
     channel.sendToQueue(queueName, msgBuffer);
     console.log('[x] Sent:', command);
@@ -25,4 +25,5 @@ async function produceLampCommands() {
   }
 }
 
-produceLampCommands();
+// example usage
+produceLampCommands('morse', 'SOS');
