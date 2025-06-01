@@ -1,10 +1,13 @@
 const img = document.getElementById("bulb-img");
-
+const colorCircles = document.querySelectorAll('.color-circle');
+const brightnessSlider = document.getElementById("brightness");
+/* an / aus Regler*/
 img.addEventListener("click", () => {
     img.classList.toggle("glow-on");
 });
 
-const colorCircles = document.querySelectorAll('.color-circle');
+/*Farbregler*/
+
 colorCircles.forEach(circle => {
     circle.addEventListener('click', () => {
         const style = window.getComputedStyle(circle);
@@ -17,13 +20,84 @@ colorCircles.forEach(circle => {
     });
 });
 
-const brightnessSlider = document.getElementById("brightness");
-
+/*Helligkeit*/
 brightnessSlider.addEventListener('input', () => {
     const value = brightnessSlider.value; // 1–100
     const alpha = (value / 100).toFixed(2); // z.B. 0.75
     img.style.setProperty('--glow-alpha', alpha);
 });
+
+
+/*Morsecode*/
+const morseCodeMap = {
+    a: '.-',    b: '-...',  c: '-.-.',  d: '-..',
+    e: '.',     f: '..-.',  g: '--.',   h: '....',
+    i: '..',    j: '.---',  k: '-.-',   l: '.-..',
+    m: '--',    n: '-.',    o: '---',   p: '.--.',
+    q: '--.-',  r: '.-.',   s: '...',   t: '-',
+    u: '..-',   v: '...-',  w: '.--',   x: '-..-',
+    y: '-.--',  z: '--..'
+};
+
+function textToMorse(text) {
+    return text
+        .toLowerCase()
+        .split('')
+        .filter(char => morseCodeMap[char])
+        .map(char => morseCodeMap[char])
+        .join(' ');
+}
+
+async function blinkMorse(morseString) {
+    const delay = (ms) => new Promise(res => setTimeout(res, ms));
+
+    for (const symbol of morseString) {
+        if (symbol === '.') {
+            toggleGlow(true);
+            await delay(200);
+            toggleGlow(false);
+            await delay(200);
+        } else if (symbol === '-') {
+            toggleGlow(true);
+            await delay(600);
+            toggleGlow(false);
+            await delay(200);
+        } else if (symbol === ' ') {
+            await delay(400); // Abstand zwischen Buchstaben
+        }
+    }
+
+    // Nach Ende: Lampe wieder anschalten
+    toggleGlow(true);
+}
+function toggleGlow(on) {
+    if (on) {
+        img.classList.add("glow-on");
+    } else {
+        img.classList.remove("glow-on");
+    }
+}
+const inputField = document.querySelector(".color-text-input");
+
+inputField.addEventListener("keydown", (event) => {
+    if (event.key === "Enter") {
+        const text = inputField.value.trim();
+        if (!text) return;
+
+        if (!img.classList.contains("glow-on")) {
+            alert("Lampe ist aus – bitte zuerst einschalten.");
+            return;
+        }
+
+        const morse = textToMorse(text);
+        console.log("Morse:", morse);
+        blinkMorse(morse);
+
+        inputField.value = ""; // nach Senden leeren
+    }
+});
+
+
 
 /*
 const colorCircles = document.querySelectorAll('.color-circle');
