@@ -1,80 +1,98 @@
 <!DOCTYPE html>
 <html lang="de">
-<head>
-  <meta charset="UTF-8">
-  <title>Lampenstatus Live</title>
-  <style>
-    body { font-family: sans-serif; background: #222; color: #eee; }
-    .on { color: #0f0; }
-    .off { color: #f33; }
-    .lamp-container {
-      margin: 30px 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-    .lamp {
-      width: 120px;
-      height: 120px;
-      border-radius: 50%;
-      background: #444;
-      box-shadow: 0 0 40px 10px #111 inset;
-      margin-bottom: 10px;
-      transition: background 0.3s, box-shadow 0.3s;
-      border: 3px solid #666;
-    }
-    .lamp.on {
-      box-shadow: 0 0 60px 30px #fff, 0 0 40px 10px #111 inset;
-      border-color: #fff;
-    }
-    .label {
-      font-size: 1.2em;
-      margin-bottom: 5px;
-    }
-  </style>
-</head>
-<body>
-  <h1>Lampenstatus (Live)</h1>
-  <div>
-    <strong>Status:</strong> <span id="power"></span><br>
-    <strong>Helligkeit:</strong> <span id="brightness"></span><br>
-    <strong>Farbe:</strong> <span id="color"></span>
-  </div>
-  <div class="lamp-container">
-    <div id="lamp" class="lamp"></div>
-    <div class="label">Lampe</div>
-  </div>
-  <script>
-    function hexToRgb(hex) {
-      // #RRGGBB oder #RGB
-      let c = hex.replace('#', '');
-      if (c.length === 3) c = c[0]+c[0]+c[1]+c[1]+c[2]+c[2];
-      const num = parseInt(c, 16);
-      return [(num >> 16) & 255, (num >> 8) & 255, num & 255];
-    }
+  <head>
+    <meta charset="UTF-8" />
+    <title>Lampenstatus Live</title>
+    <style>
+      body {
+        font-family: sans-serif;
+        background: #222;
+        color: #eee;
+      }
+      .on {
+        color: #0f0;
+      }
+      .off {
+        color: #f33;
+      }
+      .lamp-container {
+        margin: 30px 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+      .lamp {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        background: #444;
+        box-shadow: 0 0 40px 10px #111 inset;
+        margin-bottom: 10px;
+        transition: background 0.3s, box-shadow 0.3s;
+        border: 3px solid #666;
+      }
+      .lamp.on {
+        box-shadow: 0 0 60px 30px #fff, 0 0 40px 10px #111 inset;
+        border-color: #fff;
+      }
+      .label {
+        font-size: 1.2em;
+        margin-bottom: 5px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Lampenstatus (Live)</h1>
+    <div>
+      <strong>Status:</strong> <span id="power"></span><br />
+      <strong>Helligkeit:</strong> <span id="brightness"></span><br />
+      <strong>Farbe:</strong> <span id="color"></span>
+    </div>
+    <div class="lamp-container">
+      <div id="lamp" class="lamp"></div>
+      <div class="label">Lampe</div>
+    </div>
+    <script>
+      function hexToRgb(hex) {
+        // #RRGGBB oder #RGB
+        let c = hex.replace("#", "");
+        if (c.length === 3) c = c[0] + c[0] + c[1] + c[1] + c[2] + c[2];
+        const num = parseInt(c, 16);
+        return [(num >> 16) & 255, (num >> 8) & 255, num & 255];
+      }
 
-    function getLampColor(color, brightness, poweredOn) {
-      if (!poweredOn) return '#444';
-      if (!/^#[0-9A-F]{6}$/i.test(color)) return '#fff';
-      const [r, g, b] = hexToRgb(color);
-      // brightness von 0-100 auf 0.2-1.0 (damit Lampe nie ganz dunkel)
-      const factor = 0.2 + 0.8 * (brightness / 100);
-      return `rgb(${Math.round(r*factor)},${Math.round(g*factor)},${Math.round(b*factor)})`;
-    }
+      function getLampColor(color, brightness, poweredOn) {
+        if (!poweredOn) return "#444";
+        if (!/^#[0-9A-F]{6}$/i.test(color)) return "#fff";
+        const [r, g, b] = hexToRgb(color);
+        // brightness von 0-100 auf 0.2-1.0 (damit Lampe nie ganz dunkel)
+        const factor = 0.2 + 0.8 * (brightness / 100);
+        return `rgb(${Math.round(r * factor)},${Math.round(
+          g * factor
+        )},${Math.round(b * factor)})`;
+      }
 
-    const ws = new WebSocket('ws://localhost:3002');
-    ws.onmessage = (event) => {
-      const state = JSON.parse(event.data);
-      document.getElementById('power').textContent = state.poweredOn ? 'An' : 'Aus';
-      document.getElementById('power').className = state.poweredOn ? 'on' : 'off';
-      document.getElementById('brightness').textContent = state.brightness;
-      document.getElementById('color').textContent = state.color;
+      const ws = new WebSocket("ws://localhost:3002");
+      ws.onmessage = (event) => {
+        const state = JSON.parse(event.data);
+        document.getElementById("power").textContent = state.poweredOn
+          ? "An"
+          : "Aus";
+        document.getElementById("power").className = state.poweredOn
+          ? "on"
+          : "off";
+        document.getElementById("brightness").textContent = state.brightness;
+        document.getElementById("color").textContent = state.color;
 
-      // Lampe optisch anpassen
-      const lamp = document.getElementById('lamp');
-      lamp.className = 'lamp' + (state.poweredOn ? ' on' : '');
-      lamp.style.background = getLampColor(state.color, state.brightness, state.poweredOn);
-    };
-  </script>
-</body>
+        // Lampe optisch anpassen
+        const lamp = document.getElementById("lamp");
+        lamp.className = "lamp" + (state.poweredOn ? " on" : "");
+        lamp.style.background = getLampColor(
+          state.color,
+          state.brightness,
+          state.poweredOn
+        );
+      };
+    </script>
+  </body>
 </html>

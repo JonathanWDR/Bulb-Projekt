@@ -4,6 +4,7 @@ import { WebSocketServer } from 'ws';
 
 import 'dotenv/config';
 
+
 // Morsecode-Tabelle
 const morseTable = {
   'A': '.-', 'B': '-...', 'C': '-.-.', 'D': '-..', 'E': '.',
@@ -42,20 +43,41 @@ const lampState = {
 };
 
 let device = null;
+let deviceAvailable = true;
 
 if (!targetDevice) {
   console.log(`Device with id "${deviceIdToFind}" not found!`);
-  process.exit(1);
+  deviceAvailable = false;
 } else {
-  device = await TPLink.API.loginDevice(email, password, targetDevice);
-  const deviceInfo = await device.getDeviceInfo();
-  console.log('Device info:', deviceInfo);
-  lampState.poweredOn = deviceInfo.device_on;
-  lampState.brightness = deviceInfo.brightness;
-  lampState.color = 'unknown';
-
-  consumeLampCommands();
+  try {
+    device = await TPLink.API.loginDevice(email, password, targetDevice);
+    const deviceInfo = await device.getDeviceInfo();
+    console.log('Device info:', deviceInfo);
+    lampState.poweredOn = deviceInfo.device_on;
+    lampState.brightness = deviceInfo.brightness;
+    lampState.color = 'unknown';
+  } catch (err) {
+    console.log('WARNUNG: Lampen-Device konnte nicht verbunden werden! Nur UI-Anzeige aktiv.');
+    deviceAvailable = false;
+  }
 }
+
+// Dummy-Device, falls keine Lampe verbunden ist
+if (!deviceAvailable) {
+  device = {
+    async turnOn() { console.log('[Demo] turnOn()'); },
+    async turnOff() { console.log('[Demo] turnOff()'); },
+    async setBrightness(val) { console.log('[Demo] setBrightness', val); },
+    async setColour(val) { console.log('[Demo] setColour', val); },
+    async getDeviceInfo() { return {}; }
+  };
+  // Optional: Setze Lampenstatus auf Standardwerte
+  lampState.poweredOn = false;
+  lampState.brightness = 100;
+  lampState.color = '#ffffff';
+}
+
+consumeLampCommands();
 
 // WebSocket-Server für Status-Updates
 const wss = new WebSocketServer({ port: 3002 });
