@@ -125,10 +125,18 @@ async function consumeLampCommands() {
             }
             break;
           case 'setColor':
-            await device.setColour(cmd.value);
-            lampState.color = cmd.value;
-            broadcastLampState();
-            console.log(`Lamp color set to ${cmd.value}`);
+            try {
+              if (typeof cmd.value === 'string') {
+                await device.setColour(cmd.value.toLowerCase());
+                lampState.color = cmd.value.toLowerCase();
+                broadcastLampState();
+                console.log(`Lamp color set to ${cmd.value}`);
+              } else {
+                console.log('Invalid color format. Use a color name like "red", "blue", etc.');
+              }
+            } catch (err) {
+              console.error('Error in setColor:', err);
+            }
             break;
           case 'showMorseCode':
             if (typeof cmd.value === 'string' && cmd.value.trim()) {

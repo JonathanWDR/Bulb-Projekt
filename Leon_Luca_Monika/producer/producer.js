@@ -36,15 +36,29 @@ async function setLampState(state) {
 async function setLampBrightness(brightness) {
     const commandType = 'setBrightness';
     //Hier nur eine Zahl zwischen 0 und 100 übergeben
-    const commandValue = Math.max(0, Math.min(100, brightness)); // Ensure value is between 0 and 100
+    const commandValue = Math.max(0, Math.min(100, brightness));
     await sendLampCommand(commandType, commandValue);
 }
+
+/*
+// Alte Funktion
+async function setLampColor(color) {
+    const commandType = 'setColor';
+    //Hier nur hexadecimal Farbwerte übergeben, z.B. '#FF5733'
+    const commandValue = /^#([0-9A-F]{3}){1,2}$/i.test(color) ? color : 'unknown'; 
+    await sendLampCommand(commandType, commandValue);
+}*/
 
 
 async function setLampColor(color) {
     const commandType = 'setColor';
-    //Hier nur hexadecimal Farbwerte übergeben, z.B. '#FF5733'
-    const commandValue = /^#([0-9A-F]{3}){1,2}$/i.test(color) ? color : 'unknown'; // Default to white if invalid
+    // Nur einfache Farbnamen als String erlauben
+    const allowedColors = ['red', 'green', 'blue', 'orange', 'violet', 'yellow', 'pink', 'cyan', 'white'];
+
+    const commandValue = typeof color === 'string' && allowedColors.includes(color.toLowerCase())
+        ? color.toLowerCase()
+        : 'white'; // fallback
+
     await sendLampCommand(commandType, commandValue);
 }
 
@@ -58,25 +72,25 @@ async function showMorseCode(morseCode) {
 }
 
 export {
-  setLampState,
-  setLampBrightness,
-  setLampColor,
-  showMorseCode
+    setLampState,
+    setLampBrightness,
+    setLampColor,
+    showMorseCode
 };
 
-// Test -- funktioniert noch nicht
+// Test
 (async () => {
-  try {
-    await setLampState(true);
+    try {
+        await setLampState(true);
 
-    await setLampBrightness(50);
+        await setLampBrightness(50);
 
-    await setLampColor('#FF5733');
+        await setLampColor('red');
 
-    await showMorseCode('SOS');
+        await showMorseCode('SOS');
 
-    console.log('Alle Befehle wurden gesendet.');
-  } catch (error) {
-    console.error('Fehler beim Senden der Befehle:', error);
-  }
+        console.log('Alle Befehle wurden gesendet.');
+    } catch (error) {
+        console.error('Fehler beim Senden der Befehle:', error);
+    }
 })();
