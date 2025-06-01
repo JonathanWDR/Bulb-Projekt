@@ -2,14 +2,23 @@ body {
     background-color: #121212;
     margin: 0;
     padding: 0;
-    display: flex;
+    display: grid;
     justify-content: center;
     align-items: center;
     height: 100vh;
 }
 
-.container {
+.title{
+    text-align: center;
+    color: white;
+    font-family: sans-serif;
+}
+
+.bulb-container {
     position: relative;
+    display: grid;
+    align-items: center;
+    justify-content: center;
 }
 
 .glow-img {
@@ -17,9 +26,145 @@ body {
     height: auto;
     border-radius: 20px;
     transition: box-shadow 0.5s ease;
+    align-items: center;
 }
 
-/* Leuchtender Rand aktiv */
+/* Leuchtender Rand aktiv
 .glow-on {
     box-shadow: 0 0 40px 15px rgba(255, 200, 0, 0.8);
+}*/
+/*
+
+.glow-on {
+    box-shadow: 0 0 40px 15px var(--glow-color, rgba(255, 200, 0, 0.8));
+}
+*/
+.glow-on {
+    --glow-rgb: 255, 200, 0;
+    --glow-alpha: 0.5;
+    box-shadow: 0 0 40px 15px rgba(var(--glow-rgb), var(--glow-alpha));
+}
+
+
+
+
+/* color picker */
+
+.color-picker {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 30px;
+    border: 2px solid white;
+    border-radius: 20px;
+    padding: 3px;
+}
+
+.color-circle {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 2px solid white;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.color-circle:hover {
+    transform: scale(1.2);
+    box-shadow: 0 0 8px white;
+}
+
+/* Farben */
+.color-circle.red        { background-color: hsl(0, 100%, 50%); }
+.color-circle.orange     { background-color: hsl(30, 100%, 50%); }
+.color-circle.amber      { background-color: hsl(45, 100%, 50%); }
+.color-circle.yellow     { background-color: hsl(60, 100%, 50%); }
+.color-circle.lime       { background-color: hsl(75, 100%, 50%); }
+.color-circle.green      { background-color: hsl(120, 100%, 50%); }
+.color-circle.turquoise  { background-color: hsl(160, 100%, 50%); }
+.color-circle.cyan       { background-color: hsl(180, 100%, 50%); }
+.color-circle.skyblue    { background-color: hsl(200, 100%, 50%); }
+.color-circle.blue       { background-color: hsl(240, 100%, 50%); }
+.color-circle.indigo     { background-color: hsl(275, 100%, 50%); }
+.color-circle.violet     { background-color: hsl(290, 100%, 50%); }
+.color-circle.magenta    { background-color: hsl(300, 100%, 50%); }
+.color-circle.pink       { background-color: hsl(340, 100%, 50%); }
+
+
+/*Helligkeit*/
+.brightness-slider {
+    margin-top: 20px;
+    text-align: center;
+    color: white;
+    font-family: sans-serif;
+}
+
+
+/* Basis-Stil für den gesamten Slider */
+input[type="range"] {
+    -webkit-appearance: none;
+    width: 50vw;
+    height: 8px;
+    background: linear-gradient(to right, #222, #fff);
+    border-radius: 5px;
+    outline: none;
+    transition: background 0.3s;
+}
+
+input[type="range"]::-webkit-slider-runnable-track {
+    height: 8px;
+    background: transparent; /* damit linear-gradient sichtbar bleibt */
+    border-radius: 5px;
+}
+
+input[type="range"]::-moz-range-track {
+    height: 8px;
+    background: transparent;
+    border-radius: 5px;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    height: 20px;
+    width: 20px;
+    border-radius: 50%;
+    background: white;
+    cursor: pointer;
+    margin-top: -6px;
+    box-shadow: 0 0 5px #999;
+}
+
+input[type="range"]::-moz-range-thumb {
+    height: 20px;
+    width: 20px;
+    border-radius: 50%;
+    background: white;
+    cursor: pointer;
+    border: none;
+    box-shadow: 0 0 5px #999;
+}
+/*Text input*/
+.text-input-container {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+}
+
+.color-text-input {
+    padding: 8px 12px;
+    background-color: #1e1e1e;
+    color: white;
+    border: 2px solid white;
+    border-radius: 10px;
+    font-size: 14px;
+    text-align: center;
+    width: 50vw;
+    outline: none;
+    transition: border 0.3s, box-shadow 0.3s;
+}
+
+.color-text-input:focus {
+    border-color: #888;
+    box-shadow: 0 0 5px #888;
 }

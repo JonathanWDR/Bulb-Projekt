@@ -6,9 +6,37 @@
     <link rel="stylesheet" href="./style.css">
 </head>
 <body>
-<div class="container">
-    <img src="./glühbrirne-dunkelBG.jpg" alt="bulb-img" class="glow-img" id="bulb-img">
+<h1 class="title">Bulb UI</h1>
+
+<div class="bulb-container">
+    <img src="./glühbirne-dunkelBG.jpg" alt="bulb-img" class="glow-img glow-on" id="bulb-img">
 </div>
+
+<div class="color-picker">
+    <div class="color-circle red"></div>
+    <div class="color-circle orange"></div>
+    <div class="color-circle amber"></div>
+    <div class="color-circle yellow"></div>
+    <div class="color-circle lime"></div>
+    <div class="color-circle green"></div>
+    <div class="color-circle turquoise"></div>
+    <div class="color-circle cyan"></div>
+    <div class="color-circle skyblue"></div>
+    <div class="color-circle blue"></div>
+    <div class="color-circle indigo"></div>
+    <div class="color-circle violet"></div>
+    <div class="color-circle magenta"></div>
+    <div class="color-circle pink"></div>
+</div>
+
+<div class="brightness-slider">
+    <input type="range" id="brightness" min="1" max="100" value="50">
+</div>
+
+<div class="text-input-container">
+    <input type="text" placeholder="morsecode input" class="color-text-input" />
+</div>
+
 <script src="./script.js"></script>
 </body>
 </html>
