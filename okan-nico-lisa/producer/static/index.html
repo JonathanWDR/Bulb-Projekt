@@ -7,14 +7,14 @@
 <body>
   <h1>Bulb Control</h1>
 
-  <button onclick="send('on')">An</button>
-  <button onclick="send('off')">Aus</button>
+  <button onclick="send('on')">On</button>
+  <button onclick="send('off')">Off</button>
 
   <br><br>
   
-  Helligkeit: <input type="range" id="brightness" min="0" max="100" value="50" oninput="send('brightness',{value:this.value})"><br><br>
-  Farbe: <input type="color" id="color" onchange="send('color',{value:this.value})"><br><br>
-  Morse: <input type="text" id="morse" placeholder="... --- ..."><button onclick="send('morse',{code:document.getElementById('morse').value})">Senden</button>
+  Brightness: <input type="range" id="brightness" min="0" max="100" value="50" oninput="send('brightness',{value:this.value})"><br><br>
+  Colour: <input type="color" id="color" onchange="send('color',{value:this.value})"><br><br>
+  Morse: <input type="text" id="morse" placeholder="sos"><button onclick="send('morse',{value:document.getElementById('morse').value})">Send Morse Code</button>
 
   <script>
     async function send(action, body = {}) {
