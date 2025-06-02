@@ -1,6 +1,6 @@
 import amqp from 'amqplib';
 
-async function produceLampCommands(commandType, value) {
+export async function produceLampCommands(commandType, value) {
   const queueName = 'lamp-commands';
 
   try {
@@ -24,6 +24,5 @@ async function produceLampCommands(commandType, value) {
     console.error('Error in producer:', error);
   }
 }
-
-// example usage
-produceLampCommands('morse', 'SOS');
+// Example usage:
+// produceLampCommands('morse', 'SOS');
