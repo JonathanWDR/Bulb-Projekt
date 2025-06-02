@@ -13,6 +13,8 @@ services:
   producer:
     build:
       context: ./producer
+    volumes:
+      - ./rabbitmq:/usr/src/app/rabbitmq
     depends_on:
       rabbitmq:
         condition: service_healthy
@@ -22,6 +24,8 @@ services:
   consumer:
     build:
       context: ./consumer
+    volumes:
+      - ./rabbitmq:/usr/src/app/rabbitmq
     depends_on:
       rabbitmq:
         condition: service_healthy

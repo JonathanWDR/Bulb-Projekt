@@ -1,16 +1,13 @@
 import * as TPLink from 'tplink-bulbs';
-import * as amqp from 'amqplib'
 import * as dotenv from 'dotenv'
 import { flashMorse } from './morse.js';
+import { getRabbitMQChannel } from './rabbitmq/rmq.js';
 
 async function startConsumer() {
   dotenv.config();
 
-  const conn = await amqp.connect('amqp://rabbitmq');
-  const channel = await conn.createChannel();
-  const exchange = 'lamp_control';
-  await channel.assertExchange(exchange, 'direct', { durable: true });
-
+  const exchange = "lamp_control"
+  const channel = await getRabbitMQChannel(exchange)
   const q = await channel.assertQueue('', { exclusive: true });
 
   // Required actions for bulb

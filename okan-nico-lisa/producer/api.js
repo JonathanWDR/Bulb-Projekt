@@ -1,11 +1,9 @@
 const express = require('express');
-const amqp = require('amqplib');
+const { getRabbitMQChannel } = require('./rabbitmq/rmq.js');
 
 async function start() {
-  const conn = await amqp.connect('amqp://rabbitmq');
-  const channel = await conn.createChannel();
-  const exchange = 'lamp_control';
-  await channel.assertExchange(exchange, 'direct', { durable: true });
+  const exchange = "lamp_control"
+  const channel = await getRabbitMQChannel(exchange)
 
   const app = express();
   app.use(express.json());
