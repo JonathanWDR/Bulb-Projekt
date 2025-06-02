@@ -47,7 +47,7 @@ async function startConsumer() {
     const action = msg.fields.routingKey;
     const payload = JSON.parse(msg.content.toString());
 
-    console.log(`In: ${action} ->, payload`);
+    console.log(`In: ${action} ->`, payload);
 
     //TODO: Bulb controls
     switch(action) {
