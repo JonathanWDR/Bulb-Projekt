@@ -12,4 +12,4 @@ RUN npm install --production
 COPY . .
 
 # Startbefehl
-CMD ["node", "consumer.js"]
+CMD ["node", "consumer.mjs"]

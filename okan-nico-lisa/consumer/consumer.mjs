@@ -1,9 +1,10 @@
-const amqp = require('amqplib');
 import * as TPLink from 'tplink-bulbs';
-require('dotenv').config()
+import * as amqp from 'amqplib'
+import * as dotenv from 'dotenv'
 
 async function startConsumer() {
-
+  dotenv.config()
+  
   const conn = await amqp.connect('amqp://rabbitmq');
   const channel = await conn.createChannel();
   const exchange = 'lamp_control';
