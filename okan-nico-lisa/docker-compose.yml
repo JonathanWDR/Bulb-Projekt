@@ -12,7 +12,7 @@ services:
 
   producer:
     build:
-      context: ./producer/backend
+      context: ./producer
     depends_on:
       rabbitmq:
         condition: service_healthy
