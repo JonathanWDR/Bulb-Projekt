@@ -11,13 +11,13 @@ async function start() {
   app.use(express.json());
   app.use(express.static("static"));
 
-  // Hilfsfunktion zum Senden von Events
+  // Helper function for sending events
   function publish(key, payload) {
     channel.publish(exchange, key, Buffer.from(JSON.stringify(payload)), { persistent: true });
-    console.log(`Published: ${key} ->`, payload);
+    console.log(`Out: ${key} ->`, payload);
   }
 
-  // Anfrage wird vom Frontend empfangen (HTTP) und an "Lampe"/Consumer weitergegeben (RabbitMQ)
+  // Receive requests from frontend (HTTP) and "relay" to bulb (RabbitMQ)
   app.post('/lamp/:action', (req, res) => {
     const { action } = req.params;
     publish(action, req.body);

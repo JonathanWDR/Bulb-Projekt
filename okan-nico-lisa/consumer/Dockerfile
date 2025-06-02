@@ -1,15 +1,14 @@
-# Basis-Image
 FROM node:23
 
-# Arbeitsverzeichnis
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends net-tools && \
+    rm -rf /var/lib/apt/lists/*
+
 WORKDIR /usr/src/app
 
-# Abhängigkeiten installieren
 COPY package.json ./
 RUN npm install --production
 
-# Applikationscode kopieren
 COPY . .
 
-# Startbefehl
 CMD ["node", "consumer.mjs"]

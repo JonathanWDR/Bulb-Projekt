@@ -3,8 +3,8 @@ import * as amqp from 'amqplib'
 import * as dotenv from 'dotenv'
 
 async function startConsumer() {
-  dotenv.config()
-  
+  dotenv.config();
+
   const conn = await amqp.connect('amqp://rabbitmq');
   const channel = await conn.createChannel();
   const exchange = 'lamp_control';
@@ -19,6 +19,7 @@ async function startConsumer() {
   const email = process.env.TP_Email;
   const password = process.env.TP_Passwd;
   const deviceId = process.env.TP_Device_Id;
+  const deviceIpAddress = process.env.TP_Device_Ip;
 
   const cloudApi = await TPLink.API.cloudLogin(email, password);
     
@@ -31,39 +32,31 @@ async function startConsumer() {
     return;
   }
 
-  const device = await TPLink.API.loginDevice(email, password, targetDevice);
+  console.log('Logging in...')
+  const device = await TPLink.API.loginDeviceByIp(email, password, deviceIpAddress)
+  console.log('Logged in!')
 
   const info = await device.getDeviceInfo();
-  console.log('Device Info:', info);
-
-  await device.turnOn();
-  await device.setColour('violet');
-  await TPLink.API.delay(500);
-
-  await device.setColour('red');
-  await TPLink.API.delay(500);
-
-  await device.setColour('orange');
-  await TPLink.API.delay(500);
+  console.log('Device info:', info);
 
   // Consume events...
-  console.log('Consumer wartet auf Events...');
+  console.log('Consumer waiting for events...');
   channel.consume(q.queue, msg => {
     if (!msg) return;
-    // msg received
+    // Message received
     const action = msg.fields.routingKey;
     const payload = JSON.parse(msg.content.toString());
 
-    console.log(`Received: ${action} ->`, payload);
+    console.log(`In: ${action} ->, payload`);
 
-    //TODO: Lampe ansteuern
+    //TODO: Bulb controls
     switch(action) {
       case "on":
-        console.log('Lampe einschalten...')
+        console.log('Turning on bulb...')
         device.turnOn();
         break
       case "off":
-        console.log('Lampe ausschalten...')
+        console.log('Turning off bulb...')
         device.turnOff();
         break
       // ... ToDo
