@@ -1,13 +1,6 @@
-Welche Architektur habt ihr gewählt - und warum?
-Event-Driven-Architecture weil 
-a) vorgegeben
-b) passend, da 
-- einfache Erweiterungen für mehr Funktionen möglich
-- skalierbarkeit einfach und neue events einfach
-- robust weil getrennte services (modular)
-- asynchron -> muss nicht immer warten, man sieht ja was ankam und kann dementsprechnd neue Anfragen senden
-- eignet sich für Kommunikation mit wenn A mach B (zw. producer und consumer) und mehr braucht es auch nicht, um eine Lampe einzustellen
+▪ Welche Architektur habt ihr gewählt - und warum?
+Für die vorliegende Anwendung wurde bewusst die Entscheidung für eine Event-Driven-Architecture (ereignisgesteuerte Architektur) getroffen. Diese Vorgabe erwies sich als besonders passend für das Projekt. Die einfache Erweiterbarkeit des Systems wird durch die Integration neuer Funktionen mittels zusätzlicher Events gewährleistet. Darüber hinaus ist die Skalierbarkeit gegeben. Die Erweiterung um neue Services oder Event-Handler erfolgt problemlos, ohne dass eine Modifikation bestehender Komponenten erforderlich ist. Die Architektur zeichnet sich durch Robustheit aus, die auf der Trennung von modularen Services basiert. Die asynchrone Kommunikation ermöglicht es, Komponenten nicht direkt aufeinander warten zu lassen. Anfragen können demnach gesendet, später ausgewertet und flexibel weiterverarbeitet werden. Der Producer muss nicht wissen, wann oder ob der Consumer verfügbar ist. Das erhöht die Robustheit bei Netzwerk- oder Laufzeitproblemen. Die Architektur erweist sich als ideal geeignet für einfache, gerichtete Kommunikation nach dem Prinzip "Wenn A, dann B", wie sie beim Steuern einer Lampe (Ein-/Ausschalten, Helligkeit, Farbe) völlig ausreichend ist.
+Für die Umsetzung der Event-Driven-Architektur wurde RabbitMQ genutzt. RabbitMQ garantiert, dass Nachrichten auch im Falle eines Systemausfalls nicht verloren gehen. Es erfolgt eine Sicherstellung der erfolgreichen Verarbeitung oder erneuten Zustellung von Nachrichten durch Persistenz, Bestätigungen (ACKs) und Retry-Mechanismen. Ein signifikanter Vorteil besteht in der Unterstützung diverser Routing-Mechanismen. Es besteht die Möglichkeit, Nachrichten gezielt an bestimmte Konsumenten zu leiten (direct), an alle zu verteilen (fanout) oder themenbasiert zu routen (topic). Diese Funktionalität erweist sich im späteren Ausbau als äußerst hilfreich. Die Plattformunabhängigkeit von RabbitMQ – mit Unterstützung für zahlreiche Programmiersprachen und Protokolle – erlaubt zudem eine langfristig flexible Systemerweiterung.
 
 ▪ Wie funktioniert eure Anwendung?
-oberfläche -> Klicken -> Lampe ändert sich
--- To-Do wenn fertig
+Die Applikation verfügt über eine intuitive Benutzeroberfläche, welche es dem Nutzer ermöglicht, verschiedene Befehle an eine intelligente Lampe zu senden. Dazu zählen das Ein- und Ausschalten, die Anpassung der Helligkeit und Farbe sowie die Ausgabe von Morsecode. Bei jedem Klick wird ein Event erzeugt und an das Backend übermittelt. In der Folge verarbeitet ein Endgerät das Ereignis und übermittelt die entsprechende Anweisung an die Tapo Smart Bulb. Die Steuerung erfolgt kontinuierlich in Echtzeit. Die technische Basis der Anwendung bildet eine Konfiguration von Docker-Containern, die mittels des Befehls "docker-compose up" initialisiert werden. Die Installation der Tapo-App, die Einrichtung eines Accounts sowie die Einrichtung der Lampe im selben Netzwerk sind dabei essentielle Voraussetzungen. Nach Initiierung des Starts kann die Weboberfläche über die URL "http://localhost:3000" aufgerufen werden.

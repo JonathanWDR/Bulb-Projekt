@@ -1,4 +1,5 @@
 # Verwendung
+- mehr Einstellungsmöglichkeiten für die Tapo smart lightbulb
 
 ## Voraussetzungen
 - Docker muss installiert sein
