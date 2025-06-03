@@ -1,0 +1,272 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #333;
+}
+
+.container {
+    background: white;
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+    max-width: 600px;
+    width: 100%;
+}
+
+h1 {
+    text-align: center;
+    margin-bottom: 30px;
+    color: #2c3e50;
+}
+
+/* Glühbirne Visualisierung */
+.lightbulb-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 30px;
+}
+
+.lightbulb {
+    position: relative;
+}
+
+.bulb {
+    width: 80px;
+    height: 100px;
+    background: #f0f0f0;
+    border-radius: 40px 40px 20px 20px;
+    border: 3px solid #ccc;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.bulb::before {
+    content: '';
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 30px;
+    height: 40px;
+    border-radius: 15px;
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.base {
+    width: 50px;
+    height: 30px;
+    background: #666;
+    margin: 0 auto;
+    border-radius: 0 0 10px 10px;
+    position: relative;
+}
+
+.base::before {
+    content: '';
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    right: 5px;
+    height: 3px;
+    background: #444;
+    border-radius: 1px;
+}
+
+.base::after {
+    content: '';
+    position: absolute;
+    top: 12px;
+    left: 5px;
+    right: 5px;
+    height: 3px;
+    background: #444;
+    border-radius: 1px;
+}
+
+.lightbulb.on .bulb {
+    background: #ffeb3b;
+    box-shadow: 0 0 30px rgba(255, 235, 59, 0.8);
+    border-color: #ffc107;
+}
+
+/* Steuerungen */
+.controls {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.control-group {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.control-group label {
+    min-width: 120px;
+    font-weight: bold;
+}
+
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 30px;
+    height: 34px;
+    min-width: 30px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+    border-radius: 34px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 26px;
+    width: 26px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+input:checked + .slider {
+    background-color: #4CAF50;
+}
+
+input:checked + .slider:before {
+    transform: translateX(26px);
+}
+
+/* Slider */
+input[type="range"] {
+    flex: 1;
+    height: 8px;
+    border-radius: 4px;
+    background: #ddd;
+    outline: none;
+    -webkit-appearance: none;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #4CAF50;
+    cursor: pointer;
+}
+
+input[type="range"]::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #4CAF50;
+    cursor: pointer;
+    border: none;
+}
+
+/* Farbsteuerung */
+.color-controls {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 10px;
+    margin: 20px 0;
+}
+
+.color-controls h3 {
+    margin-bottom: 15px;
+    color: #495057;
+}
+
+/* Morse Code Bereich */
+.morse-section {
+    background: #e9ecef;
+    padding: 20px;
+    border-radius: 10px;
+    margin: 20px 0;
+}
+
+.morse-section h3 {
+    margin-bottom: 15px;
+    color: #495057;
+}
+
+#morseInput {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+button {
+    background: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background 0.3s;
+}
+
+button:hover {
+    background: #0056b3;
+}
+
+#stopMorse {
+    background: #dc3545;
+    margin-top: 10px;
+}
+
+#stopMorse:hover {
+    background: #c82333;
+}
+
+.morse-display {
+    margin: 15px 0;
+    padding: 10px;
+    background: white;
+    border-radius: 5px;
+    font-family: monospace;
+}
+
+.control-label {
+    font-weight: bold;
+}
+
+span[id$="Value"] {
+    min-width: 60px;
+    text-align: right;
+    font-weight: bold;
+    color: #666;
+}

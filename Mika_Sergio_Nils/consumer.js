@@ -52,6 +52,7 @@ async function consumeLampCommands() {
         let cmd;
         try {
           cmd = JSON.parse(rawValue);
+          console.log("raw Value", rawValue)
           console.log("JSON", cmd)
         } catch (err) {
           console.error('Invalid JSON message:', rawValue);

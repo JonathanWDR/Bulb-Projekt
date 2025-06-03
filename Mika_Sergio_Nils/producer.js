@@ -10,10 +10,10 @@ export async function produceLampCommands(commandType, value) {
     await channel.assertQueue(queueName, { durable: false });
 
     const command = { command: commandType, value: value };
-  
+    console.log()
     const msgBuffer = Buffer.from(JSON.stringify(command));
     channel.sendToQueue(queueName, msgBuffer);
-    console.log('[x] Sent:', command);
+    console.log('[x] Sent:', command, 'JSON: ', JSON.stringify(command));
 
     setTimeout(async () => {
       await channel.close();

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Glühbirnen Steuerung</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Smart Glühbirnen Steuerung</h1>
+        
+        <div class="lightbulb-container">
+            <div class="lightbulb" id="lightbulb">
+                <div class="bulb"></div>
+                <div class="base"></div>
+            </div>
+        </div>
+
+        <div class="controls">
+            
+            <div class="control-group">
+                <label class="switch">
+                    <input type="checkbox" id="powerToggle">
+                    <span class="slider"></span>
+                </label>
+                <span class="control-label">Ein/Aus</span>
+            </div>
+
+            <div class="control-group">
+                <label for="brightness">Helligkeit:</label>
+                <input type="range" id="brightness" min="0" max="100" value="50">
+                <span id="brightnessValue">50%</span>
+            </div>
+
+            <div class="color-controls">
+                <h3>Farbeinstellungen</h3>
+                
+                <div class="control-group">
+                    <label for="hue">Farbton (Hue):</label>
+                    <input type="range" id="hue" min="0" max="360" value="60">
+                    <span id="hueValue">60°</span>
+                </div>
+
+                <div class="control-group">
+                    <label for="saturation">Sättigung:</label>
+                    <input type="range" id="saturation" min="0" max="100" value="100">
+                    <span id="saturationValue">100%</span>
+                </div>
+
+                <div class="control-group">
+                    <label for="lightness">Farb-Helligkeit:</label>
+                    <input type="range" id="lightness" min="0" max="100" value="50">
+                    <span id="lightnessValue">50%</span>
+                </div>
+            </div>
+
+            <div class="morse-section">
+                <h3>Morse Code</h3>
+                <div class="control-group">
+                    <input type="text" id="morseInput" placeholder="Text für Morse Code eingeben">
+                    <button id="sendMorse">Morse Code senden</button>
+                </div>
+                <div class="morse-display">
+                    <p>Morse Code: <span id="morseOutput"></span></p>
+                    <p>Status: <span id="morseStatus">Bereit</span></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
