@@ -3,19 +3,84 @@
 <head>
   <meta charset="UTF-8">
   <title>Bulb Control</title>
+    <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: whitesmoke;
+      text-align: center;
+      padding: 50px;
+      color: black;
+    }
+
+    .container {
+      background: aliceblue;
+      padding: 30px;
+      max-width: 400px;
+      margin: auto;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    button {
+      padding: 10px 20px;
+      margin: 5px;
+      border: none;
+      border-radius: 5px;
+      background-color: steelblue;
+      color: white;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    button:hover {
+      background-color: darkslateblue;
+    }
+
+    input[type="range"] {
+      margin-top: 10px;
+      width: 80%;
+      padding-top: 5px;
+      padding-bottom: 5px;
+    }
+
+    input[type="color"] {
+      margin-top: 5px;
+      width: 90%;
+      max-width: 250px;
+      border: 1px solid lightgray;
+      border-radius: 10px;
+    }
+
+    input[type="text"] {
+      margin-top: 10px;
+      width: 80%;
+      padding-top: 5px;
+      padding-bottom: 5px;
+      margin-bottom: 10px;
+      border: 1px solid lightgray;
+      border-radius: 10px;
+    }
+
+    .section {
+      margin-top: 20px;
+    }
+
+  </style>
 </head>
 <body>
-  <h1>Bulb Control</h1>
+  <div class="container">
+    <h1>Bulb Control</h1>
 
-  <button onclick="send('on')">On</button>
-  <button onclick="send('off')">Off</button>
+    <button onclick="send('on')">On</button>
+    <button onclick="send('off')">Off</button>
 
-  <br><br>
-  
-  Brightness: <input type="range" id="brightness" min="0" max="100" value="50" oninput="send('brightness',{value:this.value})"><br><br>
-  Colour: <input type="color" id="color" onchange="send('color',{value:this.value})"><br><br>
-  Morse: <input type="text" id="morse" placeholder="sos"><button onclick="send('morse',{value:document.getElementById('morse').value})">Send Morse Code</button>
+    <br><br>
+    
+    Brightness: <input type="range" id="brightness" min="0" max="100" value="50" oninput="send('brightness',{value:this.value})"><br><br>
+    Color: <input type="color" id="color" onchange="send('color',{value:this.value})"><br><br>
+    Morse: <input type="text" id="morse" placeholder="sos"><button onclick="send('morse',{value:document.getElementById('morse').value})">Send Morse Code</button>
 
+  </div>
   <script>
     async function send(action, body = {}) {
       const res = await fetch(`/lamp/${action}`, {
