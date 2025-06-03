@@ -1,68 +1,49 @@
-:root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
-
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
-
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
-}
-
-body {
+/* ───── GLOBAL RESET ───── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
   margin: 0;
+  padding: 0;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  width: 100%;
+}
+
+/* ───── ANIMIERTER PASTELL-HINTERGRUND ───── */
+body {
+  font-family: "Segoe UI", system-ui, sans-serif;
+  /* Pastell-Verlauf von Blassgrün über Hellorange zu Rosa */
+  background: linear-gradient(135deg, #e0f7e9 0%, #ffe8b2 50%, #f8bbd0 100%);
+  background-size: 600% 600%;
+  animation: pastelShift 20s ease infinite;
+  color: #333;
+  overflow: hidden; /* keine Scrollleisten */
+}
+
+@keyframes pastelShift {
+  0%   { background-position: 0% 50%; }
+  25%  { background-position: 50% 100%; }
+  50%  { background-position: 100% 50%; }
+  75%  { background-position: 50% 0%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* ───── #root ZENTRIERUNG ───── */
+#root {
   display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
+  align-items: center;       /* vertikal zentrieren */
+  justify-content: center;   /* horizontal zentrieren */
+  height: 100%;
+  width: 100%;
 }
 
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
-}
-
-button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
-  cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
-}
-
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
+/* Falls du noch eine .app-root-Klasse verwenden möchtest:
+   das wäre hier optional, denn #root übernimmt die Zentrierung. */
+.app-root {
+  /* kein zusätzlicher Style nötig */
 }
