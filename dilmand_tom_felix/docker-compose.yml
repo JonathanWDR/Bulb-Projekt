@@ -28,7 +28,9 @@ services:
           condition: service_healthy
 
   producer:
-    build: ./producer
+    build:
+      context: .
+      dockerfile: ./producer/Dockerfile
     ports:
       - "3000:3000"
     environment:

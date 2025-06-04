@@ -5,6 +5,16 @@ import { rabbitMQService } from './services/RabbitMQProducerService';
 const app = express();
 const port = process.env.PORT || 3000;
 
+import path from 'path';
+
+// Statische HTML-Auslieferung
+app.use('/', express.static(path.join(__dirname, '../Frontend')));
+
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, '../Frontend/index.html'));
+});
+
+
 // Middleware
 app.use(cors());
 app.use(express.json());

@@ -1,10 +1,15 @@
-FROM node:18-alpine
+FROM node:18
 
 WORKDIR /app
 
-COPY package*.json ./
+# Producer-Dateien
+COPY producer/package*.json ./
+COPY producer/tsconfig.json ./
+COPY producer/src ./src
+
+# Frontend aus Root kopieren
+COPY Frontend ./Frontend
+
 RUN npm install
 
-COPY . .
-
-CMD ["npm", "start"] 
+CMD ["npx", "ts-node", "src/index.ts"]
