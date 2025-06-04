@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>Smart Lamp UI</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<h1>💡 Smart Lamp Steuerung</h1>
+
+<div class="lamp" id="lamp"></div>
+
+<div class="status-box" id="statusBox">Lampe ist AUS</div>
+
+<section class="controls">
+  <button id="toggleBtn">Lampe Einschalten</button>
+
+  <label for="brightness">🔆 Helligkeit:</label>
+  <input type="range" id="brightness" min="0" max="100" value="100">
+  <span id="brightnessValue">100%</span>
+
+  <label for="color">🎨 Farbe:</label>
+  <input type="color" id="color" value="#ffffff">
+
+  <label for="morseInput">📡 Morsecode-Nachricht:</label>
+  <input type="text" id="morseInput" placeholder="Text eingeben...">
+  <button id="morseBtn">Morsecode abspielen</button>
+</section>
+
+<script>
+  const toggleBtn = document.getElementById("toggleBtn");
+  const brightnessInput = document.getElementById("brightness");
+  const brightnessValue = document.getElementById("brightnessValue");
+  const colorInput = document.getElementById("color");
+  const statusBox = document.getElementById("statusBox");
+
+  let isOn = false;
+  let brightness = 100;
+  let color = "#ffffff";
+
+  async function updateStatus(message, success = true) {
+    statusBox.textContent = message;
+    statusBox.style.backgroundColor = success ? "#e3f2fd" : "#ffebee";
+  }
+
+  async function sendRequest(endpoint, body = null) {
+    try {
+      const res = await fetch(endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: body ? JSON.stringify(body) : null
+      });
+      const data = await res.json();
+      updateStatus(data.message || "OK", res.ok);
+    } catch (err) {
+      updateStatus("Netzwerkfehler", false);
+    }
+  }
+
+  toggleBtn.addEventListener("click", async () => {
+    isOn = !isOn;
+    await sendRequest(isOn ? "/api/lamp/on" : "/api/lamp/off");
+    toggleBtn.textContent = isOn ? "Lampe Ausschalten" : "Lampe Einschalten";
+  });
+
+  brightnessInput.addEventListener("input", async () => {
+    brightness = Number(brightnessInput.value);
+    brightnessValue.textContent = `${brightness}%`;
+    await sendRequest("/api/lamp/brightness", { value: brightness });
+  });
+
+  colorInput.addEventListener("input", async () => {
+    color = colorInput.value;
+    await sendRequest("/api/lamp/color", { value: color });
+  });
+
+  // Morse: optional – keine API definiert, hier nur Dummy
+  document.getElementById("morseBtn").addEventListener("click", () => {
+    alert("Morsecode-Funktion lokal – keine API vorhanden.");
+  });
+</script>
+</body>
+</html>
