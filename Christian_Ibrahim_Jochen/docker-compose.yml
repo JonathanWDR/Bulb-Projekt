@@ -16,6 +16,11 @@ services:
       - "3000:3000"
     depends_on:
       - rabbitmq
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
 
   consumer:
     build:
@@ -38,3 +43,8 @@ services:
     depends_on:
       - producer
       - consumer
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
