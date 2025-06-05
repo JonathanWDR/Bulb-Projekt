@@ -1,0 +1,9 @@
+{
+  "version": "1",
+  "name": "Kasa Bulb Queue API",
+  "type": "collection",
+  "ignore": [
+    "node_modules",
+    ".git"
+  ]
+}
