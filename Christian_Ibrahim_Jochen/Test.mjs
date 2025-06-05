@@ -72,8 +72,8 @@ async function run() {
 
 
    await device.turnOn();
-  // await TPLink.API.delay(500);
-  // await device.turnOff();
+   await TPLink.API.delay(500);
+   await device.turnOff();
 
   // await device.setColour('red');
   // await TPLink.API.delay(500);
