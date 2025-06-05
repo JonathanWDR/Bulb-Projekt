@@ -77,10 +77,16 @@
     await sendRequest("/api/lamp/color", { value: color });
   });
 
-  // Morse: optional – keine API definiert, hier nur Dummy
-  document.getElementById("morseBtn").addEventListener("click", () => {
-    alert("Morsecode-Funktion lokal – keine API vorhanden.");
+  // Morse -> Jetzt mit API
+  document.getElementById("morseBtn").addEventListener("click", async () => {
+    const text = document.getElementById("morseInput").value;
+    await fetch("/api/lamp/morse", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message: text })
+    });
   });
+
 
   // Holt den echten Lampenzustand vom Consumer (via Docker-Service-Namen)
   async function pollLampStatus() {
@@ -110,7 +116,7 @@
   }
 
   // Status regelmäßig abfragen
-  setInterval(pollLampStatus, 2000);
+  setInterval(pollLampStatus, 200);
   pollLampStatus(); // einmal beim Start
 </script>
 </body>

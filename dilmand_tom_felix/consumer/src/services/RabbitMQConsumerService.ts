@@ -60,14 +60,20 @@ export class RabbitMQConsumerService {
         }
     }
 
-     public async handleCommand(cmd: LampCommand): Promise<void> {
+    public async handleCommand(cmd: LampCommand): Promise<void> {
         console.log(`Handling command: ${cmd.command}`, cmd);
         try {
-            const strategy = this.commandStrategyFactory.getStrategy(cmd.command);
-            if (!strategy) {
-                throw new Error(`Unsupported command: ${cmd.command}`);
+            if (cmd.command === "morse") {
+                // Annahme: value ist in diesem Fall ein String
+                await this.device.playMorse((cmd as any).value);
+            } else {
+                const strategy = this.commandStrategyFactory.getStrategy(cmd.command);
+                if (!strategy) {
+                    throw new Error(`Unsupported command: ${cmd.command}`);
+                }
+                await strategy.execute(this.device, cmd);
             }
-            await strategy.execute(this.device, cmd);
+
             const currentState = await this.device.getCurrentState();
             console.log("Current state:", currentState);
         } catch (error) {
@@ -75,4 +81,5 @@ export class RabbitMQConsumerService {
             throw error;
         }
     }
+
 }

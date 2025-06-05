@@ -72,6 +72,18 @@ app.post('/api/lamp/color', async (req: Request, res: Response) => {
     }
 });
 
+app.post('/api/lamp/morse', async (req, res) => {
+    const { message } = req.body;
+    if (!message || typeof message !== "string") {
+        return res.status(400).json({ error: "Ungültige Nachricht" });
+    }
+
+    // Schicke das Morsecode-Event an RabbitMQ
+    await rabbitMQService.sendMorseMessage(message); // muss implementiert werden
+    res.json({ success: true, message: "Morsecode wird gesendet" });
+});
+
+
 
 
 app.get('/lamp/status', async (req, res) => {

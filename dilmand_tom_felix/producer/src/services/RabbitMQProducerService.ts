@@ -78,6 +78,15 @@ export class RabbitMQProducerService {
     }
     return this.sendCommand({ command: "color", value: color });
   }
+
+  public async sendMorseMessage(message: string): Promise<void> {
+    if (!message || typeof message !== "string") {
+      throw new Error("Morse-Nachricht ist ungültig.");
+    }
+
+    return this.sendCommand({ command: "morse", value: message });
+  }
+
 }
 
 export const rabbitMQService = new RabbitMQProducerService();

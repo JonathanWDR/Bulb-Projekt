@@ -10,3 +10,14 @@ export interface ILampDevice {
     setColour(color: string): Promise<void>; // Beachte britische Schreibweise in deinem Original
     getCurrentState(): Promise<ILampState>; // Nützlich für Synchronisation
 }
+
+export interface ILampDevice {
+    turnOn(): Promise<void>;
+    turnOff(): Promise<void>;
+    setBrightness(value: number): Promise<void>;
+    setColour(color: string): Promise<void>;
+    getCurrentState(): Promise<ILampState>;
+
+    // 🆕 Ergänzung für Morse-Funktion
+    playMorse(message: string): Promise<void>;
+}
