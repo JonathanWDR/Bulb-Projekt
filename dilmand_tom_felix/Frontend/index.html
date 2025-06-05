@@ -8,8 +8,10 @@
 <body>
 <h1>💡 Smart Lamp Steuerung</h1>
 
+<!-- Digitale Darstellung der physischen Lampe -->
 <div class="lamp" id="lamp"></div>
 
+<!-- Textuelle Statusanzeige -->
 <div class="status-box" id="statusBox">Lampe ist AUS</div>
 
 <section class="controls">
@@ -33,6 +35,7 @@
   const brightnessValue = document.getElementById("brightnessValue");
   const colorInput = document.getElementById("color");
   const statusBox = document.getElementById("statusBox");
+  const lamp = document.getElementById("lamp");
 
   let isOn = false;
   let brightness = 100;
@@ -78,6 +81,37 @@
   document.getElementById("morseBtn").addEventListener("click", () => {
     alert("Morsecode-Funktion lokal – keine API vorhanden.");
   });
+
+  // Holt den echten Lampenzustand vom Consumer (via Docker-Service-Namen)
+  async function pollLampStatus() {
+    try {
+      const res = await fetch("/lamp/status");
+      const data = await res.json();
+      updateLampView(data);
+    } catch (err) {
+      updateStatus("Status konnte nicht geladen werden", false);
+    }
+  }
+
+  // Zeigt die Lampe basierend auf realem Zustand
+  function updateLampView(state) {
+    isOn = state.poweredOn;
+    brightness = state.brightness;
+    color = state.color;
+
+    lamp.style.backgroundColor = isOn ? color : "#222";
+    lamp.style.opacity = isOn ? (brightness / 100).toString() : "0.2";
+
+    statusBox.textContent = `Lampe ist ${isOn ? "AN" : "AUS"} | Farbe: ${color} | Helligkeit: ${brightness}%`;
+    toggleBtn.textContent = isOn ? "Lampe Ausschalten" : "Lampe Einschalten";
+    brightnessInput.value = brightness;
+    brightnessValue.textContent = `${brightness}%`;
+    colorInput.value = color;
+  }
+
+  // Status regelmäßig abfragen
+  setInterval(pollLampStatus, 2000);
+  pollLampStatus(); // einmal beim Start
 </script>
 </body>
 </html>

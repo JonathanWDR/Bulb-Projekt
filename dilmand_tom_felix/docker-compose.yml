@@ -20,12 +20,14 @@ services:
     stop_grace_period: 30s
 
   consumer:
-      build: ./consumer
-      environment:
-        - RABBITMQ_URL=amqp://rabbitmq:5672
-      depends_on:
-        rabbitmq:
-          condition: service_healthy
+    build: ./consumer
+    ports:
+      - "4000:4000"  # Macht die Status-API des Consumers von außen erreichbar
+    environment:
+      - RABBITMQ_URL=amqp://rabbitmq:5672
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
 
   producer:
     build:
