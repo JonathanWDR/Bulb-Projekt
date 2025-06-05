@@ -63,18 +63,15 @@ export class RabbitMQConsumerService {
     public async handleCommand(cmd: LampCommand): Promise<void> {
         console.log(`Handling command: ${cmd.command}`, cmd);
         try {
-            if (cmd.command === "morse") {
-                // Annahme: value ist in diesem Fall ein String
-                await this.device.playMorse((cmd as any).value);
-            } else {
-                const strategy = this.commandStrategyFactory.getStrategy(cmd.command);
-                if (!strategy) {
-                    throw new Error(`Unsupported command: ${cmd.command}`);
-                }
-                await strategy.execute(this.device, cmd);
+            const strategy = this.commandStrategyFactory.getStrategy(cmd.command);
+            if (!strategy) {
+                throw new Error(`Unsupported command: ${cmd.command}`);
             }
-
+            await strategy.execute(this.device, cmd);
+            
             const currentState = await this.device.getCurrentState();
+            const statusMessage = JSON.stringify(currentState);
+            this.amqpChannel?.publish(rabbitMQConfig.statusExchange, "", Buffer.from(statusMessage))
             console.log("Current state:", currentState);
         } catch (error) {
             console.error(`Error processing lamp command ${cmd.command}:`, error);
