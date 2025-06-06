@@ -7,7 +7,17 @@ ui: enthält die Grafik der benutzer oberfläche
 
 
 Was noch gebraucht wird um producer und consumer zu starten:
-richtiges passwort und verbindung
+
+Eine Datei `.env` im Projektverzeichnis mit folgenden Variablen:
+
+```
+EMAIL=deine-email@example.com
+PASSWORD=dein-passwort
+DEVICE_ID=deine-device-id
+```
+
+Danach kann der Consumer mit `npm run start:consumer` gestartet werden.
+
 und rabbitMQ starten:
 docker run -d --hostname my-rabbit --name some-rabbit -p 5672:5672 rabbitmq:3
 

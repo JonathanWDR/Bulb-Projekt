@@ -1,9 +1,15 @@
 import amqp from 'amqplib';
 import * as TPLink from 'tplink-bulbs';
+import dotenv from 'dotenv';
 
-const email = 'email'
-const password = 'password'
-const deviceIdToFind = 'devideid';
+dotenv.config();
+const email = process.env.EMAIL;
+const password = process.env.PASSWORD;
+const deviceIdToFind = process.env.DEVICE_ID;
+
+if (!email || !password || !deviceIdToFind) {
+    throw new Error('Missing EMAIL, PASSWORD or DEVICE_ID in environment');
+}
 
 console.log(TPLink)
 
