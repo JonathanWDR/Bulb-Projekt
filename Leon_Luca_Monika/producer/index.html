@@ -58,59 +58,89 @@
     <button id="showMorse">Show Morse Code</button>
 
     <script>
-        const ws = new WebSocket("ws://localhost:3003");
+        const API_URL = 'http://localhost:3001';
 
-        ws.onopen = () => {
-            console.log("WebSocket connected");
-        };
-
-        ws.onmessage = (event) => {
-            const state = JSON.parse(event.data);
-            console.log("Lamp state updated:", state);
-        };
-
-        ws.onclose = () => {
-            console.log("WebSocket disconnected");
-        };
-
-        ws.onerror = (error) => {
-            console.error("WebSocket error:", error);
-        };
-
-        function sendCommand(commandType, commandValue) {
-            if (ws.readyState === WebSocket.OPEN) {
-                ws.send(JSON.stringify({ commandType, commandValue }));
-                alert(`Command "${commandType}" with value "${commandValue}" sent successfully.`);
-            } else {
-                alert("WebSocket is not connected.");
-            }
+        async function setLampState(state) {
+            const res = await fetch(`${API_URL}/lamp/state`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ state })
+            });
+            if (!res.ok) throw new Error('Fehler beim Schalten der Lampe');
         }
 
-        document.getElementById('turnOn').addEventListener('click', () => {
-            sendCommand('setState', 'on');
+        async function setLampBrightness(brightness) {
+            const res = await fetch(`${API_URL}/lamp/brightness`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ brightness })
+            });
+            if (!res.ok) throw new Error('Fehler beim Setzen der Helligkeit');
+        }
+
+        async function setLampColor(color) {
+            const res = await fetch(`${API_URL}/lamp/color`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ color })
+            });
+            if (!res.ok) throw new Error('Fehler beim Setzen der Farbe');
+        }
+
+        async function showMorseCode(morse) {
+            const res = await fetch(`${API_URL}/lamp/morse`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ morse })
+            });
+            if (!res.ok) throw new Error('Fehler beim Senden des Morsecodes');
+        }
+
+        document.getElementById('turnOn').addEventListener('click', async () => {
+            try {
+                await setLampState(true);
+            } catch (e) {
+                alert(e.message);
+            }
         });
 
-        document.getElementById('turnOff').addEventListener('click', () => {
-            sendCommand('setState', 'off');
+        document.getElementById('turnOff').addEventListener('click', async () => {
+            try {
+                await setLampState(false);
+            } catch (e) {
+                alert(e.message);
+            }
         });
 
-        document.getElementById('setBrightness').addEventListener('click', () => {
-            const brightness = parseInt(document.getElementById('brightness').value, 10); // Konvertiere zu int
+        document.getElementById('setBrightness').addEventListener('click', async () => {
+            const brightness = parseInt(document.getElementById('brightness').value, 10);
             if (!isNaN(brightness) && brightness >= 0 && brightness <= 100) {
-                sendCommand('setBrightness', brightness);
+                try {
+                    await setLampBrightness(brightness);
+                } catch (e) {
+                    alert(e.message);
+                }
             } else {
                 alert('Brightness must be between 0 and 100.');
             }
         });
 
-        document.getElementById('setColor').addEventListener('click', () => {
+        document.getElementById('setColor').addEventListener('click', async () => {
             const color = document.getElementById('colorPicker').value;
-            sendCommand('setColor', color);
+            try {
+                await setLampColor(color);
+            } catch (e) {
+                alert(e.message);
+            }
         });
 
-        document.getElementById('showMorse').addEventListener('click', () => {
+        document.getElementById('showMorse').addEventListener('click', async () => {
             const morseCode = document.getElementById('morseInput').value.trim();
-            sendCommand('showMorseCode', morseCode);
+            try {
+                await showMorseCode(morseCode);
+            } catch (e) {
+                alert(e.message);
+            }
         });
     </script>
 </body>

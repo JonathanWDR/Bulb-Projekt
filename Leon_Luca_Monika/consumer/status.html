@@ -32,7 +32,6 @@
         border: 3px solid #666;
       }
       .lamp.on {
-        box-shadow: 0 0 60px 30px #fff, 0 0 40px 10px #111 inset;
         border-color: #fff;
       }
       .label {
@@ -72,6 +71,17 @@
         )},${Math.round(b * factor)})`;
       }
 
+      function getLampGlow(color, brightness, poweredOn) {
+        if (!poweredOn) return "0 0 40px 10px #111 inset";
+        if (!/^#[0-9A-F]{6}$/i.test(color)) color = "#fff";
+        const [r, g, b] = hexToRgb(color);
+        // brightness von 0-100 auf 0-1
+        const factor = brightness / 100;
+        // Glow-Intensität: min 10px, max 60px
+        const glow = 10 + 50 * factor;
+        return `0 0 ${Math.round(glow)}px ${Math.round(glow / 2)}px rgb(${r},${g},${b}), 0 0 40px 10px #111 inset`;
+      }
+
       const ws = new WebSocket("ws://localhost:3002");
       ws.onmessage = (event) => {
         const state = JSON.parse(event.data);
@@ -88,6 +98,11 @@
         const lamp = document.getElementById("lamp");
         lamp.className = "lamp" + (state.poweredOn ? " on" : "");
         lamp.style.background = getLampColor(
+          state.color,
+          state.brightness,
+          state.poweredOn
+        );
+        lamp.style.boxShadow = getLampGlow(
           state.color,
           state.brightness,
           state.poweredOn
