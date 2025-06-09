@@ -68,7 +68,7 @@ export class RabbitMQConsumerService {
                 throw new Error(`Unsupported command: ${cmd.command}`);
             }
             await strategy.execute(this.device, cmd);
-            const currentState = await this.device.getCurrentState();
+            const currentState = await this.device.getDeviceInfo();
             console.log("Current state:", currentState);
         } catch (error) {
             console.error(`Error processing lamp command ${cmd.command}:`, error);
