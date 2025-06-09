@@ -29,24 +29,12 @@ services:
       - "4000:4000"  # Macht die Status-API des Consumers von außen erreichbar
     environment:
       - RABBITMQ_URL=amqp://rabbitmq:5672
+      - TPLINK_EMAIL=
+      - TPLINK_PASSWORD=
+      - TPLINK_DEVICE_IP=
     depends_on:
       rabbitmq:
         condition: service_healthy
-
-  # producer:
-  #   build: ./producer
-  #   ports:
-  #     - "3000:3000"
-  #   environment:
-  #     - RABBITMQ_URL=amqp://rabbitmq:5672
-  #   healthcheck:
-  #     test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
-  #     interval: 10s
-  #     timeout: 5s
-  #     retries: 5
-  #   depends_on:
-  #     rabbitmq:
-  #       condition: service_healthy
 
 configs:
   rabbitmq-plugins:
