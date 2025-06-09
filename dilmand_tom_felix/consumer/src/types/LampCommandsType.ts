@@ -1,5 +1,5 @@
 // Alle erlaubten Befehle – jetzt inkl. "morse"
-export type LampCommandType = 'on' | 'off' | 'brightness' | 'color' | 'morse';
+export type LampCommandType = 'get_status' | 'on' | 'off' | 'brightness' | 'color' | 'morse';
 
 // Basistyp für jeden Befehl
 export interface LampCommandBase {

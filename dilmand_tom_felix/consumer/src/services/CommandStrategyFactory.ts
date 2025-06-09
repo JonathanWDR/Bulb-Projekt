@@ -1,66 +1,118 @@
 import { ILampDevice } from "../types/ILamp";
 import {
-  LampCommand,
-  LampCommandType,
-  SetBrightnessCommand,
-  SetColorCommand,
-  SendMorseCommand
+    LampCommand,
+    LampCommandType,
+    SetBrightnessCommand,
+    SetColorCommand,
+    SendMorseCommand
 } from "../types/LampCommandsType";
+import { publishLampStatus } from "../config/rabbitmq";
+import amqp from 'amqplib';
 
 // Strategy interface
 export interface CommandStrategy {
-  execute(device: ILampDevice, payload?: LampCommand): Promise<void>;
+    execute(device: ILampDevice, payload?: LampCommand, channel?: amqp.Channel): Promise<void>;
+}
+
+class GetStatusCommandStrategy implements CommandStrategy {
+    async execute(device: ILampDevice, payload?: any, channel?: amqp.Channel): Promise<void> {
+        const currentState = await device.getCurrentState();
+        console.log("Aktueller Status:", currentState);
+        if (channel) {
+            await publishLampStatus(currentState, channel);
+        }
+    }
 }
 
 class OnCommandStrategy implements CommandStrategy {
-  async execute(device: ILampDevice): Promise<void> {
-    await device.turnOn();
-  }
+    async execute(device: ILampDevice): Promise<void> {
+        await device.turnOn();
+    }
 }
 
 class OffCommandStrategy implements CommandStrategy {
-  async execute(device: ILampDevice): Promise<void> {
-    await device.turnOff();
-  }
+    async execute(device: ILampDevice): Promise<void> {
+        await device.turnOff();
+    }
 }
 
 class BrightnessCommandStrategy implements CommandStrategy {
-  async execute(
-    device: ILampDevice,
-    payload: SetBrightnessCommand
-  ): Promise<void> {
-    if (
-      typeof payload.value === "number" &&
-      payload.value >= 0 &&
-      payload.value <= 100
-    ) {
-      await device.setBrightness(payload.value);
-    } else {
-      console.warn("Brightness must be a number between 0 and 100.");
-      throw new Error("Invalid brightness value");
+    async execute(
+        device: ILampDevice,
+        payload: SetBrightnessCommand
+    ): Promise<void> {
+        if (
+            typeof payload.value === "number" &&
+            payload.value >= 0 &&
+            payload.value <= 100
+        ) {
+            await device.setBrightness(payload.value);
+        } else {
+            console.warn("Brightness must be a number between 0 and 100.");
+            throw new Error("Invalid brightness value");
+        }
     }
-  }
 }
 
 class ColorCommandStrategy implements CommandStrategy {
-  async execute(device: ILampDevice, payload: SetColorCommand): Promise<void> {
-    const hsl = hexToHSL(payload.value);
-    await device.setHSL(hsl.hue, hsl.sat, hsl.lum);
-  }
+    async execute(device: ILampDevice, payload: SetColorCommand): Promise<void> {
+        await device.setColour(payload.value);
+    }
+
 }
 
 class MorseCommandStrategy implements CommandStrategy {
-    async execute(device: ILampDevice, payload: SendMorseCommand): Promise<void> {
-        await device.playMorse(payload.value)
+    async execute(device: ILampDevice, payload: SendMorseCommand, channel: amqp.Channel): Promise<void> {
+        const code = payload.value;
+        const morseMap: { [char: string]: string } = {
+            a: ".-", b: "-...", c: "-.-.", d: "-..", e: ".", f: "..-.", g: "--.",
+            h: "....", i: "..", j: ".---", k: "-.-", l: ".-..", m: "--", n: "-.",
+            o: "---", p: ".--.", q: "--.-", r: ".-.", s: "...", t: "-",
+            u: "..-", v: "...-", w: ".--", x: "-..-", y: "-.--", z: "--..",
+            "0": "-----", "1": ".----", "2": "..---", "3": "...--", "4": "....-",
+            "5": ".....", "6": "-....", "7": "--...", "8": "---..", "9": "----.",
+            " ": "/"
+        };
+
+        const morse = code.toLowerCase().split("").map(c => morseMap[c] || "").join(" ");
+        console.log(`Morse für "${code}": ${morse}`);
+
+        for (const char of morse) {
+            if (char === ".") {
+                await this.flash(device, 1000, channel);     // kurzer Blink
+            } else if (char === "-") {
+                await this.flash(device, 1500, channel);     // langer Blink
+            } else if (char === "/") {
+                await this.pause(4000);     // Wortpause
+            } else {
+                await this.pause(2000);     // Buchstabenpause
+            }
+        }
     }
-    
+
+    private async flash(device: ILampDevice, duration: number, channel: amqp.Channel): Promise<void> {
+        await device.turnOn();
+        let currentState = await device.getCurrentState();
+        await publishLampStatus(currentState, channel!);
+        await this.pause(duration);
+        await device.turnOff();
+        currentState = await device.getCurrentState();
+        await publishLampStatus(currentState, channel!);
+        await this.pause(500); 
+    }
+
+    private pause(ms: number): Promise<void> {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
 }
 
 
 export class CommandStrategyFactory {
-  private strategies: Map<LampCommandType, CommandStrategy> = new Map();
+    private strategies: Map<LampCommandType, CommandStrategy> = new Map();
 
     constructor() {
+        this.strategies.set('get_status', new GetStatusCommandStrategy());
         this.strategies.set('on', new OnCommandStrategy());
         this.strategies.set('off', new OffCommandStrategy());
         this.strategies.set('brightness', new BrightnessCommandStrategy());
@@ -68,65 +120,11 @@ export class CommandStrategyFactory {
         this.strategies.set("morse", new MorseCommandStrategy())
     }
 
-  getStrategy(commandType: LampCommandType): CommandStrategy {
-    const strategy = this.strategies.get(commandType);
-    if (!strategy) {
-      throw new Error(`Unknown command type: ${commandType}`);
+    getStrategy(commandType: LampCommandType): CommandStrategy {
+        const strategy = this.strategies.get(commandType);
+        if (!strategy) {
+            throw new Error(`Unknown command type: ${commandType}`);
+        }
+        return strategy;
     }
-    return strategy;
-  }
-}
-
-function hexToHSL(hex: string): { hue: number; sat: number; lum: number } {
-  // Remove optional leading #
-  hex = hex.replace(/^#/, "");
-
-  // Validate hex length
-  if (![3, 6].includes(hex.length)) {
-    throw new Error("Invalid HEX color.");
-  }
-
-  // Convert shorthand HEX (#abc) to full form (#aabbcc)
-  if (hex.length === 3) {
-    hex = hex
-      .split("")
-      .map((char) => char + char)
-      .join("");
-  }
-
-  // Parse R, G, B values
-  const r = parseInt(hex.substring(0, 2), 16) / 255;
-  const g = parseInt(hex.substring(2, 4), 16) / 255;
-  const b = parseInt(hex.substring(4, 6), 16) / 255;
-
-  const max = Math.max(r, g, b);
-  const min = Math.min(r, g, b);
-  let h = 0,
-    s = 0,
-    l = (max + min) / 2;
-
-  if (max !== min) {
-    const d = max - min;
-    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
-
-    switch (max) {
-      case r:
-        h = (g - b) / d + (g < b ? 6 : 0);
-        break;
-      case g:
-        h = (b - r) / d + 2;
-        break;
-      case b:
-        h = (r - g) / d + 4;
-        break;
-    }
-
-    h *= 60;
-  }
-  const hsl = {
-    hue: Math.round(h),
-    sat: Math.round(s * 100),
-    lum: Math.round(l * 100),
-  };
-  return hsl;
 }

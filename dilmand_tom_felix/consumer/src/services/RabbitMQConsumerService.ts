@@ -1,7 +1,7 @@
 
 import amqp from 'amqplib';
-import { createRabbitMQChannel, rabbitMQConfig } from '../config/rabbitmq';
-import { ILampDevice } from '../types/ILamp';
+import { createRabbitMQChannel, publishLampStatus, rabbitMQConfig } from '../config/rabbitmq';
+import { ILampDevice, } from '../types/ILamp';
 import { LampCommand } from '../types/LampCommandsType';
 import { CommandStrategyFactory } from './CommandStrategyFactory';
 
@@ -67,12 +67,11 @@ export class RabbitMQConsumerService {
             if (!strategy) {
                 throw new Error(`Unsupported command: ${cmd.command}`);
             }
-            await strategy.execute(this.device, cmd);
-            
+            await strategy.execute(this.device, cmd, this.amqpChannel!);
             const currentState = await this.device.getCurrentState();
-            const statusMessage = JSON.stringify(currentState);
-            this.amqpChannel?.publish(rabbitMQConfig.statusExchange, "", Buffer.from(statusMessage))
-            console.log("Current state:", currentState);
+            await publishLampStatus(currentState, this.amqpChannel!).catch(err => {
+                console.error('Error publishing lamp status:', err);
+            });
         } catch (error) {
             console.error(`Error processing lamp command ${cmd.command}:`, error);
             throw error;

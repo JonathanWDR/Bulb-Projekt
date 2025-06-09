@@ -10,7 +10,8 @@
   },
   "dependencies": {
     "amqplib": "^0.10.3",
-    "dotenv": "^16.0.3"
+    "dotenv": "^16.0.3",
+    "tplink-bulbs": "^1.0.1"
   },
   "devDependencies": {
     "@types/amqplib": "^0.10.1",

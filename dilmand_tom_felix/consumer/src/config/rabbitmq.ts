@@ -1,5 +1,6 @@
 // src/config/rabbitmq.config.ts
 import amqp from 'amqplib';
+import { ILampState } from '../types/ILamp';
 
 export const rabbitMQConfig = {
     hostname: process.env.RABBITMQ_HOST || 'localhost',
@@ -74,4 +75,21 @@ export async function closeRabbitMQConnection(): Promise<void> {
         connection = null;
     }
     console.log('RabbitMQ connection and channel closed');
+}
+
+
+export async function publishLampStatus(status: ILampState, channel: amqp.Channel): Promise<void> {
+    if (!channel) {
+        throw new Error('RabbitMQ channel is not initialized');
+    }
+    try {
+        const statusMessage = JSON.stringify(status);
+        await channel.publish(rabbitMQConfig.statusExchange, '', Buffer.from(statusMessage), {
+            persistent: true
+        });
+        console.log('Published lamp status:', statusMessage);
+    } catch (error) {
+        console.error('Failed to publish lamp status:', error);
+        throw error;
+    }
 }

@@ -1,5 +1,9 @@
 import * as TPLink from 'tplink-bulbs';
-
+export interface ILampState {
+    poweredOn: boolean;
+    brightness: number;
+    color: string;
+};
 export interface ILampDevice {
     turnOn: () => Promise<void>;
     turnOff: () => Promise<void>;
@@ -10,4 +14,5 @@ export interface ILampDevice {
     setHSL: (hue: number, sat: number, lum: number) => Promise<void>;
     getDeviceInfo: () => Promise<TPLink.API.TapoDeviceInfo>;
     getEnergyUsage: () => Promise<TPLink.API.TapoDeviceInfo>;
+    getCurrentState: () => Promise<ILampState>;
 }
