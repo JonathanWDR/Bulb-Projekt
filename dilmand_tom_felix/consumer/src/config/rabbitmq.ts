@@ -7,6 +7,7 @@ export const rabbitMQConfig = {
     username: process.env.RABBITMQ_USER || 'guest',
     password: process.env.RABBITMQ_PASS || 'guest',
     lampCommandQueue: process.env.LAMP_COMMAND_QUEUE || 'lamp-commands',
+    statusExchange: 'lamp-status'
 };
 
 // Using specific type definitions
@@ -48,7 +49,8 @@ export async function createRabbitMQChannel(): Promise<amqp.Channel> {
             throw new Error('Failed to create RabbitMQ channel');
         }
         console.log('RabbitMQ channel created');
-        await channel.assertQueue(rabbitMQConfig.lampCommandQueue, { durable: false });
+        await channel.assertQueue(rabbitMQConfig.lampCommandQueue, { durable: true });
+        await channel.assertExchange(rabbitMQConfig.statusExchange, 'fanout', { durable: true });
         return channel;
     } catch (error) {
         console.error('Failed to connect to RabbitMQ or create channel:', error);

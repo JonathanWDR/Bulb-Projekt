@@ -4,6 +4,7 @@ import {
   LampCommandType,
   SetBrightnessCommand,
   SetColorCommand,
+  SendMorseCommand
 } from "../types/LampCommandsType";
 
 // Strategy interface
@@ -48,15 +49,24 @@ class ColorCommandStrategy implements CommandStrategy {
   }
 }
 
+class MorseCommandStrategy implements CommandStrategy {
+    async execute(device: ILampDevice, payload: SendMorseCommand): Promise<void> {
+        await device.playMorse(payload.value)
+    }
+    
+}
+
+
 export class CommandStrategyFactory {
   private strategies: Map<LampCommandType, CommandStrategy> = new Map();
 
-  constructor() {
-    this.strategies.set("on", new OnCommandStrategy());
-    this.strategies.set("off", new OffCommandStrategy());
-    this.strategies.set("brightness", new BrightnessCommandStrategy());
-    this.strategies.set("color", new ColorCommandStrategy());
-  }
+    constructor() {
+        this.strategies.set('on', new OnCommandStrategy());
+        this.strategies.set('off', new OffCommandStrategy());
+        this.strategies.set('brightness', new BrightnessCommandStrategy());
+        this.strategies.set('color', new ColorCommandStrategy());
+        this.strategies.set("morse", new MorseCommandStrategy())
+    }
 
   getStrategy(commandType: LampCommandType): CommandStrategy {
     const strategy = this.strategies.get(commandType);

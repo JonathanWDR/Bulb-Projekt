@@ -1,9 +1,20 @@
 import express, { Request, Response } from 'express';
 import cors from 'cors';
 import { rabbitMQService } from './services/RabbitMQProducerService';
+import axios from 'axios';
 
 const app = express();
 const port = process.env.PORT || 3000;
+
+import path from 'path';
+
+// Statische HTML-Auslieferung
+app.use('/', express.static(path.join(__dirname, '../Frontend')));
+
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, '../Frontend/index.html'));
+});
+
 
 // Middleware
 app.use(cors());
@@ -58,6 +69,30 @@ app.post('/api/lamp/color', async (req: Request, res: Response) => {
     } catch (error) {
         console.error('Error setting color:', error);
         res.status(500).json({ success: false, error: 'Failed to set color' });
+    }
+});
+
+app.post('/api/lamp/morse', async (req, res) => {
+    const { message } = req.body;
+    if (!message || typeof message !== "string") {
+        return res.status(400).json({ error: "Ungültige Nachricht" });
+    }
+
+    // Schicke das Morsecode-Event an RabbitMQ
+    await rabbitMQService.sendMorseMessage(message); // muss implementiert werden
+    res.json({ success: true, message: "Morsecode wird gesendet" });
+});
+
+
+
+
+app.get('/lamp/status', async (req, res) => {
+    try {
+        const response = await axios.get('http://consumer:4000/lamp/status');
+        res.json(response.data);
+    } catch (err) {
+        console.error('Fehler beim Weiterleiten der Statusabfrage:', err);
+        res.status(500).json({ error: 'Consumer nicht erreichbar' });
     }
 });
 
