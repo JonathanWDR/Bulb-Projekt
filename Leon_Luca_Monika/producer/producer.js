@@ -64,20 +64,3 @@ export {
     setLampColor,
     showMorseCode
 };
-
-// Test -- funktioniert noch nicht
-(async () => {
-    try {
-        await setLampState(true);
-
-        await setLampBrightness(50);
-
-        await setLampColor('#FF5733');
-
-        await showMorseCode('SOS');
-
-        console.log('Alle Befehle wurden gesendet.');
-    } catch (error) {
-        console.error('Fehler beim Senden der Befehle:', error);
-    }
-})();
