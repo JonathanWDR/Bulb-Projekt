@@ -9,6 +9,6 @@
   "dependencies": {
     "amqplib": "^0.10.8",
     "dotenv": "^16.5.0",
-    "tplink-bulbs": "^1.0.1"
+    "tplink-bulbs": "^1.1.0"
   }
 }
