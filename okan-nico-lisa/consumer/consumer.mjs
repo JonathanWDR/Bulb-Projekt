@@ -69,7 +69,6 @@ async function startConsumer() {
         case "color":
           const color = payload['value']
           console.log(`Changing color to ${color}...`)
-          // ToDo: potentially not working properly in lib?
           await device.setColour(color)
           break;
         case "morse":
