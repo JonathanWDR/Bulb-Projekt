@@ -7,8 +7,8 @@ async function startConsumer() {
   await channel.waitForConnect();
   console.log("🕒 Consumer wartet…");
 
-  console.log("🔧 [Consumer] Mock-Gerät erstellt");
   const device = createDevice();
+  console.log("🔧 Gerät erstellt");
 
   await channel.consume("lamp-commands", async (msg) => {
     if (!msg) return;
@@ -16,9 +16,11 @@ async function startConsumer() {
       const cmd = JSON.parse(msg.content.toString());
       switch (cmd.command) {
         case "on":
+          console.log("💡 Lampe einschalten");
           await device.turnOn();
           break;
         case "off":
+          console.log("🔌 Lampe ausschalten");
           await device.turnOff();
           break;
         case "toggle":

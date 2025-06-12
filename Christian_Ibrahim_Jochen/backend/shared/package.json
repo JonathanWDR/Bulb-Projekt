@@ -4,6 +4,7 @@
   },
   "dependencies": {
     "amqp-connection-manager": "^4.0.0",
+    "dotenv": "^16.5.0",
     "tplink-bulbs": "^1.0.1",
     "tplink-cloud-api": "^0.8.1"
   },

@@ -17,5 +17,12 @@ COPY backend/shared ../shared
 # Copy consumer source
 COPY backend/consumer/src ./src
 
+# ping the light bulb via ip
+# copy into WORKDIR
+COPY backend/consumer/entrypoint.sh ./entrypoint.sh
+RUN chmod +x ./entrypoint.sh
+ENTRYPOINT ["sh", "-c", "echo \"PWD=$(pwd)\"; ls -la; echo \"--- now exec---\"; exec ./entrypoint.sh"]
+# ENTRYPOINT ["./entrypoint.sh"] 
+
 # Start the consumer
 CMD ["npm", "start"]
