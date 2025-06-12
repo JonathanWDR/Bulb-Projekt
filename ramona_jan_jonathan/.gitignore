@@ -1,7 +1,7 @@
 # node_modules Ordner ignorieren
 node_modules/
 
-# Environment files
+# Environment files 
 .env
 
 # Alle JSON-Dateien ignorieren

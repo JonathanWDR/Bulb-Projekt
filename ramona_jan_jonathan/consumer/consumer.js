@@ -3,11 +3,12 @@ import * as TPLink from 'tplink-bulbs';
 import dotenv from 'dotenv';
 
 dotenv.config();
-const email = process.env.EMAIL;
-const password = process.env.PASSWORD;
+const email = process.env.TP_EMAIL;
+const password = process.env.TP_PASSWORD;
 const deviceIdToFind = process.env.DEVICE_ID;
 
-if (!email || !password || !deviceIdToFind) {
+//if (!email || !password || !deviceIdToFind) {
+if (!email || !password) {
     throw new Error('Missing EMAIL, PASSWORD or DEVICE_ID in environment');
 }
 
@@ -16,6 +17,8 @@ console.log(TPLink)
 const cloudApi = await TPLink.API.cloudLogin(email, password);
 
 const devices = await cloudApi.listDevicesByType('SMART.TAPOBULB');
+
+console.log(devices);
 
 const targetDevice = devices.find(device => device.deviceId === deviceIdToFind);
 
