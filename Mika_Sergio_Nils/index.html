@@ -18,7 +18,6 @@
         </div>
 
         <div class="controls">
-            
             <div class="control-group">
                 <label class="switch">
                     <input type="checkbox" id="powerToggle">
@@ -28,30 +27,26 @@
             </div>
 
             <div class="control-group">
-                <label for="brightness">Helligkeit:</label>
-                <input type="range" id="brightness" min="0" max="100" value="50">
-                <span id="brightnessValue">50%</span>
+                <label for="brightness">Helligkeit (%):</label>
+                <input type="text" id="brightness" inputmode="numeric" pattern="[0-9]*" maxlength="3" class="nice-input" placeholder="0-100">
             </div>
 
             <div class="color-controls">
                 <h3>Farbeinstellungen</h3>
                 
                 <div class="control-group">
-                    <label for="hue">Farbton (Hue):</label>
-                    <input type="range" id="hue" min="0" max="360" value="60">
-                    <span id="hueValue">60°</span>
+                    <label for="hue">Farbton (Hue, °):</label>
+                    <input type="text" id="hue" inputmode="numeric" pattern="[0-9]*" maxlength="3" class="nice-input" placeholder="0-360">
                 </div>
 
                 <div class="control-group">
-                    <label for="saturation">Sättigung:</label>
-                    <input type="range" id="saturation" min="0" max="100" value="100">
-                    <span id="saturationValue">100%</span>
+                    <label for="saturation">Sättigung (%):</label>
+                    <input type="text" id="saturation" inputmode="numeric" pattern="[0-9]*" maxlength="3" class="nice-input" placeholder="0-100">
                 </div>
 
                 <div class="control-group">
-                    <label for="lightness">Farb-Helligkeit:</label>
-                    <input type="range" id="lightness" min="0" max="100" value="50">
-                    <span id="lightnessValue">50%</span>
+                    <label for="lightness">Farb-Helligkeit (%):</label>
+                    <input type="text" id="lightness" inputmode="numeric" pattern="[0-9]*" maxlength="3" class="nice-input" placeholder="0-100">
                 </div>
             </div>
 

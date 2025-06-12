@@ -16,10 +16,10 @@ class LightbulbController {
     initializeElements() {
         this.lightbulb = document.getElementById('lightbulb');
         this.powerToggle = document.getElementById('powerToggle');
-        this.brightnessSlider = document.getElementById('brightness');
-        this.hueSlider = document.getElementById('hue');
-        this.saturationSlider = document.getElementById('saturation');
-        this.lightnessSlider = document.getElementById('lightness');
+        this.brightnessInput = document.getElementById('brightness');
+        this.hueInput = document.getElementById('hue');
+        this.saturationInput = document.getElementById('saturation');
+        this.lightnessInput = document.getElementById('lightness');
         this.morseInput = document.getElementById('morseInput');
         this.sendMorseBtn = document.getElementById('sendMorse');
         this.morseOutput = document.getElementById('morseOutput');
@@ -33,10 +33,10 @@ class LightbulbController {
 
     bindEvents() {
         this.powerToggle.addEventListener('change', () => this.togglePower());
-        this.brightnessSlider.addEventListener('input', (e) => this.setBrightness(e.target.value));
-        this.hueSlider.addEventListener('input', (e) => this.setHue(e.target.value));
-        this.saturationSlider.addEventListener('input', (e) => this.setSaturation(e.target.value));
-        this.lightnessSlider.addEventListener('input', (e) => this.setLightness(e.target.value));
+        this.brightnessInput.addEventListener('input', (e) => this.setBrightness(e.target.value));
+        this.hueInput.addEventListener('input', (e) => this.setHue(e.target.value));
+        this.saturationInput.addEventListener('input', (e) => this.setSaturation(e.target.value));
+        this.lightnessInput.addEventListener('input', (e) => this.setLightness(e.target.value));
         this.sendMorseBtn.addEventListener('click', () => this.startMorseCode());
     }
 
@@ -82,10 +82,10 @@ class LightbulbController {
         
         try {
             if (this.isOn) {
-                await this.apiCall('/on', { value: 50} );
+                await this.apiCall('/on', { value: this.brightness });
                 console.log('Glühbirne eingeschaltet (API)');
             } else {
-                await this.apiCall('/off', { value: 50} );
+                await this.apiCall('/off', { value: this.brightness });
                 console.log('Glühbirne ausgeschaltet (API)');
             }
         } catch (error) {
@@ -100,7 +100,9 @@ class LightbulbController {
 
     async setBrightness(value) {
         this.brightness = parseInt(value);
-        this.brightnessValue.textContent = `${this.brightness}%`;
+        if (this.brightnessValue) {
+            this.brightnessValue.textContent = `${this.brightness}%`;
+        }
         
         try {
             await this.apiCall('/brightness', { value: this.brightness });
@@ -114,21 +116,27 @@ class LightbulbController {
 
     async setHue(value) {
         this.hue = parseInt(value);
-        this.hueValue.textContent = `${this.hue}°`;
+        if (this.hueValue) {
+            this.hueValue.textContent = `${this.hue}°`;
+        }
         await this.updateColor();
         console.log(`Farbton gesetzt auf: ${this.hue}° (API)`);
     }
 
     async setSaturation(value) {
         this.saturation = parseInt(value);
-        this.saturationValue.textContent = `${this.saturation}%`;
+        if (this.saturationValue) {
+            this.saturationValue.textContent = `${this.saturation}%`;
+        }
         await this.updateColor();
         console.log(`Sättigung gesetzt auf: ${this.saturation}% (API)`);
     }
 
     async setLightness(value) {
         this.lightness = parseInt(value);
-        this.lightnessValue.textContent = `${this.lightness}%`;
+        if (this.lightnessValue) {
+            this.lightnessValue.textContent = `${this.lightness}%`;
+        }
         await this.updateColor();
         console.log(`Farb-Helligkeit gesetzt auf: ${this.lightness}% (API)`);
     }

@@ -270,3 +270,18 @@ span[id$="Value"] {
     font-weight: bold;
     color: #666;
 }
+
+.nice-input {
+    width: 70px;
+    padding: 6px 10px;
+    border: 1px solid #bbb;
+    border-radius: 5px;
+    font-size: 1em;
+    outline: none;
+    transition: border 0.2s;
+    background: #fafafa;
+}
+.nice-input:focus {
+    border: 1.5px solid #0078d7;
+    background: #fff;
+}
