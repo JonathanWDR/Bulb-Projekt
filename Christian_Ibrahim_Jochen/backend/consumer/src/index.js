@@ -7,8 +7,9 @@ async function startConsumer() {
   await channel.waitForConnect();
   console.log("🕒 Consumer wartet…");
 
-  const device = createDevice();
+  const device = await createDevice();
   console.log("🔧 Gerät erstellt");
+  console.log(device);
 
   await channel.consume("lamp-commands", async (msg) => {
     if (!msg) return;

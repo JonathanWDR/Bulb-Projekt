@@ -29,15 +29,29 @@ export async function createDevice() {
     return new MockDevice();
   }
 
+  // console.log("🔧 Verbinde mit Tapo-Gerät…");
+
+  // const cloudApi = await TPLink.API.cloudLogin(email, password);
+  // if (!cloudApi) throw new Error("❌ Verbindung zur Tapo-Cloud fehlgeschlagen!");
+
+  // const devices = await cloudApi.listDevicesByType("SMART.TAPOBULB");
+  // const targetDevice = devices.find((d) => d.deviceId === deviceId);
+
+  // if (!targetDevice) throw new Error("❌ Gerät nicht gefunden!");
+
+  // const device = await TPLink.API.loginDevice(email, password, targetDevice);
+  // console.log("✅ Gerät erfolgreich verbunden");
+
+  // Direkter Login per IP (umgeht ARP-Problem)
   console.log("🔧 Verbinde mit Tapo-Gerät…");
 
-  const cloudApi = await TPLink.API.cloudLogin(email, password);
-  const devices = await cloudApi.listDevicesByType("SMART.TAPOBULB");
-  const targetDevice = devices.find((d) => d.deviceId === deviceId);
+  const device = await TPLink.API.loginDeviceByIp(email, password, "192.168.216.238");
 
-  if (!targetDevice) throw new Error("❌ Gerät nicht gefunden!");
+  // Gerätedaten holen
+  const info = await device.getDeviceInfo();
+  console.log("Geräte-Info:", info);
 
-  const device = await TPLink.API.loginDevice(email, password, targetDevice);
   console.log("✅ Gerät erfolgreich verbunden");
+
   return device;
 }

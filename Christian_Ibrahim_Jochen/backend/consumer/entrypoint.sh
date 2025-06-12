@@ -1,16 +1,15 @@
 #!/bin/sh
+set -e
 
-# Ziel-IP
-TARGET_IP=192.168.216.238
+# Use an environment variable if you prefer, otherwise hard-coded works.
+TARGET_IP=${TAPO_DEVICE_IP:-192.168.216.238}
 
-# Einmal ARP erzwingen – auch wenn keine Antwort kommt
-echo "running setup…"
-echo "Führe initialen Ping zu $TARGET_IP aus, um ARP zu triggern..."
-ping -c 5  $TARGET_IP > /dev/null || true
+echo "🏁 Running setup…"
+echo "🔄 Pinging $TARGET_IP to prime ARP cache"
+ping -c 5 "$TARGET_IP" > /dev/null || true
 
-# Jetzt 2 Sekunden warten, damit ARP-Cache sich füllt
+# Give the kernel a moment to update its ARP table
 sleep 2
 
-echo "Starte Consumer-Server…"
-
+echo "🚀 Starting consumer server…"
 exec npm start

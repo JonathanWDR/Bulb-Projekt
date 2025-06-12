@@ -31,6 +31,7 @@ services:
       TAPO_EMAIL: "ibrtkc@yahoo.com"
       TAPO_PASSWORD: "dypzeG-myxpez-1wukqe"
       TAPO_DEVICE_ID: 8023C48528797B47756D91E839E4C966237FB3C7
+      TAPO_DEVICE_IP: "192.168.216.238"
       DEV_MODE: "false"
     depends_on:
       - rabbitmq
