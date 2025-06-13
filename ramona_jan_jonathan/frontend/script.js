@@ -3,12 +3,36 @@ const img = document.getElementById("bulb-img");
 const colorCircles = document.querySelectorAll('.color-circle');
 const brightnessSlider = document.getElementById("brightness");
 
+let isLampOn = true; // global lamp state
+
+function toggleLampState(on) {
+    console.log(on);
+    if (on === undefined) {
+
+        if (isLampOn) {
+            isLampOn = false;
+            img.classList.remove("glow-on");
+            sendCommand("off");
+        } else {
+            isLampOn = true;
+            img.classList.add("glow-on");
+            sendCommand("on");
+        }
+    } else {
+        if(on != isLampOn)
+            toggleLampState();
+    }
+
+}
+
 
 ////////////////////// CURRENTLY JUST ON/OFF IS SENT TO BACKEND //////////////////////
 
 /* an / aus Regler*/
 img.addEventListener("click", () => {
-    img.classList.toggle("glow-on");
+
+    toggleLampState(!isLampOn);
+    console.log("Lamp state toggled:", isLampOn ? "ON" : "OFF");
     
 });
 
@@ -59,14 +83,14 @@ async function blinkMorse(morseString) {
 
     for (const symbol of morseString) {
         if (symbol === '.') {
-            toggleGlow(true);
+            toggleLampState(true);
             await delay(200);
-            toggleGlow(false);
+            toggleLampState(false);
             await delay(200);
         } else if (symbol === '-') {
-            toggleGlow(true);
+            toggleLampState(true);
             await delay(600);
-            toggleGlow(false);
+            toggleLampState(false);
             await delay(200);
         } else if (symbol === ' ') {
             await delay(400); // Abstand zwischen Buchstaben
@@ -82,20 +106,6 @@ function sendCommand(state) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ state })
   }).then(res => res.json()).then(data => console.log(data));
-}
-
-
-
-function toggleGlow(on) {
-    if (on) {
-        img.classList.add("glow-on");
-        
-    } else {
-        img.classList.remove("glow-on");
-
-        sendCommand("off");
-        console.log("command sent from frontend to turn lamp off ...");
-    }
 }
 
 const inputField = document.querySelector(".color-text-input");
