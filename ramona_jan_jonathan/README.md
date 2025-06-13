@@ -1,23 +1,24 @@
-# Basis Struktur des Projekts
-consumer: enthält das repo https://github.com/DrBackmischung/DHBW-Mannheim-WI2023SEB-Consumer/blob/main/README.md
-producer: enthält das repo https://github.com/DrBackmischung/DHBW-Mannheim-WI2023SEB-Producer/blob/main/README.md
-src: sind die configs für die tplink-bulbs https://github.com/DrBackmischung/tplink-bulbs/tree/main/src
-ui: enthält die Grafik der benutzer oberfläche
+- install docker extension in vs code
+
+- npm init -y
+- npm install express amqplib cors
+
+- make sure .env exists
+    TP_EMAIL=deine-email@example.com
+    TP_PASSWORD=dein-passwort
+    TP_DEVICE_ID=deine-device-id
+
+- make sure docker-compose.yml exists
 
 
+# 1. Start RabbitMQ
+docker-compose up -d
 
-Was noch gebraucht wird um producer und consumer zu starten:
+# 2. Start backend server
+node backend/server.js
+(consumer & producer are started in the server script)
 
-Eine Datei `.env` im Projektverzeichnis mit folgenden Variablen:
+# 4. Open in browser
+http://localhost:3000
 
-```
-EMAIL=deine-email@example.com
-PASSWORD=dein-passwort
-DEVICE_ID=deine-device-id
-```
-
-Danach kann der Consumer mit `npm run start:consumer` gestartet werden.
-
-und rabbitMQ starten:
-docker run -d --hostname my-rabbit --name some-rabbit -p 5672:5672 rabbitmq:3
-
+(Visit RabbitMQ UI at: http://localhost:15672 (user: guest, pass: guest))

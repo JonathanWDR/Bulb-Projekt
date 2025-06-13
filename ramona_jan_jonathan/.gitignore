@@ -1,8 +1,17 @@
-# node_modules Ordner ignorieren
-node_modules/
+# Node modules
+/node_modules/
 
-# Environment files 
+# Environment files
 .env
 
-# Alle JSON-Dateien ignorieren
-*.json
+# IDE / Editor
+.idea/
+.vscode/
+
+# Build output
+dist/
+build/
+
+# Betriebssystem
+.DS_Store
+Thumbs.db

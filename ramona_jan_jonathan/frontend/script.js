@@ -1,9 +1,15 @@
+
 const img = document.getElementById("bulb-img");
 const colorCircles = document.querySelectorAll('.color-circle');
 const brightnessSlider = document.getElementById("brightness");
+
+
+////////////////////// CURRENTLY JUST ON/OFF IS SENT TO BACKEND //////////////////////
+
 /* an / aus Regler*/
 img.addEventListener("click", () => {
     img.classList.toggle("glow-on");
+    
 });
 
 /*Farbregler*/
@@ -70,13 +76,28 @@ async function blinkMorse(morseString) {
     // Nach Ende: Lampe wieder anschalten
     toggleGlow(true);
 }
+function sendCommand(state) {
+  fetch('/led', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ state })
+  }).then(res => res.json()).then(data => console.log(data));
+}
+
+
+
 function toggleGlow(on) {
     if (on) {
         img.classList.add("glow-on");
+        
     } else {
         img.classList.remove("glow-on");
+
+        sendCommand("off");
+        console.log("command sent from frontend to turn lamp off ...");
     }
 }
+
 const inputField = document.querySelector(".color-text-input");
 
 inputField.addEventListener("keydown", (event) => {
