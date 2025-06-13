@@ -35,18 +35,13 @@
                 <h3>Farbeinstellungen</h3>
                 
                 <div class="control-group">
-                    <label for="hue">Farbton (Hue, °):</label>
-                    <input type="text" id="hue" inputmode="numeric" pattern="[0-9]*" maxlength="3" class="nice-input" placeholder="0-360">
+                    <label for="colorPicker">Farbe:</label>
+                    <input type="color" id="colorPicker" value="#ffcc00" class="color-input">
                 </div>
 
                 <div class="control-group">
-                    <label for="saturation">Sättigung (%):</label>
-                    <input type="text" id="saturation" inputmode="numeric" pattern="[0-9]*" maxlength="3" class="nice-input" placeholder="0-100">
-                </div>
-
-                <div class="control-group">
-                    <label for="lightness">Farb-Helligkeit (%):</label>
-                    <input type="text" id="lightness" inputmode="numeric" pattern="[0-9]*" maxlength="3" class="nice-input" placeholder="0-100">
+                    <label for="hexColor">Hex-Code:</label>
+                    <input type="text" id="hexColor" class="nice-input" value="#ffcc00" maxlength="7" placeholder="#000000">
                 </div>
             </div>
 

@@ -2,9 +2,7 @@ class LightbulbController {
     constructor() {
         this.isOn = false;
         this.brightness = 50;
-        this.hue = 60;
-        this.saturation = 100;
-        this.lightness = 50;
+        this.hexColor = "#ffcc00";
         this.morseInterval = null;
         this.apiBaseUrl = 'http://localhost:3000';
         
@@ -17,43 +15,52 @@ class LightbulbController {
         this.lightbulb = document.getElementById('lightbulb');
         this.powerToggle = document.getElementById('powerToggle');
         this.brightnessInput = document.getElementById('brightness');
-        this.hueInput = document.getElementById('hue');
-        this.saturationInput = document.getElementById('saturation');
-        this.lightnessInput = document.getElementById('lightness');
+        this.colorPicker = document.getElementById('colorPicker');
+        this.hexColorInput = document.getElementById('hexColor');
         this.morseInput = document.getElementById('morseInput');
         this.sendMorseBtn = document.getElementById('sendMorse');
         this.morseOutput = document.getElementById('morseOutput');
         this.morseStatus = document.getElementById('morseStatus');
         
         this.brightnessValue = document.getElementById('brightnessValue');
-        this.hueValue = document.getElementById('hueValue');
-        this.saturationValue = document.getElementById('saturationValue');
-        this.lightnessValue = document.getElementById('lightnessValue');
     }
 
     bindEvents() {
         this.powerToggle.addEventListener('change', () => this.togglePower());
         this.brightnessInput.addEventListener('input', (e) => this.setBrightness(e.target.value));
-        this.hueInput.addEventListener('input', (e) => this.setHue(e.target.value));
-        this.saturationInput.addEventListener('input', (e) => this.setSaturation(e.target.value));
-        this.lightnessInput.addEventListener('input', (e) => this.setLightness(e.target.value));
+        this.colorPicker.addEventListener('input', (e) => this.setColor(e.target.value));
+        this.hexColorInput.addEventListener('input', (e) => this.setColorFromHex(e.target.value));
         this.sendMorseBtn.addEventListener('click', () => this.startMorseCode());
     }
 
-    morseCodeMap = {  
-        'A': '.-', 'B': '-...', 'C': '-.-.', 'D': '-..', 'E': '.', 'F': '..-.', 'G': '--.', 'H': '....', 'I': '..', 'J': '.---',
-        'K': '-.-', 'L': '.-..', 'M': '--', 'N': '-.', 'O': '---', 'P': '.--.', 'Q': '--.-', 'R': '.-.', 'S': '...', 'T': '-',
-        'U': '..-', 'V': '...-', 'W': '.--', 'X': '-..-', 'Y': '-.--', 'Z': '--..',
-        '0': '-----', '1': '.----', '2': '..---', '3': '...--', '4': '....-', '5': '.....', '6': '-....', '7': '--...', '8': '---..', '9': '----.',
-        '.': '.-.-.-', ',': '--..--', '?': '..--..', "'": '.----.', '!': '-.-.--', '/': '-..-.', '(': '-.--.', ')': '-.--.-', '&': '.-...',
-        ':': '---...', ';': '-.-.-.', '=': '-...-', '+': '.-.-.', '-': '-....-', '_': '..--.-', '"': '.-..-.', '$': '...-..-', '@': '.--.-.',
-        ' ': '/'
-    };
+    // Convert hex to RGB
+    hexToRgb(hex) {
+        // Remove the # if present
+        hex = hex.replace(/^#/, '');
+        
+        return {
+            r: parseInt(hex.substring(0, 2), 16),
+            g: parseInt(hex.substring(2, 4), 16),
+            b: parseInt(hex.substring(4, 6), 16)
+        };
+    }
 
-    textToMorse(text) {
-        return text.toUpperCase().split('').map(char => 
-            this.morseCodeMap[char] || ''
-        ).join(' ');
+    setColor(hexColor) {
+        // Update hex input to match color picker
+        this.hexColorInput.value = hexColor;
+        this.hexColor = hexColor;
+        
+        this.updateColor();
+    }
+
+    setColorFromHex(hexInput) {
+        // Validate hex format
+        if (/^#[0-9A-F]{6}$/i.test(hexInput)) {
+            // Update color picker to match hex input
+            this.colorPicker.value = hexInput;
+            this.hexColor = hexInput;
+            this.updateColor();
+        }
     }
 
     async apiCall(endpoint, data = null) {
@@ -114,42 +121,18 @@ class LightbulbController {
         this.updateDisplay();
     }
 
-    async setHue(value) {
-        this.hue = parseInt(value);
-        if (this.hueValue) {
-            this.hueValue.textContent = `${this.hue}°`;
-        }
-        await this.updateColor();
-        console.log(`Farbton gesetzt auf: ${this.hue}° (API)`);
-    }
-
-    async setSaturation(value) {
-        this.saturation = parseInt(value);
-        if (this.saturationValue) {
-            this.saturationValue.textContent = `${this.saturation}%`;
-        }
-        await this.updateColor();
-        console.log(`Sättigung gesetzt auf: ${this.saturation}% (API)`);
-    }
-
-    async setLightness(value) {
-        this.lightness = parseInt(value);
-        if (this.lightnessValue) {
-            this.lightnessValue.textContent = `${this.lightness}%`;
-        }
-        await this.updateColor();
-        console.log(`Farb-Helligkeit gesetzt auf: ${this.lightness}% (API)`);
-    }
-
     async updateColor() {
+        const { r, g, b } = this.hexToRgb(this.hexColor);
+        
         const colorValue = {
-            hue: this.hue,
-            saturation: this.saturation,
-            lightness: this.lightness
+            red: r,
+            green: g,
+            blue: b
         };
         
         try {
             await this.apiCall('/color', { value: colorValue });
+            console.log(`Farbe gesetzt auf: RGB(${r}, ${g}, ${b}) / ${this.hexColor} (API)`);
         } catch (error) {
             console.error('Fehler beim Setzen der Farbe:', error);
         }
@@ -161,10 +144,16 @@ class LightbulbController {
         if (this.isOn) {
             this.lightbulb.classList.add('on');
             
-            const actualLightness = (this.lightness * this.brightness) / 100;
+            const { r, g, b } = this.hexToRgb(this.hexColor);
             
-            const color = `hsl(${this.hue}, ${this.saturation}%, ${actualLightness}%)`;
-            const glowColor = `hsl(${this.hue}, ${this.saturation}%, ${Math.min(actualLightness + 20, 90)}%)`;
+            // Adjust brightness
+            const brightnessMultiplier = this.brightness / 100;
+            const adjustedR = Math.round(r * brightnessMultiplier);
+            const adjustedG = Math.round(g * brightnessMultiplier);
+            const adjustedB = Math.round(b * brightnessMultiplier);
+            
+            const color = `rgb(${adjustedR}, ${adjustedG}, ${adjustedB})`;
+            const glowColor = `rgba(${r}, ${g}, ${b}, 0.7)`;
             
             const bulb = this.lightbulb.querySelector('.bulb');
             bulb.style.background = color;
@@ -177,6 +166,22 @@ class LightbulbController {
         }
     }
 
+    textToMorse(text) {
+        const morseCodeMap = {  
+            'A': '.-', 'B': '-...', 'C': '-.-.', 'D': '-..', 'E': '.', 'F': '..-.', 'G': '--.', 'H': '....', 'I': '..', 'J': '.---',
+            'K': '-.-', 'L': '.-..', 'M': '--', 'N': '-.', 'O': '---', 'P': '.--.', 'Q': '--.-', 'R': '.-.', 'S': '...', 'T': '-',
+            'U': '..-', 'V': '...-', 'W': '.--', 'X': '-..-', 'Y': '-.--', 'Z': '--..',
+            '0': '-----', '1': '.----', '2': '..---', '3': '...--', '4': '....-', '5': '.....', '6': '-....', '7': '--...', '8': '---..', '9': '----.',
+            '.': '.-.-.-', ',': '--..--', '?': '..--..', "'": '.----.', '!': '-.-.--', '/': '-..-.', '(': '-.--.', ')': '-.--.-', '&': '.-...',
+            ':': '---...', ';': '-.-.-.', '=': '-...-', '+': '.-.-.', '-': '-....-', '_': '..--.-', '"': '.-..-.', '$': '...-..-', '@': '.--.-.',
+            ' ': '/'
+        };
+        
+        return text.toUpperCase().split('').map(char => 
+            morseCodeMap[char] || ''
+        ).join(' ');
+    }
+    
     async startMorseCode() {
         const text = this.morseInput.value.trim();
         if (!text) return;
