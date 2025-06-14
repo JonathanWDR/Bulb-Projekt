@@ -100,7 +100,7 @@ async function blinkMorse(morseString) {
     // Nach Ende: Lampe wieder anschalten
     toggleGlow(true);
 }
-function sendCommand(state) {
+function sendState(poweredOn, brightness, color) {
   fetch('/led', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },

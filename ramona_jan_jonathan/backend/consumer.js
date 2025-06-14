@@ -42,7 +42,7 @@ async function initConsumer() {
 
     lampState.poweredOn = deviceInfo.device_on;
     lampState.brightness = deviceInfo.brightness;
-    lampState.color = 'unknown';
+    lampState.color = deviceInfo.color_mode;
     console.log('Initial Lamp State:', lampState);
 
     console.log('⚙️ Starting queue consumer...');
@@ -73,6 +73,7 @@ async function consume(device) {
               console.log("Device turning off...")
 
             
+                
             
 
             // call function send state to device
