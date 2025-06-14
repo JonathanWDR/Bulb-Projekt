@@ -90,11 +90,11 @@ Eine besondere Funktion unserer Anwendung ist die Morse-Code-Übertragung:
 
 <!-- ### 5. Fehlerbehandlung und Persistenz -->
 
-Die Anwendung enthält verschiedene Mechanismen zur Fehlerbehandlung:
+<!-- Die Anwendung enthält verschiedene Mechanismen zur Fehlerbehandlung:
 - Automatische Wiederverbindung bei Verbindungsabbrüchen der WebSocket-Verbindung
 - Fehlerbehandlung bei ungültigen Befehlen im Consumer
 - Persistente Nachrichten durch `{ durable: true }`-Konfiguration der Queues
-- Explizite Bestätigungen (Acknowledgments) für Nachrichten im Consumer
+- Explizite Bestätigungen (Acknowledgments) für Nachrichten im Consumer -->
 
 ## Vorteile unserer Implementierung
 
