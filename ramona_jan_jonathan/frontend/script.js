@@ -4,31 +4,23 @@ const colorCircles = document.querySelectorAll('.color-circle');
 const brightnessSlider = document.getElementById("brightness");
 
 let isLampOn = true; // global lamp state
+let brightness = brightnessSlider.value; // default from slider
+let colorHex = "#aaffff"; // default color
+
 
 function toggleLampState(on) {
-    console.log(on);
     if (on === undefined) {
-
-        if (isLampOn) {
-            isLampOn = false;
-            img.classList.remove("glow-on");
-            sendCommand("off");
-        } else {
-            isLampOn = true;
-            img.classList.add("glow-on");
-            sendCommand("on");
-        }
+        isLampOn = !isLampOn;
+    } else if (on !== isLampOn) {
+        isLampOn = on;
     } else {
-        if(on != isLampOn)
-            toggleLampState();
+        return; // no change
     }
 
+    updateUI();
+    sendState(isLampOn, brightness, colorHex);
 }
 
-
-////////////////////// CURRENTLY JUST ON/OFF IS SENT TO BACKEND //////////////////////
-
-/* an / aus Regler*/
 img.addEventListener("click", () => {
 
     toggleLampState(!isLampOn);
@@ -38,24 +30,41 @@ img.addEventListener("click", () => {
 
 /*Farbregler*/
 
+function rgbToHex(rgb) {
+    const [r, g, b] = rgb.split(',').map(n => parseInt(n.trim()));
+    return "#" + [r, g, b].map(x => x.toString(16).padStart(2, '0')).join('');
+}
+
 colorCircles.forEach(circle => {
     circle.addEventListener('click', () => {
         const style = window.getComputedStyle(circle);
-        const color = style.backgroundColor; // z.B. "rgb(255, 0, 0)"
-        const rgbMatch = color.match(/\d+/g); // [255, 0, 0]
+        const color = style.backgroundColor;
+        const rgbMatch = color.match(/\d+/g);
         if (rgbMatch) {
             const rgb = rgbMatch.slice(0, 3).join(', ');
             img.style.setProperty('--glow-rgb', rgb);
+            colorHex = rgbToHex(rgb);
+
+            if (isLampOn) {
+                sendState(isLampOn, brightness, colorHex);
+            }
         }
     });
 });
 
+
 /*Helligkeit*/
 brightnessSlider.addEventListener('input', () => {
-    const value = brightnessSlider.value; // 1–100
-    const alpha = (value / 100).toFixed(2); // z.B. 0.75
+    brightness = brightnessSlider.value;
+    const alpha = (brightness / 100).toFixed(2);
     img.style.setProperty('--glow-alpha', alpha);
+
+    // Only send state if lamp is on
+
+    sendState(isLampOn, brightness, colorHex);
+    updateUI();
 });
+
 
 
 /*Morsecode*/
@@ -100,13 +109,24 @@ async function blinkMorse(morseString) {
     // Nach Ende: Lampe wieder anschalten
     toggleGlow(true);
 }
+
 function sendState(poweredOn, brightness, color) {
-  fetch('/led', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ state })
-  }).then(res => res.json()).then(data => console.log(data));
+    const state = {
+        poweredOn,
+        brightness: parseInt(brightness),
+        color
+    };
+
+    fetch('/led', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(state)
+    })
+    .then(res => res.json())
+    .then(data => console.log("State sent:", data))
+    .catch(err => console.error("Error sending state:", err));
 }
+
 
 const inputField = document.querySelector(".color-text-input");
 
@@ -127,79 +147,3 @@ inputField.addEventListener("keydown", (event) => {
         inputField.value = ""; // nach Senden leeren
     }
 });
-
-
-
-/*
-const colorCircles = document.querySelectorAll('.color-circle');
-
-colorCircles.forEach(circle => {
-    circle.addEventListener('click', () => {
-        const style = window.getComputedStyle(circle);
-        const color = style.backgroundColor;
-        img.style.setProperty('--glow-color', color);
-    });
-});*/
-
-
-
-
-/*import * as TPLink from 'tplink-bulbs';
-import { presetColors, getColour } from './colors.js'; // deine bestehende Datei
-
-const email = 'DEINE_EMAIL';
-const password = 'DEIN_PASSWORT';
-const deviceId = 'DEINE_DEVICE_ID';
-
-let device = null;
-const virtualBulb = document.querySelector('.glow-img');
-const picker = document.querySelector('.color-picker');
-
-// 🔁 HTML-Kreise aus presetColors erzeugen
-Object.keys(presetColors).forEach(colorName => {
-    const circle = document.createElement('div');
-    circle.classList.add('color-circle');
-    circle.style.backgroundColor = colorName;
-
-    circle.addEventListener('click', async () => {
-        const colorSetting = getColour(colorName);
-        console.log(`Farbe gewählt: ${colorName}`, colorSetting);
-
-        // 🟡 Glühbirne ansprechen
-        if (device) {
-            try {
-                await device.turnOn();
-                if ('hue' in colorSetting) {
-                    await device.setColourWithOptions(colorSetting);
-                } else if ('color_temp' in colorSetting) {
-                    await device.setColorTemperature(colorSetting.color_temp);
-                }
-            } catch (err) {
-                console.error('Fehler beim Steuern der Lampe:', err);
-            }
-        }
-
-        // 💡 Visueller Glow
-        virtualBulb.style.filter = `drop-shadow(0 0 25px ${colorName})`;
-    });
-
-    picker.appendChild(circle);
-});
-
-// 🔌 Bei Start: TP-Link verbinden
-(async function init() {
-    try {
-        const cloudApi = await TPLink.API.cloudLogin(email, password);
-        const devices = await cloudApi.listDevicesByType('SMART.TAPOBULB');
-        const target = devices.find(d => d.deviceId === deviceId);
-        if (!target) {
-            console.error('Gerät nicht gefunden!');
-            return;
-        }
-        device = await TPLink.API.loginDevice(email, password, target);
-    } catch (err) {
-        console.error('Login oder Geräteverbindung fehlgeschlagen:', err);
-    }
-})();
-
-*/
