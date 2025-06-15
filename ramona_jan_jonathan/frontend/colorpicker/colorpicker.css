@@ -1,0 +1,53 @@
+.container {
+            max-width: 600px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        
+        .box {
+            width: 40vh;
+            height: 40vh;
+            margin: 20px auto;
+            border-radius: 50%;
+            background: conic-gradient(
+                hsl(0, 100%, 50%) 0deg,
+                hsl(30, 100%, 50%) 30deg,
+                hsl(60, 100%, 50%) 60deg,
+                hsl(90, 100%, 50%) 90deg,
+                hsl(120, 100%, 50%) 120deg,
+                hsl(150, 100%, 50%) 150deg,
+                hsl(180, 100%, 50%) 180deg,
+                hsl(210, 100%, 50%) 210deg,
+                hsl(240, 100%, 50%) 240deg,
+                hsl(270, 100%, 50%) 270deg,
+                hsl(300, 100%, 50%) 300deg,
+                hsl(330, 100%, 50%) 330deg,
+                hsl(360, 100%, 50%) 360deg
+            );
+            -webkit-mask: radial-gradient(farthest-side,
+                rgba(0,0,0,0.1) 0 10%,
+                rgba(0,0,0,0.2) 0 20%,
+                rgba(0,0,0,0.3) 0 30%,
+                rgba(0,0,0,0.4) 0 40%,
+                rgba(0,0,0,0.5) 0 50%,
+                rgba(0,0,0,0.6) 0 60%,
+                rgba(0,0,0,0.7) 0 70%,
+                rgba(0,0,0,0.8) 0 80%,
+                rgba(0,0,0,0.9) 0 90%,
+                rgba(0,0,0,1) 0 100%
+            );
+            mask: radial-gradient(farthest-side,
+                rgba(0,0,0,0.1) 0 10%,
+                rgba(0,0,0,0.2) 0 20%,
+                rgba(0,0,0,0.3) 0 30%,
+                rgba(0,0,0,0.4) 0 40%,
+                rgba(0,0,0,0.5) 0 50%,
+                rgba(0,0,0,0.6) 0 60%,
+                rgba(0,0,0,0.7) 0 70%,
+                rgba(0,0,0,0.8) 0 80%,
+                rgba(0,0,0,0.9) 0 90%,
+                rgba(0,0,0,1) 0 100%
+            );
+            cursor: crosshair;
+            position: relative;
+        }

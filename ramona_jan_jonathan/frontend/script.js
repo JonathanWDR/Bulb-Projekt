@@ -63,7 +63,11 @@ colorCircles.forEach(circle => {
     });
 });
 
-
+function pickedColor(color) {
+    console.log("Picked color:", color);
+    colorHex = color;
+    update();
+}
 
 // Send only once the slider is released
 brightnessSlider.addEventListener('change', () => {
