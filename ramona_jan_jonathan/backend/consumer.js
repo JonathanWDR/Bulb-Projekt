@@ -59,38 +59,39 @@ async function consume(device) {
     ch.consume(QUEUE, async (msg) => {
         if (msg !== null) {
             const state = msg.content.toString();
-
             console.log('📩 Received from queue (consumer):', state);
 
             const newState = JSON.parse(state);
-            lampState.poweredOn = newState.poweredOn;
-            lampState.brightness = newState.brightness;
-            lampState.color = newState.color;
-            console.log('Updated Lamp State (consumer):', lampState);
-            
-            if(lampState.poweredOn)
-              await device.turnOn();
-              console.log("Device turning on...")
 
-            if(!lampState.poweredOn)
-              await device.turnOff();
-              console.log("Device turning off...")
+            // Track if any change was made
+            if (newState.poweredOn !== lampState.poweredOn) {
+                lampState.poweredOn = newState.poweredOn;
+                if (lampState.poweredOn) {
+                    await device.turnOn();
+                    console.log("Device turning on...");
+                } else {
+                    await device.turnOff();
+                    console.log("Device turning off...");
+                }
+            }
 
-            
-            await device.setBrightness(lampState.brightness);
-            console.log(`Setting brightness to ${lampState.brightness}%`);
+            if (newState.brightness !== lampState.brightness) {
+                lampState.brightness = newState.brightness;
+                await device.setBrightness(lampState.brightness);
+                console.log(`Setting brightness to ${lampState.brightness}%`);
+            }
 
-            await device.setColour(lampState.color);
-            console.log(`Setting color to ${lampState.color}`);
-            
-
-            // call function send state to device
-            //console.log('🔄 API Call would happen here');
+            if (newState.color !== lampState.color) {
+                lampState.color = newState.color;
+                await device.setColour(lampState.color);
+                console.log(`Setting color to ${lampState.color}`);
+            }
 
             ch.ack(msg);
         }
     });
 }
+
 
 
 initConsumer();
