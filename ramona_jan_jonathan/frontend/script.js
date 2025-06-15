@@ -3,7 +3,7 @@ const img = document.getElementById("bulb-img");
 const colorCircles = document.querySelectorAll('.color-circle');
 const brightnessSlider = document.getElementById("brightness");
 
-let isLampOn = true; // global lamp state
+let isLampOn = false; // global lamp state
 let brightness = brightnessSlider.value; // default from slider
 let colorHex = "#aaffff"; // default color
 
@@ -80,8 +80,10 @@ function update() {
 
     if (isLampOn) {
         img.classList.add("glow-on");
+        img.src = "./assets/off_white.svg";  // <-- Add this line
     } else {
         img.classList.remove("glow-on");
+        img.src = "./assets/off_white.svg";      // <-- Add this line
     }
 
     // Update brightness (alpha)
