@@ -1,11 +1,29 @@
 
 const img = document.getElementById("bulb-img");
+const bulbWrapper = document.getElementById("bulb-fill-wrapper");
+let bulbFillPath = null; // this will hold the actual <path> inside the SVG
+
 const colorCircles = document.querySelectorAll('.color-circle');
 const brightnessSlider = document.getElementById("brightness");
 
 let isLampOn = false; // global lamp state
 let brightness = brightnessSlider.value; // default from slider
 let colorHex = "#aaffff"; // default color
+
+fetch('./assets/black.svg')
+  .then(res => res.text())
+  .then(svgText => {
+    bulbWrapper.innerHTML = svgText;
+
+    bulbFillPath = bulbWrapper.querySelector('#bulb-fill');
+    console.log("Bulb fill path:", bulbFillPath);
+
+    bulbWrapper.querySelector('svg').style.width = "100%";
+    bulbWrapper.querySelector('svg').style.height = "100%";
+
+    update();
+  });
+
 
 
 function toggleLampState(on) {
@@ -14,7 +32,7 @@ function toggleLampState(on) {
     } else if (on !== isLampOn) {
         isLampOn = on;
     } else {
-        return; // no change
+        return;
     }
 
     update();
@@ -80,15 +98,20 @@ function update() {
 
     if (isLampOn) {
         img.classList.add("glow-on");
-        img.src = "./assets/off_white.svg";  // <-- Add this line
+        
+        bulbFillPath.style.fill = colorHex;
+        
     } else {
         img.classList.remove("glow-on");
-        img.src = "./assets/off_white.svg";      // <-- Add this line
+
+        bulbFillPath.style.fill = "#1c1c1c"
     }
 
     // Update brightness (alpha)
     const alpha = (brightness / 100).toFixed(2);
+    console.log("Brightness (alpha):", alpha);
     img.style.setProperty('--glow-alpha', alpha);
+    bulbFillPath.style.opacity = alpha;
 
     // Update color (RGB)
     // Convert hex color to rgb
@@ -102,10 +125,10 @@ function update() {
 
     img.style.setProperty('--glow-rgb', hexToRgb(colorHex));
 
+
     console.log("Updated state:", {
         poweredOn: isLampOn,
         brightness,
         color: colorHex
     });
 }
-

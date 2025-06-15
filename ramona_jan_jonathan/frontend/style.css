@@ -1,5 +1,5 @@
 body {
-    background-color: #121212;
+    background-color: #333333;      /* #121212;*/
     margin: 0;
     padding: 0;
     display: grid;
@@ -17,9 +17,11 @@ body {
 .bulb-container {
     position: relative;
     display: grid;
+    width: 35vh;
+    left: calc(50% - 17.5vh); /* Centering the container */
     align-items: center;
     justify-content: center;
-    background-color: #888;
+
 }
 
 .glow-img {
@@ -28,7 +30,20 @@ body {
     border-radius: 20px;
     transition: box-shadow 0.5s ease;
     align-items: center;
+    z-index: 2;
 }
+
+.glow-fill {
+    position: absolute;
+    width: 33vh;
+    height: auto;
+    left: 1vh;
+    top: 2vh;
+    z-index: 1;
+
+}
+
+
 
 /* Leuchtender Rand aktiv
 .glow-on {
@@ -41,9 +56,7 @@ body {
 }
 */
 .glow-on {
-    --glow-rgb: 255, 200, 0;
-    --glow-alpha: 0.5;
-    box-shadow: 0 0 40px 15px rgba(var(--glow-rgb), var(--glow-alpha));
+    filter: drop-shadow(0 0 20px rgba(var(--glow-rgb), var(--glow-alpha)));
 }
 
 

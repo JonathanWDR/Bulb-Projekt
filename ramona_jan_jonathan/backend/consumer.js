@@ -94,4 +94,4 @@ async function consume(device) {
 
 
 
-initConsumer();
+//initConsumer();
