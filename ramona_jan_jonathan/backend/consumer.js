@@ -60,20 +60,28 @@ async function consume(device) {
         if (msg !== null) {
             const state = msg.content.toString();
 
-            console.log('📩 Received from queue:', state);
+            console.log('📩 Received from queue (consumer):', state);
 
-            // call function update state
-            console.log('New State:', lampState);
-            if(state === 'on')
+            const newState = JSON.parse(state);
+            lampState.poweredOn = newState.poweredOn;
+            lampState.brightness = newState.brightness;
+            lampState.color = newState.color;
+            console.log('Updated Lamp State (consumer):', lampState);
+            
+            if(lampState.poweredOn)
               await device.turnOn();
               console.log("Device turning on...")
 
-            if(state === 'off')
+            if(!lampState.poweredOn)
               await device.turnOff();
               console.log("Device turning off...")
 
             
-                
+            await device.setBrightness(lampState.brightness);
+            console.log(`Setting brightness to ${lampState.brightness}%`);
+
+            await device.setColour(lampState.color);
+            console.log(`Setting color to ${lampState.color}`);
             
 
             // call function send state to device

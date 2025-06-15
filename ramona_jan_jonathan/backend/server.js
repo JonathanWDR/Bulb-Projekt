@@ -14,7 +14,8 @@ app.use(cors());
 app.use(express.static(path.join(__dirname, '../frontend')));
 
 app.post('/led', async (req, res) => {
-  const { state } = req.body;
+  const state = req.body;
+  console.log('📩 Received state (server):', state);
   await producer.sendToQueue(state);
   res.send({ status: 'Message sent to queue', state });
 });

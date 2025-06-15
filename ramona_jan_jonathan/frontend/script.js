@@ -17,15 +17,11 @@ function toggleLampState(on) {
         return; // no change
     }
 
-    updateUI();
-    sendState(isLampOn, brightness, colorHex);
+    update();
 }
 
 img.addEventListener("click", () => {
-
     toggleLampState(!isLampOn);
-    console.log("Lamp state toggled:", isLampOn ? "ON" : "OFF");
-    
 });
 
 /*Farbregler*/
@@ -42,73 +38,22 @@ colorCircles.forEach(circle => {
         const rgbMatch = color.match(/\d+/g);
         if (rgbMatch) {
             const rgb = rgbMatch.slice(0, 3).join(', ');
-            img.style.setProperty('--glow-rgb', rgb);
             colorHex = rgbToHex(rgb);
 
-            if (isLampOn) {
-                sendState(isLampOn, brightness, colorHex);
-            }
+            update();
+            
         }
     });
 });
 
 
-/*Helligkeit*/
-brightnessSlider.addEventListener('input', () => {
+
+// Send only once the slider is released
+brightnessSlider.addEventListener('change', () => {
     brightness = brightnessSlider.value;
-    const alpha = (brightness / 100).toFixed(2);
-    img.style.setProperty('--glow-alpha', alpha);
-
-    // Only send state if lamp is on
-
-    sendState(isLampOn, brightness, colorHex);
-    updateUI();
+    update(); // Send the brightness value only here
 });
 
-
-
-/*Morsecode*/
-const morseCodeMap = {
-    a: '.-',    b: '-...',  c: '-.-.',  d: '-..',
-    e: '.',     f: '..-.',  g: '--.',   h: '....',
-    i: '..',    j: '.---',  k: '-.-',   l: '.-..',
-    m: '--',    n: '-.',    o: '---',   p: '.--.',
-    q: '--.-',  r: '.-.',   s: '...',   t: '-',
-    u: '..-',   v: '...-',  w: '.--',   x: '-..-',
-    y: '-.--',  z: '--..'
-};
-
-function textToMorse(text) {
-    return text
-        .toLowerCase()
-        .split('')
-        .filter(char => morseCodeMap[char])
-        .map(char => morseCodeMap[char])
-        .join(' ');
-}
-
-async function blinkMorse(morseString) {
-    const delay = (ms) => new Promise(res => setTimeout(res, ms));
-
-    for (const symbol of morseString) {
-        if (symbol === '.') {
-            toggleLampState(true);
-            await delay(200);
-            toggleLampState(false);
-            await delay(200);
-        } else if (symbol === '-') {
-            toggleLampState(true);
-            await delay(600);
-            toggleLampState(false);
-            await delay(200);
-        } else if (symbol === ' ') {
-            await delay(400); // Abstand zwischen Buchstaben
-        }
-    }
-
-    // Nach Ende: Lampe wieder anschalten
-    toggleGlow(true);
-}
 
 function sendState(poweredOn, brightness, color) {
     const state = {
@@ -116,6 +61,7 @@ function sendState(poweredOn, brightness, color) {
         brightness: parseInt(brightness),
         color
     };
+    console.log("Sending state:", state);
 
     fetch('/led', {
         method: 'POST',
@@ -128,22 +74,36 @@ function sendState(poweredOn, brightness, color) {
 }
 
 
-const inputField = document.querySelector(".color-text-input");
+function update() {
 
-inputField.addEventListener("keydown", (event) => {
-    if (event.key === "Enter") {
-        const text = inputField.value.trim();
-        if (!text) return;
+    sendState(isLampOn, brightness, colorHex);
 
-        if (!img.classList.contains("glow-on")) {
-            alert("Lampe ist aus – bitte zuerst einschalten.");
-            return;
-        }
-
-        const morse = textToMorse(text);
-        console.log("Morse:", morse);
-        blinkMorse(morse);
-
-        inputField.value = ""; // nach Senden leeren
+    if (isLampOn) {
+        img.classList.add("glow-on");
+    } else {
+        img.classList.remove("glow-on");
     }
-});
+
+    // Update brightness (alpha)
+    const alpha = (brightness / 100).toFixed(2);
+    img.style.setProperty('--glow-alpha', alpha);
+
+    // Update color (RGB)
+    // Convert hex color to rgb
+    const hexToRgb = (hex) => {
+        const bigint = parseInt(hex.slice(1), 16);
+        const r = (bigint >> 16) & 255;
+        const g = (bigint >> 8) & 255;
+        const b = bigint & 255;
+        return `${r}, ${g}, ${b}`;
+    };
+
+    img.style.setProperty('--glow-rgb', hexToRgb(colorHex));
+
+    console.log("Updated state:", {
+        poweredOn: isLampOn,
+        brightness,
+        color: colorHex
+    });
+}
+

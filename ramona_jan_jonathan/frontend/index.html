@@ -1,41 +1,46 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>Bulb UI</title>
     <link rel="stylesheet" href="./style.css">
 </head>
+
 <body>
 
-<div class="bulb-container">
-    <img src="./bulb.png" alt="bulb-img" class="glow-img glow-on" id="bulb-img">
-</div>
+    <div class="bulb-container">
+        <img src="./bulb.png" alt="bulb-img" class="glow-img glow-on" id="bulb-img">
+    </div>
 
-<div class="color-picker">
-    <div class="color-circle red"></div>
-    <div class="color-circle orange"></div>
-    <div class="color-circle amber"></div>
-    <div class="color-circle yellow"></div>
-    <div class="color-circle lime"></div>
-    <div class="color-circle green"></div>
-    <div class="color-circle turquoise"></div>
-    <div class="color-circle cyan"></div>
-    <div class="color-circle skyblue"></div>
-    <div class="color-circle blue"></div>
-    <div class="color-circle indigo"></div>
-    <div class="color-circle violet"></div>
-    <div class="color-circle magenta"></div>
-    <div class="color-circle pink"></div>
-</div>
+    <div class="color-picker">
+        <div class="color-circle red"></div>
+        <div class="color-circle orange"></div>
+        <div class="color-circle amber"></div>
+        <div class="color-circle yellow"></div>
+        <div class="color-circle lime"></div>
+        <div class="color-circle green"></div>
+        <div class="color-circle turquoise"></div>
+        <div class="color-circle cyan"></div>
+        <div class="color-circle skyblue"></div>
+        <div class="color-circle blue"></div>
+        <div class="color-circle indigo"></div>
+        <div class="color-circle violet"></div>
+        <div class="color-circle magenta"></div>
+        <div class="color-circle pink"></div>
+    </div>
 
-<div class="brightness-slider">
-    <input type="range" id="brightness" min="1" max="100" value="50">
-</div>
+    <div class="brightness-slider">
+        <input type="range" id="brightness" min="1" max="100" value="100">
+    </div>
 
-<div class="text-input-container">
-    <input type="text" placeholder="morsecode input" class="color-text-input" />
-</div>
 
-<script src="./script.js"></script>
+    <div class="text-input-container">
+        <input type="text" placeholder="morsecode input" class="morse-input" />
+    </div>
+
+    <script src="./script.js"></script>
+    <script src="./morse.js"></script>
 </body>
+
 </html>
