@@ -26,7 +26,6 @@ export async function transmitMorseCode(text, device, lampState) {
   const morseCode = textToMorse(text);
   console.log(`Text: ${text} => Morse: ${morseCode}`);
   
-  // Saving the original state of the lamp
   const originalState = {
     poweredOn: lampState.poweredOn,
     brightness: lampState.brightness
@@ -37,36 +36,34 @@ export async function transmitMorseCode(text, device, lampState) {
       const symbol = morseCode[i];
       
       switch (symbol) {
-        case '.': // dot
+        case '.': //
           await device.turnOn();
-          await device.setBrightness(100); // full brightness
+          await device.setBrightness(100);
           await new Promise(resolve => setTimeout(resolve, MORSE_TIMING.DOT));
           await device.turnOff();
           break;
           
-        case '-': // dash
+        case '-': 
           await device.turnOn();
-          await device.setBrightness(100); // full brightness
+          await device.setBrightness(100);
           await new Promise(resolve => setTimeout(resolve, MORSE_TIMING.DASH));
           await device.turnOff();
           break;
           
-        case ' ': // pause between letters
+        case ' ':
           await new Promise(resolve => setTimeout(resolve, MORSE_TIMING.PAUSE_BETWEEN_LETTERS));
           break;
           
-        case '/': // pause between words
+        case '/':
           await new Promise(resolve => setTimeout(resolve, MORSE_TIMING.PAUSE_BETWEEN_WORDS));
           break;
       }
       
-        // Pause between signals (dots and dashes)
       if (i < morseCode.length - 1 && symbol !== ' ' && symbol !== '/') {
         await new Promise(resolve => setTimeout(resolve, MORSE_TIMING.PAUSE_BETWEEN_SIGNALS));
       }
     }
     
-    // Restore the original state of the lamp
     if (originalState.poweredOn) {
       await device.turnOn();
       await device.setBrightness(originalState.brightness);
@@ -74,11 +71,9 @@ export async function transmitMorseCode(text, device, lampState) {
       await device.turnOff();
     }
     
-    console.log("Morse code transmission completed.");
   } catch (error) {
-    console.error("Error transmitting morse code:", error);
+    console.error(error);
     
-    // Attempt to restore the original lamp state in case of error
     try {
       if (originalState.poweredOn) {
         await device.turnOn();
@@ -87,7 +82,7 @@ export async function transmitMorseCode(text, device, lampState) {
         await device.turnOff();
       }
     } catch (e) {
-      console.error("Failed to restore lamp state:", e);
+      console.error(e);
     }
   }
 }

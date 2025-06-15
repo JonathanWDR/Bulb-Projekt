@@ -131,7 +131,7 @@ class LightbulbController {
         };
         
         try {
-            await this.apiCall('/color', { value: colorValue });
+            await this.apiCall('/color', { value: this.hexColor });
             console.log(`Farbe gesetzt auf: RGB(${r}, ${g}, ${b}) / ${this.hexColor} (API)`);
         } catch (error) {
             console.error('Fehler beim Setzen der Farbe:', error);
