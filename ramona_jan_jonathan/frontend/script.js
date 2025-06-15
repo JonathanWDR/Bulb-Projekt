@@ -8,7 +8,7 @@ const brightnessSlider = document.getElementById("brightness");
 
 let isLampOn = false; // global lamp state
 let brightness = brightnessSlider.value; // default from slider
-let colorHex = "#aaffff"; // default color
+let colorHex = "#ffdd22"; // default color
 
 fetch('./assets/black.svg')
   .then(res => res.text())
@@ -16,7 +16,6 @@ fetch('./assets/black.svg')
     bulbWrapper.innerHTML = svgText;
 
     bulbFillPath = bulbWrapper.querySelector('#bulb-fill');
-    console.log("Bulb fill path:", bulbFillPath);
 
     bulbWrapper.querySelector('svg').style.width = "100%";
     bulbWrapper.querySelector('svg').style.height = "100%";
@@ -91,6 +90,14 @@ function sendState(poweredOn, brightness, color) {
     .catch(err => console.error("Error sending state:", err));
 }
 
+const hexToRgb = (hex) => {
+           const cleanHex = hex.replace('#', '');
+           const bigint = parseInt(cleanHex, 16);
+           const r = (bigint >> 16) & 255;
+           const g = (bigint >> 8) & 255;
+           const b = bigint & 255;
+           return { r, g, b };
+       };
 
 function update() {
 
@@ -98,8 +105,18 @@ function update() {
 
     if (isLampOn) {
         img.classList.add("glow-on");
+
+        const rgb = hexToRgb(colorHex);
         
-        bulbFillPath.style.fill = colorHex;
+        const normalizedBrightness = brightness / 100;
+        const curvedBrightness = Math.pow(normalizedBrightness, 1/3);
+       
+        const minValue = 28; // #1c1c1c = 28 in decimal
+        const adjustedR = Math.round(minValue + (rgb.r - minValue) * curvedBrightness);
+        const adjustedG = Math.round(minValue + (rgb.g - minValue) * curvedBrightness);
+        const adjustedB = Math.round(minValue + (rgb.b - minValue) * curvedBrightness);
+       
+        bulbFillPath.style.fill = `rgb(${adjustedR}, ${adjustedG}, ${adjustedB})`;
         
     } else {
         img.classList.remove("glow-on");
@@ -111,19 +128,12 @@ function update() {
     const alpha = (brightness / 100).toFixed(2);
     console.log("Brightness (alpha):", alpha);
     img.style.setProperty('--glow-alpha', alpha);
-    bulbFillPath.style.opacity = alpha;
 
     // Update color (RGB)
     // Convert hex color to rgb
-    const hexToRgb = (hex) => {
-        const bigint = parseInt(hex.slice(1), 16);
-        const r = (bigint >> 16) & 255;
-        const g = (bigint >> 8) & 255;
-        const b = bigint & 255;
-        return `${r}, ${g}, ${b}`;
-    };
-
-    img.style.setProperty('--glow-rgb', hexToRgb(colorHex));
+    
+    const rgb = hexToRgb(colorHex);
+    img.style.setProperty('--glow-rgb', `${rgb.r}, ${rgb.g}, ${rgb.b}`);
 
 
     console.log("Updated state:", {
