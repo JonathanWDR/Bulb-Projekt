@@ -1,20 +1,23 @@
-// const { login } = require('tplink-cloud-api');
+const { login } = require('tplink-cloud-api');
 
-// (async () => {
-//   try {
-//     const tplink = await login('ibrtkc@yahoo.com', 'dypzeG-myxpez-1wukqe', 'de');
+const EMAIL = process.env.TPLINK_EMAIL;
+const PASSWORD = process.env.TPLINK_PASSWORD;
 
-//     const devices = await tplink.getDeviceList();
+(async () => {
+  try {
+    const tplink = await login(EMAIL, PASSWORD, 'de');
 
-//     console.log('Gefundene Geräte:');
-//     devices.forEach((device, index) => {
-//       console.log(`\n#${index + 1}`);
-//       console.log(`Alias: ${device.alias}`);
-//       console.log(`Device ID: ${device.deviceId}`);
-//       console.log(`Model: ${device.deviceModel}`);
-//     });
+    const devices = await tplink.getDeviceList();
 
-//   } catch (err) {
-//     console.error('Fehler beim Abrufen der Geräte:', err.message);
-//   }
-// })();
+    console.log('Gefundene Geräte:');
+    devices.forEach((device, index) => {
+      console.log(`\n#${index + 1}`);
+      console.log(`Alias: ${device.alias}`);
+      console.log(`Device ID: ${device.deviceId}`);
+      console.log(`Model: ${device.deviceModel}`);
+    });
+
+  } catch (err) {
+    console.error('Fehler beim Abrufen der Geräte:', err.message);
+  }
+})();

@@ -8,7 +8,7 @@ export default function LampControl() {
   const [color, setColor] = useState("#80c080");
   const [brightness, setBrightness] = useState(100);
 
-  // ─── Morsecode-Zustände (nur Text!) ───
+  // ─── Morsecode-Zustände ───
   const [morseText, setMorseText] = useState("");
 
   // ─── Lampe AN/AUS ───
@@ -50,7 +50,7 @@ export default function LampControl() {
     }
   };
 
-  // ─── Morsecode: nur an Backend senden ───
+  // ─── Morsecode: an Backend senden ───
   const playMorse = async () => {
     const text = morseText.trim();
     if (!isOn || !text) return;

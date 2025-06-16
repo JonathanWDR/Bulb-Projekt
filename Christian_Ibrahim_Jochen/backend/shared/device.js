@@ -33,6 +33,7 @@ class MockDevice {
 
 export async function createDevice() {
   if (process.env.DEV_MODE === "true") {
+    console.warn("⚠️ DEV_MODE ist aktiviert! Verwendet jetzt MockDevice.");
     return new MockDevice();
   }
 

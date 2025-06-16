@@ -88,8 +88,8 @@
 
 /* ───── TEXT-FIELD für Morsecode (zweite Box) ───── */
 .morse-input {
-  width: 100%;              /* Volle Breite der .lamp-card--large */
-  padding: 0.8rem 1rem;      /* Mehr Innenabstand */
+  width: 100%;              
+  padding: 0.8rem 1rem;     
   font-size: 1rem;
   border: 1.5px solid #ccc;
   border-radius: 8px;
