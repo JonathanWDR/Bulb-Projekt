@@ -1,8 +1,8 @@
 
-# 🗂️ Chris & Jochen: Wir machen eine Lampe
+# 🗂️ Chris & Jochen & Ibrahim: Wir machen eine Lampe
 
-Dieses Projekt ist eine verteilte Lampensteuerung mit RabbitMQ, Producer (API), Consumer (Gerätesteuerung) und einem Frontend zum Steuern und Morsecode-Abspielen.
-Alles läuft bequem über Docker Compose.
+Dieses Projekt ist eine verteilte Lampensteuerung mit RabbitMQ, Producer (API), Consumer (Gerätesteuerung) und einem Frontend zum Steuern und Morsecode-Abspielen für Mathis.
+Alles läuft über Docker Compose.
 
 ---
 
