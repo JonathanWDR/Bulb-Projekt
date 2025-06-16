@@ -1,6 +1,3 @@
-# Verwendung
-- mehr Einstellungsmöglichkeiten für die Tapo smart lightbulb
-
 ## Voraussetzungen
 - Docker muss installiert sein
 - TP-Link Tapo App muss installiert sein
