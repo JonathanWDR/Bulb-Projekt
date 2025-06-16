@@ -37,8 +37,8 @@ async function startConsumer() {
         case "color": {
           await device.setColour(cmd.value);
           break;
-
-        case "morse":
+        }
+        case "morse": {
           if (typeof cmd.value !== "string") {
             throw new Error("Morse command needs 'value' with text!");
           }
