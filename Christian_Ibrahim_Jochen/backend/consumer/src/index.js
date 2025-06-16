@@ -1,6 +1,6 @@
 import { createChannel } from "../../shared/rabbitmq.js";
 import { createDevice } from "../../shared/device.js";
-import { playMorse } from "../../shared/morse.js"; // ⬅️ HIER!
+import { playMorse } from "../../shared/morse.js";
 
 async function startConsumer() {
   const channel = createChannel();

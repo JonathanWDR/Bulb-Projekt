@@ -22,7 +22,6 @@ body {
   background-size: 600% 600%;
   animation: pastelShift 20s ease infinite;
   color: #333;
-  overflow: hidden; /* keine Scrollleisten */
 }
 
 @keyframes pastelShift {
@@ -36,14 +35,11 @@ body {
 /* ───── #root ZENTRIERUNG ───── */
 #root {
   display: flex;
-  align-items: center;       /* vertikal zentrieren */
-  justify-content: center;   /* horizontal zentrieren */
+  align-items: center;       
+  justify-content: center;   
   height: 100%;
   width: 100%;
 }
 
-/* Falls du noch eine .app-root-Klasse verwenden möchtest:
-   das wäre hier optional, denn #root übernimmt die Zentrierung. */
 .app-root {
-  /* kein zusätzlicher Style nötig */
 }

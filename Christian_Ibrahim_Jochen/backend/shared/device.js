@@ -9,13 +9,14 @@ const email = process.env.TAPO_EMAIL;
 const password = process.env.TAPO_PASSWORD;
 //const deviceId = process.env.TAPO_DEVICE_ID;
 const ip = process.env.TAPO_IP;
+
 if (!email || !password || !ip) {
   throw new Error("Bitte TAPO_EMAIL, TAPO_PASSWORD und TAPO_IP in .env setzen!");
 }
 
 
 
-// Optional: MockDevice für Dev-Zwecke
+//MockDevice für Dev-Zwecke
 class MockDevice {
   async turnOn() { console.log("💡 [MOCK] an"); }
   async turnOff() { console.log("🔌 [MOCK] aus"); }
@@ -28,6 +29,7 @@ export async function createDevice() {
     return new MockDevice();
   }
 
+  //Wenn mit Device_ID gearbeitet werden soll, dann hier aktivieren:
   //const cloudApi = await TPLink.API.cloudLogin(email, password);
   //const devices = await cloudApi.listDevicesByType('SMART.TAPOBULB');
   //const targetDevice = devices.find(d => d.deviceId === deviceId);

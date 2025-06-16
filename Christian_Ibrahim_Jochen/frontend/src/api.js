@@ -6,6 +6,7 @@
  * @param {string} command - z.B. "on", "off", "brightness", "color"
  * @param {any} value - optionaler Wert (z.B. Zahl oder Farbcodestring)
  */
+
 export async function sendLampCommand(command, value) {
   const response = await fetch("http://localhost:3000/api/command", {
     method: "POST",
@@ -19,5 +20,5 @@ export async function sendLampCommand(command, value) {
     throw new Error(`Server returned ${response.status}: ${response.statusText}`);
   }
 
-  return response.json(); // optional, nur falls du es brauchst
+  return response.json();
 }
