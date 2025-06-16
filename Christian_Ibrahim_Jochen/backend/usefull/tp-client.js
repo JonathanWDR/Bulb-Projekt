@@ -6,11 +6,11 @@ async function connectToDevice() {
   if (device) return device;
 
   try {
-    const cloud = await login('ibrtkc@yahoo.com', 'dypzeG-myxpez-1wukqe'); // ✅ Zugangsdaten hier
-    const deviceId = '8023C48528797B47756D91E839E4C966237FB3C7'; // 🟡 HIER echte ID einsetzen
+    const cloud = await login(process.env.TPLINK_EMAIL, process.env.TPLINK_PASSWORD);
+    const deviceId = '8023C48528797B47756D91E839E4C966237FB3C7';
 
     const dev = await cloud.getDeviceById(deviceId);
-    await dev.getSysInfo(); // Verbindung testen
+    await dev.getSysInfo();
     console.log("✅ Verbindung zur Lampe hergestellt");
 
     device = dev;

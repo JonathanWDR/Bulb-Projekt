@@ -1,6 +1,6 @@
 import { createChannel } from "../../shared/rabbitmq.js";
 import { createDevice } from "../../shared/device.js";
-import { playMorse } from "../../shared/morse.js"; // ⬅️ HIER!
+import { playMorse } from "../../shared/morse.js";
 import { ValidationError } from "./errors.js";
 
 async function startConsumer() {
@@ -9,7 +9,6 @@ async function startConsumer() {
   console.log("🕒 Consumer wartet…");
 
   const device = await createDevice();
-  console.log("🔧 Gerät erstellt");
 
   await channel.consume("lamp-commands", async (msg) => {
     if (!msg) return;
@@ -37,8 +36,8 @@ async function startConsumer() {
         case "color": {
           await device.setColour(cmd.value);
           break;
-
-        case "morse":
+        }
+        case "morse": {
           if (typeof cmd.value !== "string") {
             throw new Error("Morse command needs 'value' with text!");
           }

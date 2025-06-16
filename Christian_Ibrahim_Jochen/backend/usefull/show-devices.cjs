@@ -1,8 +1,11 @@
 const { login } = require('tplink-cloud-api');
 
+const EMAIL = process.env.TPLINK_EMAIL;
+const PASSWORD = process.env.TPLINK_PASSWORD;
+
 (async () => {
   try {
-    const tplink = await login('ibrtkc@yahoo.com', 'dypzeG-myxpez-1wukqe', 'de');
+    const tplink = await login(EMAIL, PASSWORD, 'de');
 
     const devices = await tplink.getDeviceList();
 
