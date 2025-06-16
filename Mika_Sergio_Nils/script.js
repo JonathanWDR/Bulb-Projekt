@@ -17,6 +17,8 @@ class LightbulbController {
         this.brightnessInput = document.getElementById('brightness');
         this.colorPicker = document.getElementById('colorPicker');
         this.hexColorInput = document.getElementById('hexColor');
+        this.applyBrightnessBtn = document.getElementById('applyBrightness');
+        this.applyColorBtn = document.getElementById('applyColor');
         this.morseInput = document.getElementById('morseInput');
         this.sendMorseBtn = document.getElementById('sendMorse');
         this.morseOutput = document.getElementById('morseOutput');
@@ -27,39 +29,46 @@ class LightbulbController {
 
     bindEvents() {
         this.powerToggle.addEventListener('change', () => this.togglePower());
-        this.brightnessInput.addEventListener('input', (e) => this.setBrightness(e.target.value));
-        this.colorPicker.addEventListener('input', (e) => this.setColor(e.target.value));
-        this.hexColorInput.addEventListener('input', (e) => this.setColorFromHex(e.target.value));
+        this.brightnessInput.addEventListener('input', (e) => this.setBrightnessLocal(e.target.value));
+        this.colorPicker.addEventListener('input', (e) => this.setColorLocal(e.target.value));
+        this.hexColorInput.addEventListener('input', (e) => this.setColorFromHexLocal(e.target.value));
+        this.applyBrightnessBtn.addEventListener('click', () => this.applyBrightness());
+        this.applyColorBtn.addEventListener('click', () => this.applyColor());
         this.sendMorseBtn.addEventListener('click', () => this.startMorseCode());
     }
 
-    // Convert hex to RGB
-    hexToRgb(hex) {
-        // Remove the # if present
-        hex = hex.replace(/^#/, '');
-        
-        return {
-            r: parseInt(hex.substring(0, 2), 16),
-            g: parseInt(hex.substring(2, 4), 16),
-            b: parseInt(hex.substring(4, 6), 16)
-        };
-    }
-
-    setColor(hexColor) {
-        // Update hex input to match color picker
+    setColorLocal(hexColor) {
         this.hexColorInput.value = hexColor;
         this.hexColor = hexColor;
         
-        this.updateColor();
+        this.updateDisplay();
     }
 
-    setColorFromHex(hexInput) {
-        // Validate hex format
-        if (/^#[0-9A-F]{6}$/i.test(hexInput)) {
-            // Update color picker to match hex input
-            this.colorPicker.value = hexInput;
-            this.hexColor = hexInput;
-            this.updateColor();
+
+    setBrightnessLocal(value) {
+        this.brightness = parseInt(value);
+        if (this.brightnessValue) {
+            this.brightnessValue.textContent = `${this.brightness}%`;
+        }
+        
+        this.updateDisplay();
+    }
+
+    async applyBrightness() {
+        try {
+            await this.apiCall('/brightness', { value: this.brightness });
+            console.log(`Helligkeit gesetzt auf: ${this.brightness}% (API)`);
+        } catch (error) {
+            console.error('Fehler beim Anwenden der Helligkeit:', error);
+        }
+    }
+
+    async applyColor() {
+        try {
+            await this.apiCall('/color', { value: this.hexColor });
+            console.log(`Farbe gesetzt auf: ${this.hexColor} (API)`);
+        } catch (error) {
+            console.error('Fehler beim Anwenden der Farbe:', error);
         }
     }
 
@@ -200,7 +209,6 @@ class LightbulbController {
     }
 }
 
-// Initialisiere den Controller wenn die Seite geladen ist
 document.addEventListener('DOMContentLoaded', () => {
     new LightbulbController();
 });
