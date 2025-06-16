@@ -1,12 +1,18 @@
 // shared/device.js
-import * as dotenv from "dotenv";
-dotenv.config();
+import * as dotenv from 'dotenv';
+import * as TPLink from 'tplink-bulbs';
 
-import * as TPLink from "tplink-bulbs";
+dotenv.config();
 
 const email = process.env.TAPO_EMAIL;
 const password = process.env.TAPO_PASSWORD;
-const deviceId = process.env.TAPO_DEVICE_ID;
+//const deviceId = process.env.TAPO_DEVICE_ID;
+const ip = process.env.TAPO_IP;
+if (!email || !password || !ip) {
+  throw new Error("Bitte TAPO_EMAIL, TAPO_PASSWORD und TAPO_IP in .env setzen!");
+}
+
+
 
 // Optional: MockDevice für Dev-Zwecke
 class MockDevice {
@@ -29,27 +35,13 @@ export async function createDevice() {
     return new MockDevice();
   }
 
-  // console.log("🔧 Verbinde mit Tapo-Gerät…");
+  //const cloudApi = await TPLink.API.cloudLogin(email, password);
+  //const devices = await cloudApi.listDevicesByType('SMART.TAPOBULB');
+  //const targetDevice = devices.find(d => d.deviceId === deviceId);
 
-  // const cloudApi = await TPLink.API.cloudLogin(email, password);
-  // if (!cloudApi) throw new Error("❌ Verbindung zur Tapo-Cloud fehlgeschlagen!");
+  //if (!targetDevice) throw new Error("❌ Gerät nicht gefunden!");
 
-  // const devices = await cloudApi.listDevicesByType("SMART.TAPOBULB");
-  // const targetDevice = devices.find((d) => d.deviceId === deviceId);
-
-  // if (!targetDevice) throw new Error("❌ Gerät nicht gefunden!");
-
-  // const device = await TPLink.API.loginDevice(email, password, targetDevice);
-  // console.log("✅ Gerät erfolgreich verbunden");
-
-  // Direkter Login per IP (umgeht ARP-Problem)
-  console.log("🔧 Verbinde mit Tapo-Gerät…");
-
-  const device = await TPLink.API.loginDeviceByIp(email, password, "192.168.216.238");
-
-  // Gerätedaten holen
-  const info = await device.getDeviceInfo();
-  console.log("Geräte-Info:", info);
+  const device = await TPLink.API.loginDeviceByIp(email, password, ip);
 
   console.log("✅ Gerät erfolgreich verbunden");
 

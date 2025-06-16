@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "amqp-connection-manager": "^4.1.14",
     "dotenv": "^16.5.0"
   }
 }
