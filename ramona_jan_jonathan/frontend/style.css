@@ -1,11 +1,12 @@
 body {
-    background-color: #121212;
+    background-color: #333333;      /* #121212;*/
     margin: 0;
     padding: 0;
     display: grid;
     justify-content: center;
     align-items: center;
     height: 100vh;
+
 }
 
 .title{
@@ -17,8 +18,12 @@ body {
 .bulb-container {
     position: relative;
     display: grid;
+    width: 35vh;
+    /*left: calc(50% - 17.5vh); /* Centering the container */
     align-items: center;
     justify-content: center;
+    margin-right: 10vh;
+
 }
 
 .glow-img {
@@ -27,7 +32,20 @@ body {
     border-radius: 20px;
     transition: box-shadow 0.5s ease;
     align-items: center;
+    z-index: 2;
 }
+
+.glow-fill {
+    position: absolute;
+    width: 33vh;
+    height: auto;
+    left: 1vh;
+    top: 2vh;
+    z-index: 1;
+
+}
+
+
 
 /* Leuchtender Rand aktiv
 .glow-on {
@@ -40,9 +58,7 @@ body {
 }
 */
 .glow-on {
-    --glow-rgb: 255, 200, 0;
-    --glow-alpha: 0.5;
-    box-shadow: 0 0 40px 15px rgba(var(--glow-rgb), var(--glow-alpha));
+    filter: drop-shadow(0 0 20px rgba(var(--glow-rgb), var(--glow-alpha)));
 }
 
 
@@ -93,6 +109,7 @@ body {
 
 
 /*Helligkeit*/
+/* Slider container */
 .brightness-slider {
     margin-top: 20px;
     text-align: center;
@@ -100,50 +117,47 @@ body {
     font-family: sans-serif;
 }
 
-
-/* Basis-Stil für den gesamten Slider */
+/* Base style */
 input[type="range"] {
     -webkit-appearance: none;
     width: 50vw;
     height: 8px;
-    background: linear-gradient(to right, #222, #fff);
+    background: #444;
     border-radius: 5px;
     outline: none;
     transition: background 0.3s;
 }
 
-input[type="range"]::-webkit-slider-runnable-track {
-    height: 8px;
-    background: transparent; /* damit linear-gradient sichtbar bleibt */
-    border-radius: 5px;
-}
-
+/* Track style */
+input[type="range"]::-webkit-slider-runnable-track,
 input[type="range"]::-moz-range-track {
     height: 8px;
-    background: transparent;
+    background: #666;
     border-radius: 5px;
 }
 
+/* Thumb style */
 input[type="range"]::-webkit-slider-thumb {
     -webkit-appearance: none;
     height: 20px;
     width: 20px;
     border-radius: 50%;
-    background: white;
+    background: #fff;
     cursor: pointer;
     margin-top: -6px;
-    box-shadow: 0 0 5px #999;
+    box-shadow: 0 0 5px #000;
 }
 
 input[type="range"]::-moz-range-thumb {
     height: 20px;
     width: 20px;
     border-radius: 50%;
-    background: white;
+    background: #fff;
     cursor: pointer;
     border: none;
-    box-shadow: 0 0 5px #999;
+    box-shadow: 0 0 5px #000;
 }
+
 /*Text input*/
 .text-input-container {
     margin-top: 20px;
@@ -167,4 +181,13 @@ input[type="range"]::-moz-range-thumb {
 .color-text-input:focus {
     border-color: #888;
     box-shadow: 0 0 5px #888;
+}
+
+
+.preview_picker_row {
+    width: 80%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 20px;
 }
