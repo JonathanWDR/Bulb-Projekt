@@ -1,13 +1,13 @@
-// backend/consumer/src/index.js
 import { createChannel } from "../../shared/rabbitmq.js";
 import { createDevice } from "../../shared/device.js";
+import { playMorse } from "../../shared/morse.js"; // ⬅️ HIER!
 
 async function startConsumer() {
   const channel = createChannel();
   await channel.waitForConnect();
   console.log("🕒 Consumer wartet…");
 
-  const device = await createDevice();  
+  const device = await createDevice();
 
   await channel.consume("lamp-commands", async (msg) => {
     if (!msg) return;
@@ -26,13 +26,19 @@ async function startConsumer() {
         case "color":
           await device.setColour(cmd.value);
           break;
+        case "morse":
+          if (typeof cmd.value !== "string") {
+            throw new Error("Morse command needs 'value' with text!");
+          }
+          await playMorse(device, cmd.value);
+          break;
         default:
           throw new Error(`Unknown command: ${cmd.command}`);
       }
       channel.ack(msg);
     } catch (err) {
-      console.error("Fehler, requeue:", err);
-      channel.nack(msg, false, false); // 🗝️ WICHTIG: false = nicht requeue sonst Endlosschleife!
+      console.error("Fehler, nack:", err);
+      channel.nack(msg, false, false);
     }
   });
 }
