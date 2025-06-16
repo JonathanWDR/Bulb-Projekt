@@ -40,12 +40,13 @@ Für echten Betrieb: DEV_MODE=false und echte IP & Zugangsdaten verwenden.
 ## ⚙️ Architektur
 
 Frontend (React)
-   ↓
-Producer (Express REST API)
-   ↓
-RabbitMQ (Queue)
-   ↓
-Consumer (verbindet & steuert Lampe)
+   │
+   └──> Producer (Express REST API)
+               │
+               └──> RabbitMQ (Queue)
+                           │
+                           └──> Consumer (verbindet & steuert Lampe)
+
 
 - Frontend: UI zum Ein-/Ausschalten, Farbe, Helligkeit & Morsecode.
 - Producer: REST API → wandelt HTTP-Requests in RabbitMQ-Nachrichten.
