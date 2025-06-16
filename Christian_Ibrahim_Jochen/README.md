@@ -39,13 +39,7 @@ Für echten Betrieb: DEV_MODE=false und echte IP & Zugangsdaten verwenden.
 
 ## ⚙️ Architektur
 
-Frontend (React)
-
-   ──> Producer (Express REST API)
-               
-               ──> RabbitMQ (Queue)
-                           
-                           ──> Consumer (verbindet & steuert Lampe)
+Frontend (React) ──> Producer (Express REST API) ──> RabbitMQ (Queue) ──> Consumer (verbindet & steuert Lampe)
 
 
 - Frontend: UI zum Ein-/Ausschalten, Farbe, Helligkeit & Morsecode.
@@ -57,12 +51,12 @@ Frontend (React)
 
 ## 🔑 Umgebungsvariablen
 
-| Variable | Beschreibung | Pflicht |
-| -------- | ------------- | ------- |
-| TAPO_EMAIL | Dein TP-Link Tapo Login | ✅ |
-| TAPO_PASSWORD | Dein Tapo-Passwort | ✅ |
-| TAPO_IP | Lokale IP deiner Lampe | ✅ |
-| DEV_MODE | true = Mock verwenden, false = echte Lampe | ✅ |
+| Variable | Beschreibung | 
+| -------- | ------------- |
+| TAPO_EMAIL | Dein TP-Link Tapo Login |
+| TAPO_PASSWORD | Dein Tapo-Passwort |
+| TAPO_IP | Lokale IP deiner Lampe |
+| DEV_MODE | true = Mock verwenden, false = echte Lampe |
 
 ---
 
@@ -76,10 +70,11 @@ Frontend (React)
 
 ## 🧑‍💻 Entwicklerhinweise
 
-- Consumer manuell starten:
+- Consumer etc. manuell starten:
 
       cd backend/consumer
-      node index.js
+      npm install
+      node index.js oder node server.js usw.
 
 - DEV_MODE=true für lokale Tests ohne echte Lampe.
 - Frontend entwickeln:
