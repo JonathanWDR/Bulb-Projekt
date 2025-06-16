@@ -6,6 +6,7 @@ body {
     justify-content: center;
     align-items: center;
     height: 100vh;
+
 }
 
 .title{
@@ -18,9 +19,10 @@ body {
     position: relative;
     display: grid;
     width: 35vh;
-    left: calc(50% - 17.5vh); /* Centering the container */
+    /*left: calc(50% - 17.5vh); /* Centering the container */
     align-items: center;
     justify-content: center;
+    margin-right: 10vh;
 
 }
 
@@ -179,4 +181,13 @@ input[type="range"]::-moz-range-thumb {
 .color-text-input:focus {
     border-color: #888;
     box-shadow: 0 0 5px #888;
+}
+
+
+.preview_picker_row {
+    width: 80%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 20px;
 }
