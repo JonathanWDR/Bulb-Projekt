@@ -17,6 +17,11 @@ services:
       - "3000:3000"
     depends_on:
       - rabbitmq
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
 
   consumer:
     build:
@@ -26,6 +31,11 @@ services:
       - .env
     environment:
       RABBIT_URL: "amqp://rabbitmq"
+      TAPO_EMAIL: "ibrtkc@yahoo.com"
+      TAPO_PASSWORD: "dypzeG-myxpez-1wukqe"
+      TAPO_DEVICE_ID: 8023C48528797B47756D91E839E4C966237FB3C7
+      TAPO_DEVICE_IP: "192.168.216.238"
+      DEV_MODE: "false"
     depends_on:
       - rabbitmq
 
@@ -38,3 +48,8 @@ services:
     depends_on:
       - producer
       - consumer
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
