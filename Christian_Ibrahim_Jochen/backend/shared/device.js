@@ -1,12 +1,19 @@
 // shared/device.js
 import * as dotenv from 'dotenv';
+import * as TPLink from 'tplink-bulbs';
+
 dotenv.config();
 
-import * as TPLink from 'tplink-bulbs';
 
 const email = process.env.TAPO_EMAIL;
 const password = process.env.TAPO_PASSWORD;
-const deviceId = process.env.TAPO_DEVICE_ID;
+//const deviceId = process.env.TAPO_DEVICE_ID;
+const ip = process.env.TAPO_IP;
+if (!email || !password || !ip) {
+  throw new Error("Bitte TAPO_EMAIL, TAPO_PASSWORD und TAPO_IP in .env setzen!");
+}
+
+
 
 // Optional: MockDevice für Dev-Zwecke
 class MockDevice {
@@ -21,13 +28,13 @@ export async function createDevice() {
     return new MockDevice();
   }
 
-  const cloudApi = await TPLink.API.cloudLogin(email, password);
-  const devices = await cloudApi.listDevicesByType('SMART.TAPOBULB');
-  const targetDevice = devices.find(d => d.deviceId === deviceId);
+  //const cloudApi = await TPLink.API.cloudLogin(email, password);
+  //const devices = await cloudApi.listDevicesByType('SMART.TAPOBULB');
+  //const targetDevice = devices.find(d => d.deviceId === deviceId);
 
-  if (!targetDevice) throw new Error("❌ Gerät nicht gefunden!");
+  //if (!targetDevice) throw new Error("❌ Gerät nicht gefunden!");
 
-  const device = await TPLink.API.loginDevice(email, password, targetDevice);
+  const device = await TPLink.API.loginDeviceByIp(email, password, ip);
   console.log("✅ Gerät erfolgreich verbunden");
   return device;
 }

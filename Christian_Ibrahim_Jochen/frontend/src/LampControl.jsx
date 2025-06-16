@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import "./LampControl.css";
+import { sendLampCommand } from "./api";
 
 const MORSE_MAP = {
   A: ".-",    B: "-...",  C: "-.-.",  D: "-..",   E: ".",
@@ -32,24 +33,50 @@ export default function LampControl() {
     };
   }, []);
 
-  const toggleLamp = (neuerStatus) => {
-    // Falls gerade Morsecode abgespielt wird: abbrechen
-    if (isPlaying) {
-      timeoutRefs.current.forEach((t) => clearTimeout(t));
-      timeoutRefs.current = [];
-      setIsPlaying(false);
-      setMorseOn(false);
-    }
+  const toggleLamp = async (neuerStatus) => {
+  if (isPlaying) {
+    timeoutRefs.current.forEach((t) => clearTimeout(t));
+    timeoutRefs.current = [];
+    setIsPlaying(false);
+    setMorseOn(false);
+  }
+
+  try {
+    await sendLampCommand(neuerStatus ? "on" : "off");
     setIsOn(neuerStatus);
-  };
+  } catch (err) {
+    console.error("API Fehler:", err);
+    alert("Fehler beim Senden des Lampenbefehls!");
+  }
+};
 
-  const updateColor = (e) => {
-    setColor(e.target.value);
-  };
 
-  const updateBrightness = (e) => {
-    setBrightness(parseInt(e.target.value, 10));
-  };
+  const updateColor = async (e) => {
+  const newColor = e.target.value;
+  setColor(newColor);
+  if (isOn && !isPlaying) {
+    try {
+      await sendLampCommand("color", newColor);
+    } catch (err) {
+      console.error("API Fehler:", err);
+      alert("Fehler beim Ändern der Farbe!");
+    }
+  }
+};
+
+const updateBrightness = async (e) => {
+  const newBrightness = parseInt(e.target.value, 10);
+  setBrightness(newBrightness);
+  if (isOn && !isPlaying) {
+    try {
+      await sendLampCommand("brightness", newBrightness);
+    } catch (err) {
+      console.error("API Fehler:", err);
+      alert("Fehler beim Ändern der Helligkeit!");
+    }
+  }
+};
+
 
   // ─── Morsecode-Sequenz erzeugen ───
   function buildMorseSequence(text) {

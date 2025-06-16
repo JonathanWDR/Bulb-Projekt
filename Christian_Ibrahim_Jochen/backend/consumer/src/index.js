@@ -7,8 +7,7 @@ async function startConsumer() {
   await channel.waitForConnect();
   console.log("🕒 Consumer wartet…");
 
-  console.log("🔧 [Consumer] Mock-Gerät erstellt");
-  const device = createDevice();
+  const device = await createDevice();  
 
   await channel.consume("lamp-commands", async (msg) => {
     if (!msg) return;
@@ -21,17 +20,11 @@ async function startConsumer() {
         case "off":
           await device.turnOff();
           break;
-        case "toggle":
-          await device.toggle();
-          break;
         case "brightness":
           await device.setBrightness(cmd.value);
           break;
         case "color":
           await device.setColour(cmd.value);
-          break;
-        case "colorTemperature":
-          await device.setColorTemperature(cmd.value);
           break;
         default:
           throw new Error(`Unknown command: ${cmd.command}`);
@@ -39,7 +32,7 @@ async function startConsumer() {
       channel.ack(msg);
     } catch (err) {
       console.error("Fehler, requeue:", err);
-      channel.nack(msg, false, true);
+      channel.nack(msg, false, false); // 🗝️ WICHTIG: false = nicht requeue sonst Endlosschleife!
     }
   });
 }
