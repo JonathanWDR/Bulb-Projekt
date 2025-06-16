@@ -5,6 +5,7 @@ WORKDIR /usr/src/app
 COPY backend/consumer/package*.json ./backend/consumer/
 RUN cd backend/consumer && npm install --production
 
+
 # Copy and install shared dependencies
 COPY backend/shared/package*.json ./backend/shared/
 RUN cd backend/shared && npm install --production
@@ -13,6 +14,8 @@ RUN cd backend/shared && npm install --production
 COPY backend/consumer ./backend/consumer
 COPY backend/shared ./backend/shared
 
+
 # Set working dir and start
 WORKDIR /usr/src/app/backend/consumer
+
 CMD ["npm", "start"]

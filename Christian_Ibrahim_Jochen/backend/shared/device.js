@@ -4,7 +4,6 @@ import * as TPLink from 'tplink-bulbs';
 
 dotenv.config();
 
-
 const email = process.env.TAPO_EMAIL;
 const password = process.env.TAPO_PASSWORD;
 //const deviceId = process.env.TAPO_DEVICE_ID;
@@ -18,10 +17,18 @@ if (!email || !password || !ip) {
 
 //MockDevice für Dev-Zwecke
 class MockDevice {
-  async turnOn() { console.log("💡 [MOCK] an"); }
-  async turnOff() { console.log("🔌 [MOCK] aus"); }
-  async setColour(col) { console.log(`🎨 [MOCK] Farbe ${col}`); }
-  async setBrightness(b) { console.log(`🔆 [MOCK] Helligkeit ${b}%`); }
+  async turnOn() {
+    console.log("💡 [MOCK] an");
+  }
+  async turnOff() {
+    console.log("🔌 [MOCK] aus");
+  }
+  async setColour(col) {
+    console.log(`🎨 [MOCK] Farbe ${col}`);
+  }
+  async setBrightness(b) {
+    console.log(`🔆 [MOCK] Helligkeit ${b}%`);
+  }
 }
 
 export async function createDevice() {
@@ -37,6 +44,8 @@ export async function createDevice() {
   //if (!targetDevice) throw new Error("❌ Gerät nicht gefunden!");
 
   const device = await TPLink.API.loginDeviceByIp(email, password, ip);
+
   console.log("✅ Gerät erfolgreich verbunden");
+
   return device;
 }
