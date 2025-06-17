@@ -148,13 +148,13 @@ async function consumeLampCommands() {
             break;
           case 'setColor':
             try {
-              if (typeof cmd.value === 'string') {
+              if (typeof cmd.value === 'string' && /^#[0-9A-Fa-f]{6}$/.test(cmd.value)) {
                 await device.setColour(cmd.value.toLowerCase());
                 lampState.color = cmd.value.toLowerCase();
                 broadcastLampState();
                 console.log(`Lamp color set to ${cmd.value}`);
               } else {
-                console.log('Invalid color format. Use a color name like "red", "blue", etc.');
+                console.log('Invalid color format. Use a hex color code like "#FF0000".');
               }
             } catch (err) {
               console.error('Error in setColor:', err);

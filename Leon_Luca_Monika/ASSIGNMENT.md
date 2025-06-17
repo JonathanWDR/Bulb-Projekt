@@ -10,7 +10,7 @@
 
 ## 1. Gewählte Architektur und Begründung
 
-Wir haben uns für eine **Event-Driven-Architecture** (EDA) entschieden, wie in der Aufgabenstellung gefordert. Die Kommunikation zwischen Frontend/Backend (Producer) und der Lampensteuerung (Consumer) erfolgt asynchron über **RabbitMQ** als Message Broker.
+Wir haben uns für eine **Event-Driven-Architecture** entschieden, wie in der Aufgabenstellung gefordert. Die Kommunikation zwischen Frontend/Backend (Producer) und der Lampensteuerung (Consumer) erfolgt asynchron über **RabbitMQ** als Message Broker.
 
 **Vorteile dieser Architektur:**
 
@@ -18,6 +18,23 @@ Wir haben uns für eine **Event-Driven-Architecture** (EDA) entschieden, wie in 
 - **Skalierbarkeit:** Weitere Producer oder Consumer können einfach hinzugefügt werden (z.B. mehrere Lampen oder Steuerungs-UIs).
 - **Fehlertoleranz:** Nachrichten gehen nicht verloren, wenn ein Teil des Systems kurzzeitig nicht erreichbar ist.
 - **Flexibilität:** Die Architektur kann leicht auf andere IoT-Geräte oder zusätzliche Funktionen erweitert werden.
+
+**Warum RabbitMQ?**
+
+RabbitMQ wurde als Message Broker gewählt, da es folgende Vorteile bietet:
+
+- **Bewährte Technologie:** RabbitMQ ist eine etablierte Lösung mit einer großen Community und wird in vielfach eingesetzt.
+- **Unterstützung für AMQP:** RabbitMQ basiert auf dem Advanced Message Queuing Protocol (AMQP), das speziell für zuverlässige und skalierbare Nachrichtenübermittlung entwickelt wurde.
+- **Einfaches Management:** RabbitMQ bietet standardmäßig ein benutzerfreundliches Web-UI zur Verwaltung an.
+- **Hohe Zuverlässigkeit:** Nachrichten können theoretisch persistent gespeichert werden, sodass sie auch bei Systemausfällen nicht verloren gehen.
+- **Skalierbarkeit:** RabbitMQ könnte leicht horizontal skaliert werden, um größere Lasten zu bewältigen.
+- **Kompatibilität:** RabbitMQ lässt sich problemlos mit Node.js und anderen Technologien integrieren, die in unserem Projekt verwendet werden.
+
+**Warum keine Alternativen wie Kafka oder Redis?**
+
+- **Apache Kafka:** Kafka ist für sehr große Datenmengen und Echtzeit-Streaming optimiert. Es ist daher für unser Projekt überdimensioniert, da wir keine hohen Durchsatzanforderungen haben.
+- **Redis:** Redis ist ein schneller In-Memory-Datenspeicher, der auch als Message Broker verwendet werden kann. Allerdings fehlen Redis einige Funktionen wie komplexe Routing-Mechanismen und persistente Speicherung.
+- **ActiveMQ:** ActiveMQ ist ebenfalls ein AMQP-basierter Broker, jedoch ist RabbitMQ in der Community verbreiteter und bietet bessere Integrationsmöglichkeiten mit modernen Technologien.
 
 ---
 
@@ -66,7 +83,7 @@ Wir haben uns für eine **Event-Driven-Architecture** (EDA) entschieden, wie in 
   Die Helligkeit ist von 0 bis 100 einstellbar.
 
 - **Farbe ändern:**  
-  Die Farbe kann als Hex-Wert oder Name gesetzt werden.
+  Die Farbe kann als Hex-Wert gesetzt werden.
 
 - **Morse-Code:**  
   Texteingaben werden in Morsecode umgewandelt und durch Blinken der Lampe dargestellt.
@@ -92,5 +109,5 @@ Alle Gruppenmitglieder haben gemeinsam an der Architektur, Implementierung und D
 ## 6. Matrikelnummern
 
 - Leon: [Matrikelnummer eintragen]
-- Luca: [Matrikelnummer eintragen]
+- Luca: 6949663
 - Monika: [Matrikelnummer eintragen]

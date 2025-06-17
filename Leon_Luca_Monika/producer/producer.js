@@ -44,8 +44,7 @@ async function setLampBrightness(brightness) {
 async function setLampColor(color) {
     const commandType = 'setColor';
     //Hier nur hexadecimal Farbwerte übergeben, z.B. '#FF5733'
-    // const commandValue = /^#([0-9A-F]{3}){1,2}$/i.test(color) ? color : 'unknown'; // Default to white if invalid
-    const commandValue = color;
+    const commandValue = /^#([0-9A-F]{3}){1,2}$/i.test(color) ? color : '#FFFFF'; // Default to white if invalid
     await sendLampCommand(commandType, commandValue);
 }
 
