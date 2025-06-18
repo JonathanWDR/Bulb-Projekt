@@ -2,6 +2,24 @@
 
 ## Anleitung 
 
+
+Hier unsere Anleitung reinfügen
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 1) Dieses Repository forken
 2) Sicherstellen, dass die Fork öffentlich ist
 3) In eurem Fork allen Gruppenmitgliedern Zugriff geben und als Contributor eintragen
