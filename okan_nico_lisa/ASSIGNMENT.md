@@ -28,6 +28,6 @@ Sobald der Producer, welcher das Frontend bereitstellt, gestartet wurde, kann au
 Eine Anleitung zum Aufsetzen und Ausführen dieser Anwendung ist in der Datei [README.md](./README.md) zu finden.
 
 ## Unsere Matrikelnummern
-- Lisa TBA
+- Lisa 8604987
 - Nico 4644690
 - Okan 5646996
