@@ -1,23 +1,36 @@
-# DHBW-Mannheim-WI2023SEB-Assignment
+# DHBW-Mannheim-WI2023SEB-Assignment - Mika, Sergio, Nils
 
 ## Projektbeschreibung
-Dieses Projekt implementiert eine Event-Driven-Architecture (EDA) zur Steuerung einer smarten Glühbirne. Die Anwendung ermöglicht es, die Glühbirne ein- und auszuschalten, die Helligkeit anzupassen, die Farbe zu ändern und Nachrichten als Morse-Code zu senden. RabbitMQ wird als Message Broker verwendet, um die Kommunikation zwischen Producer und Consumer zu ermöglichen.
+Dieses Projekt implementiert eine Event-Driven-Architecture (EDA) zur Steuerung smarter TP-Link-Glühbirnen. Die Anwendung ermöglicht es, die Glühbirne ein- und auszuschalten, die Helligkeit anzupassen, die Farbe zu ändern und Nachrichten als Morse-Code zu senden.
 
 ---
 
-## Voraussetzungen
-1.
-   - Node.js (Version 16 oder höher)
-   - RabbitMQ (lokal installiert und gestartet)
-   - tplink-bulbs kompatible Glühbirne (https://www.npmjs.com/package/tplink-bulbs?activeTab=readme)
+## Grundvoraussetzungen
 
-2.
-   - `.env`-Datei mit den folgenden Variablen:
-     ```
+Damit die Anwendung korrekt funktioniert, müssen folgende Voraussetzungen erfüllt sein:
+
+1. **Node.js**  
+   - Stelle sicher, dass Node.js installiert ist.
+     [Node.js herunterladen](https://nodejs.org/)
+
+2. **RabbitMQ**  
+   - RabbitMQ muss lokal installiert und gestartet sein.
+     [RabbitMQ herunterladen](https://www.rabbitmq.com/)  
+   - Falls erforderlich, installiere auch Erlang 
+     [Erlang herunterladen](https://www.erlang.org/)
+
+3. **TP-Link-kompatible Glühbirne**  
+   - Die Glühbirne muss mit der `tplink-bulbs`-Bibliothek kompatibel sein.
+     [Weitere Informationen zur Bibliothek](https://www.npmjs.com/package/tplink-bulbs?activeTab=readme)
+
+4. **`.env`-Datei**  
+   - Erstelle eine `.env`-Datei im Projektverzeichnis mit den folgenden Variablen:  
+     ```env
      EMAIL=<TP-Link-Konto-E-Mail>
      PASSWORD=<TP-Link-Konto-Passwort>
      DEVICE_ID=<ID der Glühbirne>
      ```
+   - Diese Daten sind notwendig, um die Glühbirne zu steuern.
 
 ---
 
@@ -34,7 +47,7 @@ Dieses Projekt implementiert eine Event-Driven-Architecture (EDA) zur Steuerung 
    ```
 
 3. **RabbitMQ starten**:
-   - Stelle sicher, dass RabbitMQ lokal läuft. Standardmäßig wird `amqp://localhost` verwendet.
+   - Sicherstellen dass RabbitMQ lokal läuft!
 
 ---
 
@@ -72,8 +85,10 @@ Dieses Projekt implementiert eine Event-Driven-Architecture (EDA) zur Steuerung 
 
 ## Fehlerbehebung
 - **RabbitMQ läuft nicht**:
-  - Stelle sicher, dass RabbitMQ installiert und gestartet ist.
+  - Stelle sicher, dass RabbitMQ installiert und gestartet ist!
 - **Glühbirne wird nicht gefunden**:
-  - Überprüfe die `DEVICE_ID` in der `.env`-Datei.
+  - Überprüfe die Angaben in der `.env`-Datei!
 - **API-Fehler**:
-  - Stelle sicher, dass die Producer API und der Consumer laufen.
+  - Stelle sicher, dass die Producer API und der Consumer laufen!
+
+## Ansonsten viel Spaß damit und bei Fragen einfach an Mika, Sergio und Nils wenden!
