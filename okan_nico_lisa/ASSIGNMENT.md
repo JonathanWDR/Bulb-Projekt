@@ -9,6 +9,9 @@ Wir haben uns für eine Event-Driven-Architecture (EDA) entschieden, da diese Vo
 - Skalierbarkeit
   - Es kann mehrere Producer geben, somit können wir mehrere Instanzen des Frontend ausführen.
 
+**Wahl des Tools**
+Wir haben uns dazu entschieden, RabbitMQ als Message Broker zu nutzen, um die Events zu handhaben. Apache Kafka und RabbitMQ erscheinen uns aufgrund existierender Libraries für JS ähnlich gut geeignet. Da die Gruppenmitglieder Kafka in der Vergangenheit bereits verwendet haben und wir alle etwas neues lernen wollten, haben wir uns für RabbitMQ entschieden.
+
 ## Wie funktioniert eure Anwendung?
 Unsere Anwendung besteht aus drei Services, welche jeweils in Docker Containern ausgeführt werden: 
 
