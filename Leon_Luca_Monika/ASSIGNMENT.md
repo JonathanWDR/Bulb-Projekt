@@ -110,4 +110,4 @@ Alle Gruppenmitglieder haben gemeinsam an der Architektur, Implementierung und D
 
 - Leon: [Matrikelnummer eintragen]
 - Luca: 6949663
-- Monika: [Matrikelnummer eintragen]
+- Monika: 1396397
