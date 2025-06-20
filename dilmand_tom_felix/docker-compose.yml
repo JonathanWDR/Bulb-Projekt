@@ -8,8 +8,8 @@ services:
       - "15672:15672" # Management UI
       - "15674:15674"
     environment:
-      - RABBITMQ_DEFAULT_USER=guest
-      - RABBITMQ_DEFAULT_PASS=guest
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
     configs:
       - source: rabbitmq-plugins
         target: /etc/rabbitmq/enabled_plugins
@@ -28,10 +28,10 @@ services:
     ports:
       - "4000:4000"  # Macht die Status-API des Consumers von außen erreichbar
     environment:
-      - RABBITMQ_URL=amqp://rabbitmq:5672
-      - TPLINK_EMAIL=
-      - TPLINK_PASSWORD=
-      - TPLINK_DEVICE_IP=
+      - RABBITMQ_URL=amqp://${RABBITMQ_DEFAULT_USER}:${RABBITMQ_DEFAULT_PASS}@rabbitmq:5672
+      - TPLINK_EMAIL=${TPLINK_EMAIL}
+      - TPLINK_PASSWORD=${TPLINK_PASSWORD}
+      - TPLINK_DEVICE_IP=${TPLINK_DEVICE_IP}
     depends_on:
       rabbitmq:
         condition: service_healthy
