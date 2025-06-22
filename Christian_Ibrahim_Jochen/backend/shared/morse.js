@@ -45,6 +45,9 @@ export function buildMorseSequence(text) {
 }
 
 export async function playMorse(device, text) {
+    await device.turnOff();
+    await new Promise((res) => setTimeout(res, 2000)); // Initial delay before starting
+  
   const sequence = buildMorseSequence(text);
 
   for (const item of sequence) {
