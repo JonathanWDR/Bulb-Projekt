@@ -1,0 +1,580 @@
+version: "3.8"
+
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
+  producer:
+    build:
+      context: ./
+      dockerfile: backend/producer/Dockerfile
+    environment:
+      RABBIT_URL: "amqp://rabbitmq"
+    ports:
+      - "3000:3000"
+    depends_on:
+      - rabbitmq
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  consumer:
+    build:
+      context: ./
+      dockerfile: backend/consumer/Dockerfile
+    env_file:
+      - .env
+    environment:
+      RABBIT_URL: "amqp://rabbitmq"
+    depends_on:
+      - rabbitmq
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "8080:80"
+    depends_on:
+      - producer
+      - consumer
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+FROM node:18-alpine
+WORKDIR /usr/src/app
+
+# Copy and install producer dependencies
+COPY backend/producer/package*.json ./backend/producer/
+RUN cd backend/producer && npm install --production
+
+# Copy and install shared dependencies
+COPY backend/shared/package*.json ./backend/shared/
+RUN cd backend/shared && npm install --production
+
+# Copy actual source code
+COPY backend/producer ./backend/producer
+COPY backend/shared ./backend/shared
+
+# Set working dir and start
+WORKDIR /usr/src/app/backend/producer
+EXPOSE 3000
+CMD ["npm", "start"]
+FROM node:18-alpine
+WORKDIR /usr/src/app
+
+# Copy and install consumer dependencies
+COPY backend/consumer/package*.json ./backend/consumer/
+RUN cd backend/consumer && npm install --production
+
+
+# Copy and install shared dependencies
+COPY backend/shared/package*.json ./backend/shared/
+RUN cd backend/shared && npm install --production
+
+# Copy actual source code
+COPY backend/consumer ./backend/consumer
+COPY backend/shared ./backend/shared
+
+
+# Set working dir and start
+WORKDIR /usr/src/app/backend/consumer
+
+CMD ["npm", "start"]
+//to play around and run fomr the terminal like this:
+// node index.js on
+import { sendCommand } from "../../shared/rabbitmq.js";
+
+async function main() {
+  const args = process.argv.slice(2); // e.g. node index.js on
+  const [cmd, val] = args;
+  await sendCommand({ command: cmd, value: val });
+  console.log("Sent:", cmd, val);
+}
+main();
+import express from "express";
+import cors from "cors";
+import { sendCommand } from "../../shared/rabbitmq.js";
+
+const app = express();
+const PORT = process.env.PORT ?? 3000;
+
+app.use(cors());
+
+app.use(express.json());
+
+app.get("/health", (req, res) => {
+  res.json({ status: "OK", timestamp: new Date() });
+});
+
+app.post("/api/command", async (req, res) => {
+  const { command, value } = req.body;
+  if (!command) {
+    return res.status(400).json({ error: 'Missing "command" field' });
+  }
+  try {
+    await sendCommand({ command, value });
+    return res.status(202).json({ status: "queued", command, value });
+  } catch (err) {
+    console.error("Error enqueueing:", err);
+    return res.status(500).json({ error: err.message });
+  }
+});
+
+app.listen(PORT, () => {
+  console.log(`🚀 Producer HTTP API listening on port ${PORT}`);
+});
+import { createChannel } from "../../shared/rabbitmq.js";
+import { createDevice } from "../../shared/device.js";
+import { playMorse } from "../../shared/morse.js";
+import { ValidationError } from "./errors.js";
+
+async function startConsumer() {
+  const channel = createChannel();
+  await channel.waitForConnect();
+  console.log("🕒 Consumer wartet…");
+
+  const device = await createDevice();
+
+  await channel.consume("lamp-commands", async (msg) => {
+    if (!msg) return;
+    try {
+      const cmd = JSON.parse(msg.content.toString());
+
+      switch (cmd.command) {
+        case "on":
+          await device.turnOn();
+          break;
+
+        case "off":
+          await device.turnOff();
+          break;
+
+        case "brightness": {
+          const b = parseInt(cmd.value, 10);
+          if (isNaN(b) || b < 1 || b > 100) {
+            throw new ValidationError(`Ungültiger Helligkeitswert: ${cmd.value} (1–100)`);
+          }
+          await device.setBrightness(b);
+          break;
+        }
+
+        case "color": {
+          await device.setColour(cmd.value);
+          break;
+        }
+        case "morse": {
+          if (typeof cmd.value !== "string") {
+            throw new Error("Morse command needs 'value' with text!");
+          }
+          await playMorse(device, cmd.value);
+          break;
+        }
+
+        default:
+          throw new ValidationError(`Unbekannter Befehl: ${cmd.command}`);
+      }
+
+      channel.ack(msg);
+    } catch (err) {
+      if (err instanceof ValidationError) {
+        console.warn("Validation failed, dropping message:", err.message);
+        channel.ack(msg);
+      } else {
+        console.error("Runtime error, requeueing:", err);
+        channel.nack(msg, false, true);
+      }
+    }
+  });
+}
+
+startConsumer().catch((err) => {
+  console.error("Fataler Fehler:", err);
+  process.exit(1);
+});
+import { connect } from "amqp-connection-manager";
+
+const RABBIT_URL = process.env.RABBIT_URL || "amqp://localhost";
+
+const QUEUE = "lamp-commands";
+
+export function createChannel() {
+  const conn = connect([RABBIT_URL]);
+  conn.on("connect", () => console.log("✅ RabbitMQ connected at", RABBIT_URL));
+  conn.on("disconnect", ({ err }) => console.error("❌ RabbitMQ disconnected", err));
+  const ch = conn.createChannel({
+    json: true,
+    setup: (ch) => ch.assertQueue(QUEUE, { durable: true }).then(() => ch.prefetch(1)),
+  });
+  return ch;
+}
+
+export async function sendCommand(cmd) {
+  console.log(RABBIT_URL);
+
+  const ch = createChannel();
+  await ch.waitForConnect();
+  console.log("⏳ [producer] Connected to RabbitMQ at", RABBIT_URL);
+  console.log("⏳ [producer] Sending command →", cmd);
+  await ch.sendToQueue("lamp-commands", cmd, { persistent: true });
+  console.log("📤 [producer] Sent command to queue ✔");
+}
+// shared/device.js
+import * as dotenv from 'dotenv';
+import * as TPLink from 'tplink-bulbs';
+
+dotenv.config();
+
+const email = process.env.TAPO_EMAIL;
+const password = process.env.TAPO_PASSWORD;
+//const deviceId = process.env.TAPO_DEVICE_ID;
+const ip = process.env.TAPO_IP;
+
+if (!email || !password || !ip) {
+  throw new Error("Bitte TAPO_EMAIL, TAPO_PASSWORD und TAPO_IP in .env setzen!");
+}
+
+
+
+//MockDevice für Dev-Zwecke
+class MockDevice {
+  async turnOn() {
+    console.log("💡 [MOCK] an");
+  }
+  async turnOff() {
+    console.log("🔌 [MOCK] aus");
+  }
+  async setColour(col) {
+    console.log(`🎨 [MOCK] Farbe ${col}`);
+  }
+  async setBrightness(b) {
+    console.log(`🔆 [MOCK] Helligkeit ${b}%`);
+  }
+}
+
+export async function createDevice() {
+  if (process.env.DEV_MODE === "true") {
+    console.warn("⚠️ DEV_MODE ist aktiviert! Verwendet jetzt MockDevice.");
+    return new MockDevice();
+  }
+
+  //Wenn mit Device_ID gearbeitet werden soll, dann hier aktivieren:
+  //const cloudApi = await TPLink.API.cloudLogin(email, password);
+  //const devices = await cloudApi.listDevicesByType('SMART.TAPOBULB');
+  //const targetDevice = devices.find(d => d.deviceId === deviceId);
+
+  //if (!targetDevice) throw new Error("❌ Gerät nicht gefunden!");
+
+  const device = await TPLink.API.loginDeviceByIp(email, password, ip);
+
+  console.log("✅ Gerät erfolgreich verbunden");
+
+  return device;
+}
+const MORSE_MAP = {
+  A: ".-", B: "-...", C: "-.-.", D: "-..", E: ".", F: "..-.", G: "--.",
+  H: "....", I: "..", J: ".---", K: "-.-", L: ".-..", M: "--",
+  N: "-.", O: "---", P: ".--.", Q: "--.-", R: ".-.", S: "...",
+  T: "-", U: "..-", V: "...-", W: ".--", X: "-..-", Y: "-.--", Z: "--..",
+  0: "-----", 1: ".----", 2: "..---", 3: "...--", 4: "....-",
+  5: ".....", 6: "-....", 7: "--...", 8: "---..", 9: "----.",
+  " ": " "
+};
+
+export function buildMorseSequence(text) {
+  const DOT = 300;
+  const DASH = DOT * 3;
+  const BETWEEN_SYMBOL = DOT;
+  const BETWEEN_LETTER = DOT * 3;
+  const BETWEEN_WORD = DOT * 7;
+
+  const seq = [];
+  const upper = text.toUpperCase().trim();
+
+  for (let i = 0; i < upper.length; i++) {
+    const ch = upper[i];
+    if (ch === " ") {
+      seq.push({ signal: false, duration: BETWEEN_WORD });
+      continue;
+    }
+    const code = MORSE_MAP[ch] || "";
+    for (let j = 0; j < code.length; j++) {
+      const sym = code[j];
+      if (sym === ".") {
+        seq.push({ signal: true, duration: DOT });
+      } else if (sym === "-") {
+        seq.push({ signal: true, duration: DASH });
+      }
+      if (j < code.length - 1) {
+        seq.push({ signal: false, duration: BETWEEN_SYMBOL });
+      }
+    }
+    if (i < upper.length - 1 && upper[i + 1] !== " ") {
+      seq.push({ signal: false, duration: BETWEEN_LETTER });
+    }
+  }
+
+  return seq;
+}
+
+export async function playMorse(device, text) {
+  const sequence = buildMorseSequence(text);
+
+  for (const item of sequence) {
+    if (item.signal) {
+      await device.turnOn();
+    } else {
+      await device.turnOff();
+    }
+    await new Promise((res) => setTimeout(res, item.duration));
+  }
+  await device.turnOff();
+}
+import React from "react";
+import LampControl from "./LampControl";
+import "./index.css";
+
+export default function App() {
+  return (
+    <div className="app-root">
+      <LampControl />
+    </div>
+  );
+}
+import React, { useState } from "react";
+import "./LampControl.css";
+import { sendLampCommand } from "./api";
+
+export default function LampControl() {
+  // ─── Zustände für die Lampe ───
+  const [isOn, setIsOn] = useState(false);
+  const [color, setColor] = useState("#80c080");
+  const [brightness, setBrightness] = useState(100);
+
+  // ─── Morsecode-Zustände ───
+  const [morseText, setMorseText] = useState("");
+
+  // ─── Lampe AN/AUS ───
+  const toggleLamp = async (neuerStatus) => {
+    try {
+      await sendLampCommand(neuerStatus ? "on" : "off");
+      setIsOn(neuerStatus);
+    } catch (err) {
+      console.error("API Fehler:", err);
+      alert("Fehler beim Senden des Lampenbefehls!");
+    }
+  };
+
+  // ─── Farbe ───
+  const updateColor = async (e) => {
+    const newColor = e.target.value;
+    setColor(newColor);
+    if (isOn) {
+      try {
+        await sendLampCommand("color", newColor);
+      } catch (err) {
+        console.error("API Fehler:", err);
+        alert("Fehler beim Ändern der Farbe!");
+      }
+    }
+  };
+
+  // ─── Helligkeit ───
+  const updateBrightness = async (e) => {
+    const newBrightness = parseInt(e.target.value, 10);
+    setBrightness(newBrightness);
+    if (isOn) {
+      try {
+        await sendLampCommand("brightness", newBrightness);
+      } catch (err) {
+        console.error("API Fehler:", err);
+        alert("Fehler beim Ändern der Helligkeit!");
+      }
+    }
+  };
+
+  // ─── Morsecode: an Backend senden ───
+  const playMorse = async () => {
+    const text = morseText.trim();
+    if (!isOn || !text) return;
+
+    try {
+      await sendLampCommand("morse", text);
+    } catch (err) {
+      console.error("API Fehler:", err);
+      alert("Fehler beim Senden des Morsecodes!");
+    }
+  };
+
+  // ─── Sichtbarkeit der Lampe ───
+  const actualFillOpacity = () => {
+    return isOn ? brightness / 100 : 0;
+  };
+
+  return (
+    <div className="container">
+      {/* ─── Box 1: Lampe steuern ─── */}
+      <div className="lamp-card lamp-card--small">
+        <h1 className="lamp-title">Lampe steuern</h1>
+
+        <div
+          className="lamp-icon"
+          style={{ color: isOn ? color : "#e0e0e0" }}
+        >
+          <svg
+            viewBox="0 0 64 100"
+            xmlns="http://www.w3.org/2000/svg"
+            className="bulb-svg"
+          >
+            <path
+              d="
+                M32 2
+                C18 2, 6 14, 6 28
+                C6 40, 14 49, 16 62
+                C17 69, 20 75, 24 80
+                C28 86, 36 86, 40 80
+                C44 75, 47 69, 48 62
+                C50 49, 58 40, 58 28
+                C58 14, 46 2, 32 2
+                Z
+              "
+              fill="currentColor"
+              fillOpacity={actualFillOpacity()}
+              stroke="#333"
+              strokeWidth="2"
+              strokeOpacity={1}
+            />
+            <rect
+              x="20"
+              y="80"
+              width="24"
+              height="12"
+              rx="3"
+              ry="3"
+              fill="#333"
+            />
+            <rect
+              x="24"
+              y="92"
+              width="16"
+              height="6"
+              rx="2"
+              ry="2"
+              fill="#333"
+            />
+          </svg>
+        </div>
+
+        <div className="lamp-section">
+          <label htmlFor="colorPicker" className="section-label">
+            Farbe wählen:
+          </label>
+          <input
+            type="color"
+            id="colorPicker"
+            className="color-picker"
+            value={color}
+            onChange={updateColor}
+            disabled={!isOn}
+          />
+        </div>
+
+        <div className="lamp-section controls">
+          <button
+            className="btn btn-on"
+            onClick={() => toggleLamp(true)}
+            disabled={isOn}
+          >
+            Einschalten
+          </button>
+          <button
+            className="btn btn-off"
+            onClick={() => toggleLamp(false)}
+            disabled={!isOn}
+          >
+            Ausschalten
+          </button>
+        </div>
+
+        <div className="lamp-section brightness">
+          <label htmlFor="brightRange" className="section-label">
+            Helligkeit:{" "}
+            <span className="bright-value">{brightness}%</span>
+          </label>
+          <input
+            type="range"
+            id="brightRange"
+            min="0"
+            max="100"
+            step="1"
+            value={brightness}
+            onChange={updateBrightness}
+            disabled={!isOn}
+            className="brightness-slider"
+          />
+        </div>
+      </div>
+
+      {/* ─── Box 2: Morsecode ─── */}
+      <div className="lamp-card lamp-card--large">
+        <h1 className="lamp-title">Morsecode übersetzen</h1>
+
+        <div className="lamp-section morse-section">
+          <label htmlFor="morseInput" className="section-label">
+            Text eingeben:
+          </label>
+          <input
+            type="text"
+            id="morseInput"
+            className="morse-input"
+            placeholder={isOn ? "z. B. HELLO" : "Lampe bitte einschalten"}
+            value={morseText}
+            onChange={(e) => setMorseText(e.target.value)}
+            disabled={!isOn}
+          />
+        </div>
+
+        <div className="lamp-section controls morse-controls">
+          <button
+            className="btn btn-play"
+            onClick={playMorse}
+            disabled={!isOn || morseText.trim() === ""}
+          >
+            Abspielen
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+/**
+ * sendLampCommand
+ * Schickt einen Befehl an deinen Producer REST-API-Endpunkt,
+ * der ihn dann in die RabbitMQ-Queue stellt.
+ *
+ * @param {string} command - z.B. "on", "off", "brightness", "color"
+ * @param {any} value - optionaler Wert (z.B. Zahl oder Farbcodestring)
+ */
+
+export async function sendLampCommand(command, value) {
+  const response = await fetch("http://localhost:3000/api/command", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ command, value })
+  });
+
+  if (!response.ok) {
+    throw new Error(`Server returned ${response.status}: ${response.statusText}`);
+  }
+
+  return response.json();
+}

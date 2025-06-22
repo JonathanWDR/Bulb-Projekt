@@ -1,0 +1,56 @@
+.
+├── .env
+├── .gitignore
+├── ASSIGNMENT.md
+├── backend
+│   ├── consumer
+│   │   ├── Dockerfile
+│   │   ├── entrypoint.sh
+│   │   ├── package-lock.json
+│   │   ├── package.json
+│   │   └── src
+│   │       ├── .env
+│   │       ├── errors.js
+│   │       └── index.js
+│   ├── producer
+│   │   ├── Dockerfile
+│   │   ├── openapi.yaml
+│   │   ├── package-lock.json
+│   │   ├── package.json
+│   │   └── src
+│   │       ├── index.js
+│   │       └── server.js
+│   ├── shared
+│   │   ├── .env
+│   │   ├── device.js
+│   │   ├── morse.js
+│   │   ├── package-lock.json
+│   │   ├── package.json
+│   │   ├── rabbitmq.js
+│   │   └── Test.mjs
+│   └── usefull
+│       ├── show-devices.cjs
+│       ├── test.js
+│       └── tp-client.js
+├── docker-compose.yml
+├── frontend
+│   ├── .gitignore
+│   ├── Dockerfile
+│   ├── eslint.config.js
+│   ├── index.html
+│   ├── package-lock.json
+│   ├── package.json
+│   ├── src
+│   │   ├── api.js
+│   │   ├── App.jsx
+│   │   ├── index.css
+│   │   ├── LampControl.css
+│   │   ├── LampControl.jsx
+│   │   └── main.jsx
+│   └── vite.config.js
+├── package-lock.json
+├── package.json
+├── README.md
+└── struktur.tx
+
+10 directories, 44 files
