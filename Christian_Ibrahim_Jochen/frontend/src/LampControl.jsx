@@ -4,8 +4,8 @@ import { sendLampCommand } from "./api";
 
 export default function LampControl() {
   // ─── Zustände für die Lampe ───
-  const [isOn, setIsOn] = useState(false);
-  const [color, setColor] = useState("#80c080");
+  const [isOn, setIsOn] = useState(true);
+  const [color, setColor] = useState("#ffe4a8");
   const [brightness, setBrightness] = useState(100);
 
   // ─── Morsecode-Zustände ───
@@ -61,6 +61,7 @@ export default function LampControl() {
       console.error("API Fehler:", err);
       alert("Fehler beim Senden des Morsecodes!");
     }
+    setIsOn(false);
   };
 
   // ─── Sichtbarkeit der Lampe ───
