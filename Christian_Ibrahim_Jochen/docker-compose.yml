@@ -31,7 +31,6 @@ services:
       - .env
     environment:
       RABBIT_URL: "amqp://rabbitmq"
-      DEV_MODE: "true"
     depends_on:
       - rabbitmq
 
