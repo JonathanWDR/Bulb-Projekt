@@ -1,5 +1,5 @@
 body {
-    background-color: #333333;      /* #121212;*/
+    background-color: #000000;      /* #121212;*/
     margin: 0;
     padding: 0;
     display: grid;
@@ -185,9 +185,13 @@ input[type="range"]::-moz-range-thumb {
 
 
 .preview_picker_row {
-    width: 80%;
+    min-width: 80%;
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-top: 20px;
+    background-color: rgb(37, 37, 37);
+    /*border: 1px solid pink;*/
+    border-radius: 50px;
+    padding: 30px 10px 30px 30px;
 }
