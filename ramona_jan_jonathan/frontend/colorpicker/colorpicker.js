@@ -38,10 +38,8 @@ const colorPreview = document.getElementById('colorPreview');
             const hue = (angle + 90) % 360;
             
             // Calculate saturation based on distance from center (0-100%)
-            const saturation = Math.round(normalizedDistance * 100);
-            
-            // Fixed lightness for this color wheel
-            const lightness = 50;
+            const saturation = Math.round(normalizedDistance * 100); // 0–100
+            const lightness = 100 - normalizedDistance * 50; // 100 (center) → 50 (edge)
             
             // Create color values
             const hslColor = `hsl(${Math.round(hue)}, ${saturation}%, ${lightness}%)`;
