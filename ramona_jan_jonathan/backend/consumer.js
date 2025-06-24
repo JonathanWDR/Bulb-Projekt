@@ -37,12 +37,12 @@ async function initConsumer() {
 
     console.log("\n Checking if device is online...")
     const device = await TPLink.API.loginDevice(email, password, targetDevice);
-    const deviceInfo = await device.getDeviceInfo();
+    const initDeviceInfo = await device.getDeviceInfo();
     console.log('🔍 Device info:', deviceInfo);
 
-    lampState.poweredOn = deviceInfo.device_on;
-    lampState.brightness = deviceInfo.brightness;
-    lampState.color = deviceInfo.color_mode;
+    lampState.poweredOn = initDeviceInfo.device_on;
+    lampState.brightness = initDeviceInfo.brightness;
+    lampState.color = initDeviceInfo.color_mode;
     console.log('Initial Lamp State:', lampState);
 
     console.log('⚙️ Starting queue consumer...');
@@ -87,7 +87,23 @@ async function consume(device) {
                 console.log(`Setting color to ${lampState.color}`);
             }
 
+            const deviceInfo = await device.getDeviceInfo();
+
+            // Check if the device state matches the expected lamp state
+            if( deviceInfo.device_on !== lampState.poweredOn ||
+                deviceInfo.brightness !== lampState.brightness ||
+                deviceInfo.color_mode !== lampState.color) {
+                console.log('Error updating lamp state.', deviceInfo);
+                console.log('Current Lamp State:', lampState);
+                console.log('Expected Lamp State:', {
+                    poweredOn: lampState.poweredOn,
+                    brightness: lampState.brightness,
+                    color: lampState.color
+                });
+            }
+
             ch.ack(msg);
+
         }
     });
 }
