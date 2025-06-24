@@ -19,7 +19,7 @@ body {
     position: relative;
     display: grid;
     width: 35vh;
-    /*left: calc(50% - 17.5vh); /* Centering the container */
+
     align-items: center;
     justify-content: center;
     margin-right: 10vh;
@@ -45,41 +45,24 @@ body {
 
 }
 
-
-
-/* Leuchtender Rand aktiv
-.glow-on {
-    box-shadow: 0 0 40px 15px rgba(255, 200, 0, 0.8);
-}*/
-/*
-
-.glow-on {
-    box-shadow: 0 0 40px 15px var(--glow-color, rgba(255, 200, 0, 0.8));
-}
-*/
 .glow-on {
     filter: drop-shadow(0 0 20px rgba(var(--glow-rgb), var(--glow-alpha)));
 }
-
-
-
 
 /* color picker */
 
 .color-picker {
     display: flex;
     flex-wrap: wrap;
-    justify-content: center;
-    gap: 2vh;
-    margin-top: 30px;
-    border: 2px solid white;
-    border-radius: 20px;
-    padding: 3px;
+    justify-content: space-around;
+    background-color: rgb(37, 37, 37);
+    border-radius: 30px;
+    padding: 20px;
 }
 
 .color-circle {
-    width: 3vh;
-    height: 3vh;
+    width: 6vh;
+    height: 6vh;
     border-radius: 50%;
     cursor: pointer;
     border: 2px solid white;
@@ -92,6 +75,7 @@ body {
 }
 
 /* Farben */
+.color-circle.warmwhite        { background-color: hsl(61, 100%, 81%); }
 .color-circle.red        { background-color: hsl(0, 100%, 50%); }
 .color-circle.orange     { background-color: hsl(30, 100%, 50%); }
 .color-circle.amber      { background-color: hsl(45, 100%, 50%); }
@@ -111,7 +95,7 @@ body {
 /*Helligkeit*/
 /* Slider container */
 .brightness-slider {
-    margin-top: 20px;
+
     text-align: center;
     color: white;
     font-family: sans-serif;
@@ -160,7 +144,7 @@ input[type="range"]::-moz-range-thumb {
 
 /*Text input*/
 .text-input-container {
-    margin-top: 20px;
+
     display: flex;
     justify-content: center;
 }
@@ -189,9 +173,8 @@ input[type="range"]::-moz-range-thumb {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-top: 20px;
+
     background-color: rgb(37, 37, 37);
-    /*border: 1px solid pink;*/
-    border-radius: 50px;
-    padding: 30px 10px 30px 30px;
+    border-radius: 30px;
+    padding: 40px 20px 30px 30px;
 }
