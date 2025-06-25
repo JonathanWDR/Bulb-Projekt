@@ -1,20 +1,22 @@
-
 import amqp from 'amqplib';
 import { createRabbitMQChannel, publishLampStatus, rabbitMQConfig } from '../config/rabbitmq';
 import { ILampDevice, } from '../types/ILamp';
 import { LampCommand } from '../types/LampCommandsType';
 import { CommandStrategyFactory } from './CommandStrategyFactory';
-
-
+import { MockLampDevice } from '../config/mockLamp';
+import { createTplinkDeviceConnection } from '../config/tplink'; // <-- Fehlender Import
 
 export class RabbitMQConsumerService {
     private amqpChannel: amqp.Channel | null = null;
     private commandStrategyFactory: CommandStrategyFactory;
     private device: ILampDevice;
+    private mockDevice: MockLampDevice;
+    private lastKnownState: any = { poweredOn: false, brightness: 100, color: "#ffffff" };
 
     constructor(device: ILampDevice) {
         this.commandStrategyFactory = new CommandStrategyFactory();
         this.device = device;
+        this.mockDevice = new MockLampDevice();
     }
 
     public async start(): Promise<void> {
@@ -62,19 +64,83 @@ export class RabbitMQConsumerService {
 
     public async handleCommand(cmd: LampCommand): Promise<void> {
         console.log(`Handling command: ${cmd.command}`, cmd);
+        
+        // Erwarteten Zustand berechnen
+        const expectedState = await this.getExpectedState(cmd);
+        
+        // Versuchen, eine Verbindung zur echten Lampe herzustellen
+        let deviceToUse = this.device;
+        let isMock = false;
+        
         try {
+            console.log("Versuche Verbindung zur echten Lampe herzustellen...");
+            deviceToUse = await createTplinkDeviceConnection();
+        } catch (err) {
+            console.warn("Echte Lampe nicht erreichbar, benutze MockDevice.");
+            deviceToUse = this.mockDevice;
+            isMock = true;
+        }
+        
+        try {
+            // Befehl ausführen
             const strategy = this.commandStrategyFactory.getStrategy(cmd.command);
             if (!strategy) {
                 throw new Error(`Unsupported command: ${cmd.command}`);
             }
-            await strategy.execute(this.device, cmd, this.amqpChannel!);
-            const currentState = await this.device.getCurrentState();
-            await publishLampStatus(currentState, this.amqpChannel!).catch(err => {
-                console.error('Error publishing lamp status:', err);
-            });
-        } catch (error) {
+            
+            await strategy.execute(deviceToUse, cmd, this.amqpChannel!);
+            
+            // Aktuellen Zustand abfragen und speichern
+            const currentState = await deviceToUse.getCurrentState();
+            this.lastKnownState = { ...currentState };
+            
+            // Status mit Mock-Info veröffentlichen
+            const statusWithInfo = { 
+                ...currentState, 
+                isMockDevice: isMock 
+            };
+            
+            await publishLampStatus(statusWithInfo, this.amqpChannel!);
+            
+        } catch (error: any) {
             console.error(`Error processing lamp command ${cmd.command}:`, error);
-            throw error;
+            
+            // Bei Fehler trotzdem erwarteten Zustand mit Fehlerinfo zurückgeben
+            if (this.amqpChannel) {
+                const errorState = {
+                    ...expectedState,
+                    isMockDevice: true,
+                    error: {
+                        message: error.message || 'Unbekannter Fehler',
+                        command: cmd.command
+                    }
+                };
+                
+                await publishLampStatus(errorState, this.amqpChannel);
+            }
+        }
+    }
+    
+    // Hilfsmethode zum Berechnen des erwarteten Zustands
+    private async getExpectedState(cmd: LampCommand): Promise<any> {
+        // Basiszustand aus letztem bekannten Zustand
+        const baseState = { ...this.lastKnownState };
+        
+        // Änderung basierend auf Befehl
+        switch (cmd.command) {
+            case 'on':
+                return { ...baseState, poweredOn: true };
+            case 'off':
+                return { ...baseState, poweredOn: false };
+            case 'brightness':
+                return { ...baseState, brightness: (cmd as any).value };
+            case 'color':
+                return { ...baseState, color: (cmd as any).value };
+            case 'morse':
+                // Morse ändert den Zustand während der Ausführung
+                return { ...baseState, morseActive: true, morseText: (cmd as any).value };
+            default:
+                return baseState;
         }
     }
 
