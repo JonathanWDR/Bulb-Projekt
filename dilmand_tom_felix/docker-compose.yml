@@ -6,7 +6,7 @@ services:
     ports:
       - "5672:5672"   # AMQP port
       - "15672:15672" # Management UI
-      - "15674:15674"
+      - "15674:15674" # WebStomp port
     environment:
       - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
       - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
@@ -35,6 +35,13 @@ services:
     depends_on:
       rabbitmq:
         condition: service_healthy
+
+  frontend:
+    build: ./Frontend
+    ports:
+      - "8080:80"
+    depends_on:
+      - rabbitmq
 
 configs:
   rabbitmq-plugins:
