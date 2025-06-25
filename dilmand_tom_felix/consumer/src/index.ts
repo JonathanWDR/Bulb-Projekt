@@ -5,6 +5,7 @@ import { MockLampDevice } from './config/mockLamp';
 
 async function main() {
     let device;
+    let isMock = false;
     
     try {
         // Versuche, eine Verbindung zur echten Lampe herzustellen
@@ -15,10 +16,11 @@ async function main() {
         // Wenn keine Verbindung möglich ist, verwende MockDevice als Fallback
         console.warn("Echte Lampe nicht erreichbar, verwende MockDevice für initialen Start", err);
         device = new MockLampDevice();
+        isMock = true;
     }
 
     // Consumer startet immer - mit echter Lampe oder MockDevice
-    const consumer = new RabbitMQConsumerService(device);
+    const consumer = new RabbitMQConsumerService(device, isMock);
     await consumer.start();
     console.log("Consumer wurde gestartet und ist bereit, Befehle zu empfangen.");
 
