@@ -13,7 +13,20 @@ export async function createTplinkDeviceConnection(): Promise<ILampDevice> {
   if (!email || !password || !deviceIP) {
     throw new Error('TPLINK_EMAIL, TPLINK_PASSWORD, and TPLINK_DEVICE_IP must be set in .env');
   }
-  const device = await TPLink.API.loginDeviceByIp(email, password, deviceIP);
+
+  // Timeout-Version der Verbindungsfunktion
+  const devicePromise = TPLink.API.loginDeviceByIp(email, password, deviceIP);
+  
+  // Wir geben der Verbindung max. 5 Sekunden Zeit
+  const timeoutPromise = new Promise<null>((_, reject) => {
+    setTimeout(() => {
+      reject(new Error('Connection timeout after 5 seconds'));
+    }, 5000);
+  });
+
+  // Race: Wer zuerst fertig ist (Verbindung oder Timeout) gewinnt
+  const device = await Promise.race([devicePromise, timeoutPromise]);
+  
   if (!device) {
     throw new Error('Failed to connect to TP-Link device');
   }

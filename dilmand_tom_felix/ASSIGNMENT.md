@@ -40,13 +40,12 @@ Diese Integration bietet mehrere Vorteile:
 - **Standardisierung**: Nutzung des etablierten STOMP-Protokolls für Messaging
 - **Erhöhte Zuverlässigkeit**: Direkter Zugriff auf die Robustheit von RabbitMQ
 
-<!-- ### Technologiestack:
+### Retry-Mechanismus
+Das Backend überprüft in regelmäßigen Abständen (30s), ob eine Verbindung zu einer Lampe besteht.
+Wenn ein Lampe nicht verfügbar sein sollte, wird ein MockDevice erstellt um den Status der Lampe über Events im UI darstellen zu können.
+Dabei wird der Retry-Mechanismus weiterhin durchgeführt, sodass sobald eine Lampe verfügbar ist, diese als Device verwendet werden kann.
+Für den Fall, dass die Verbindung erneut geschlossen wird, wird wieder auf das MockDevice gewechselt.
 
-- **Consumer**: Node.js mit TypeScript
-- **Message Broker**: RabbitMQ
-- **Frontend**: HTML, CSS, JavaScript mit WebSocket-Verbindung zu RabbitMQ
-- **Containerisierung**: Docker und Docker Compose
-- **Smart Lamp Integration**: TP-Link API -->
 
 ## Funktionsweise der Anwendung
 

@@ -9,7 +9,7 @@ import {
 import { publishLampStatus } from "../config/rabbitmq";
 import amqp from 'amqplib';
 
-// Strategy interface
+
 export interface CommandStrategy {
     execute(device: ILampDevice, payload?: LampCommand, channel?: amqp.Channel): Promise<void>;
 }

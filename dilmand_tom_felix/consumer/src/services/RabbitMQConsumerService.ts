@@ -1,20 +1,28 @@
-
 import amqp from 'amqplib';
 import { createRabbitMQChannel, publishLampStatus, rabbitMQConfig } from '../config/rabbitmq';
 import { ILampDevice, } from '../types/ILamp';
 import { LampCommand } from '../types/LampCommandsType';
 import { CommandStrategyFactory } from './CommandStrategyFactory';
 
-
-
 export class RabbitMQConsumerService {
     private amqpChannel: amqp.Channel | null = null;
     private commandStrategyFactory: CommandStrategyFactory;
     private device: ILampDevice;
+    private isMock: boolean;
+    private lastKnownState: any = { poweredOn: false, brightness: 100, color: "#ffffff" };
 
-    constructor(device: ILampDevice) {
+    constructor(device: ILampDevice, isMock?: boolean) {
         this.commandStrategyFactory = new CommandStrategyFactory();
         this.device = device;
+        this.isMock = isMock || false;
+    }
+
+    public setDevice(device: ILampDevice): void {
+        this.device = device;
+    }
+
+    public setIsMock(isMock: boolean): void {
+        this.isMock = isMock;
     }
 
     public async start(): Promise<void> {
@@ -62,19 +70,42 @@ export class RabbitMQConsumerService {
 
     public async handleCommand(cmd: LampCommand): Promise<void> {
         console.log(`Handling command: ${cmd.command}`, cmd);
+        
+        let deviceToUse = this.device;
+        let isMock = this.isMock;
+        
         try {
             const strategy = this.commandStrategyFactory.getStrategy(cmd.command);
             if (!strategy) {
                 throw new Error(`Unsupported command: ${cmd.command}`);
             }
-            await strategy.execute(this.device, cmd, this.amqpChannel!);
-            const currentState = await this.device.getCurrentState();
-            await publishLampStatus(currentState, this.amqpChannel!).catch(err => {
-                console.error('Error publishing lamp status:', err);
-            });
-        } catch (error) {
+            
+            await strategy.execute(deviceToUse, cmd, this.amqpChannel!);
+            const currentState = await deviceToUse.getCurrentState();
+            this.lastKnownState = { ...currentState };
+            
+            const statusWithInfo = { 
+                ...currentState, 
+                isMockDevice: isMock 
+            };
+            
+            await publishLampStatus(statusWithInfo, this.amqpChannel!);
+            
+        } catch (error: any) {
             console.error(`Error processing lamp command ${cmd.command}:`, error);
-            throw error;
+            
+            if (this.amqpChannel) {
+                const errorState = {
+                    ...this.lastKnownState,
+                    isMockDevice: true,
+                    error: {
+                        message: error.message || 'Unbekannter Fehler',
+                        command: cmd.command
+                    }
+                };
+                
+                await publishLampStatus(errorState, this.amqpChannel);
+            }
         }
     }
 
