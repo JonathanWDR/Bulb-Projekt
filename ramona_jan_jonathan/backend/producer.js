@@ -1,5 +1,4 @@
 const amqp = require('amqplib');
-
 const QUEUE = 'led_control';
 
 async function sendToQueue(message) {

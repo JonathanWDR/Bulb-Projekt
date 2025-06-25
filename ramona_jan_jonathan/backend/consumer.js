@@ -2,6 +2,8 @@ const amqp = require('amqplib');
 const axios = require('axios');
 const TPLink = require('tplink-bulbs');
 require('dotenv').config();
+require('./websocket');
+
 
 const email = process.env.TP_EMAIL;
 const password = process.env.TP_PASSWORD;
@@ -38,15 +40,28 @@ async function initConsumer() {
     console.log("\n Checking if device is online...")
     const device = await TPLink.API.loginDevice(email, password, targetDevice);
     const initDeviceInfo = await device.getDeviceInfo();
-    console.log('🔍 Device info:', deviceInfo);
+    console.log('🔍 Device info:', initDeviceInfo);
 
     lampState.poweredOn = initDeviceInfo.device_on;
     lampState.brightness = initDeviceInfo.brightness;
-    lampState.color = initDeviceInfo.color_mode;
+    lampState.color = hsvToHex(initDeviceInfo.hue, initDeviceInfo.saturation, 100);
     console.log('Initial Lamp State:', lampState);
 
-    console.log('⚙️ Starting queue consumer...');
+    broadcastState();
+
+    console.log('*** Starting consumer queue...');
     await consume(device);
+}
+
+async function broadcastState() {
+    if (global.wsClients) {
+        global.wsClients.forEach(ws => {
+            if (ws.readyState === ws.OPEN) {
+                ws.send(JSON.stringify(lampState));
+                console.log('📡 Broadcasted state to WebSocket clients:', lampState);
+            }
+        });
+    }
 }
 
 const QUEUE = 'led_control';
@@ -58,56 +73,92 @@ async function consume(device) {
 
     ch.consume(QUEUE, async (msg) => {
         if (msg !== null) {
-            const state = msg.content.toString();
-            console.log('📩 Received from queue (consumer):', state);
+            const newMsg = msg.content.toString();
+            console.log('📩 Received from queue (consumer):', newMsg);
 
-            const newState = JSON.parse(state);
+            parsedMsg = JSON.parse(newMsg);
 
-            // Track if any change was made
-            if (newState.poweredOn !== lampState.poweredOn) {
-                lampState.poweredOn = newState.poweredOn;
-                if (lampState.poweredOn) {
-                    await device.turnOn();
-                    console.log("Device turning on...");
-                } else {
-                    await device.turnOff();
-                    console.log("Device turning off...");
+            if (parsedMsg.action) {
+                console.log('Action found:', parsedMsg.action);
+                broadcastState();
+            }else{
+                const newState = parsedMsg;
+
+                if (newState.poweredOn !== lampState.poweredOn) {
+                    lampState.poweredOn = newState.poweredOn;
+                    if (lampState.poweredOn) {
+                        await device.turnOn();
+                        console.log("Device turning on...");
+                    } else {
+                        await device.turnOff();
+                        console.log("Device turning off...");
+                    }
+                }
+
+                if (newState.brightness !== lampState.brightness) {
+                    lampState.brightness = newState.brightness;
+                    await device.setBrightness(lampState.brightness);
+                    
+                    console.log(`Setting brightness to ${lampState.brightness}%`);
+                }
+
+                if (newState.color !== lampState.color) {
+                    lampState.color = newState.color;
+                    await device.setColour(lampState.color);
+                    
+                    console.log(`Setting color to ${lampState.color}`);
+                }
+
+                const deviceInfo = await device.getDeviceInfo();
+                
+                const deviceState = {
+                    poweredOn: deviceInfo.device_on,
+                    brightness: deviceInfo.brightness,
+                    color: hsvToHex(deviceInfo.hue, deviceInfo.saturation, 100)
+                };
+                if( deviceState.poweredOn !== lampState.poweredOn ||
+                    deviceState.brightness !== lampState.brightness ||
+                    deviceState.color !== lampState.color) {
+                    console.log('Error updating lamp state.', deviceInfo);
+                    console.log('Current Lamp State:', lampState);
+                    console.log('Expected Lamp State:', deviceState);
                 }
             }
-
-            if (newState.brightness !== lampState.brightness) {
-                lampState.brightness = newState.brightness;
-                await device.setBrightness(lampState.brightness);
-                console.log(`Setting brightness to ${lampState.brightness}%`);
-            }
-
-            if (newState.color !== lampState.color) {
-                lampState.color = newState.color;
-                await device.setColour(lampState.color);
-                console.log(`Setting color to ${lampState.color}`);
-            }
-
-            const deviceInfo = await device.getDeviceInfo();
-
-            // Check if the device state matches the expected lamp state
-            if( deviceInfo.device_on !== lampState.poweredOn ||
-                deviceInfo.brightness !== lampState.brightness ||
-                deviceInfo.color_mode !== lampState.color) {
-                console.log('Error updating lamp state.', deviceInfo);
-                console.log('Current Lamp State:', lampState);
-                console.log('Expected Lamp State:', {
-                    poweredOn: lampState.poweredOn,
-                    brightness: lampState.brightness,
-                    color: lampState.color
-                });
-            }
-
             ch.ack(msg);
 
         }
     });
 }
 
+function hsvToHex(h, s, v) {
+    // Convert HSV to RGB
+    const c = (v / 100) * (s / 100);
+    const x = c * (1 - Math.abs(((h / 60) % 2) - 1));
+    const m = (v / 100) - c;
+    
+    let r, g, b;
+    
+    if (h >= 0 && h < 60) {
+        [r, g, b] = [c, x, 0];
+    } else if (h >= 60 && h < 120) {
+        [r, g, b] = [x, c, 0];
+    } else if (h >= 120 && h < 180) {
+        [r, g, b] = [0, c, x];
+    } else if (h >= 180 && h < 240) {
+        [r, g, b] = [0, x, c];
+    } else if (h >= 240 && h < 300) {
+        [r, g, b] = [x, 0, c];
+    } else {
+        [r, g, b] = [c, 0, x];
+    }
+    
+    // Convert to 0-255 range
+    r = Math.round((r + m) * 255);
+    g = Math.round((g + m) * 255);
+    b = Math.round((b + m) * 255);
+    
+    // Convert to hex
+    return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
+}
 
-
-//initConsumer();
+initConsumer();

@@ -20,9 +20,18 @@ fetch('./assets/black.svg')
     bulbWrapper.querySelector('svg').style.width = "100%";
     bulbWrapper.querySelector('svg').style.height = "100%";
 
-    update();
+    update(false);
   });
 
+
+fetch('/getState', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'getState' })
+    })
+    .then(res => res.json())
+    .then(data => console.log("getState request sent:", data))
+    .catch(err => console.error("Error sending getState request:", err));
 
 
 function toggleLampState(on) {
@@ -103,9 +112,10 @@ const hexToRgb = (hex) => {
            return { r, g, b };
        };
 
-function update() {
+function update(sendToBackend = true) {
 
-    sendState(isLampOn, brightness, colorHex);
+    if(sendToBackend){sendState(isLampOn, brightness, colorHex);}
+    
 
     if (isLampOn) {
         img.classList.add("glow-on");
@@ -146,3 +156,16 @@ function update() {
         color: colorHex
     });
 }
+
+const socket = new WebSocket('ws://localhost:8081');
+
+socket.onmessage = (event) => {
+  const backendLampState = JSON.parse(event.data);
+  console.log('Lamp state received from backend:', backendLampState);
+  isLampOn = backendLampState.poweredOn;
+  brightness = backendLampState.brightness;
+  colorHex = backendLampState.color;
+  update(false);
+
+  // Update your frontend UI accordingly
+};

@@ -20,5 +20,13 @@ app.post('/led', async (req, res) => {
   res.send({ status: 'Message sent to queue', state });
 });
 
+app.post('/getState', async (req, res) => {
+  console.log('📩 Received getState request');
+  await producer.sendToQueue(req.body);
+  res.send({
+    status: 'Request sent to queue for current state',
+  });
+});
+
 app.listen(3000, () => console.log('Server running on http://localhost:3000'));
 
