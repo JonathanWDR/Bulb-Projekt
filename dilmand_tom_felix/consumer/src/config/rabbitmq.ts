@@ -1,4 +1,3 @@
-// src/config/rabbitmq.config.ts
 import amqp from 'amqplib';
 import { ILampState } from '../types/ILamp';
 
@@ -11,7 +10,6 @@ export const rabbitMQConfig = {
     statusExchange: 'lamp-status'
 };
 
-// Using specific type definitions
 let connection: amqp.ChannelModel | null = null;
 let channel: amqp.Channel | null = null;
 

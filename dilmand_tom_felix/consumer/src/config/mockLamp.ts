@@ -44,7 +44,7 @@ export class MockLampDevice implements ILampDevice {
             specs: "mock-specs",
             device_on: this.state.poweredOn,
             brightness: this.state.brightness
-        } as any; // Using 'as any' as a temporary solution; replace with proper TapoDeviceInfo type
+        } as any;
     }
     async getEnergyUsage() { 
         return {
@@ -52,7 +52,7 @@ export class MockLampDevice implements ILampDevice {
             today_energy: 0,
             month_energy: 0,
             total_energy: 0
-        } as any; // Using 'as any' as a temporary solution; replace with proper TapoDeviceInfo type
+        } as any;
     }
     
     async getCurrentState() { 

@@ -3,8 +3,6 @@ import { createRabbitMQChannel, publishLampStatus, rabbitMQConfig } from '../con
 import { ILampDevice, } from '../types/ILamp';
 import { LampCommand } from '../types/LampCommandsType';
 import { CommandStrategyFactory } from './CommandStrategyFactory';
-import { MockLampDevice } from '../config/mockLamp';
-import { createTplinkDeviceConnection } from '../config/tplink'; // <-- Fehlender Import
 
 export class RabbitMQConsumerService {
     private amqpChannel: amqp.Channel | null = null;
@@ -13,9 +11,17 @@ export class RabbitMQConsumerService {
     private isMock: boolean;
     private lastKnownState: any = { poweredOn: false, brightness: 100, color: "#ffffff" };
 
-    constructor(device: ILampDevice, isMock: boolean = false) {
+    constructor(device: ILampDevice, isMock?: boolean) {
         this.commandStrategyFactory = new CommandStrategyFactory();
         this.device = device;
+        this.isMock = isMock || false;
+    }
+
+    public setDevice(device: ILampDevice): void {
+        this.device = device;
+    }
+
+    public setIsMock(isMock: boolean): void {
         this.isMock = isMock;
     }
 
@@ -65,24 +71,19 @@ export class RabbitMQConsumerService {
     public async handleCommand(cmd: LampCommand): Promise<void> {
         console.log(`Handling command: ${cmd.command}`, cmd);
         
-        // Versuchen, eine Verbindung zur echten Lampe herzustellen
         let deviceToUse = this.device;
         let isMock = this.isMock;
         
         try {
-            // Befehl ausführen
             const strategy = this.commandStrategyFactory.getStrategy(cmd.command);
             if (!strategy) {
                 throw new Error(`Unsupported command: ${cmd.command}`);
             }
             
             await strategy.execute(deviceToUse, cmd, this.amqpChannel!);
-            
-            // Aktuellen Zustand abfragen und speichern
             const currentState = await deviceToUse.getCurrentState();
             this.lastKnownState = { ...currentState };
             
-            // Status mit Mock-Info veröffentlichen
             const statusWithInfo = { 
                 ...currentState, 
                 isMockDevice: isMock 
@@ -93,10 +94,9 @@ export class RabbitMQConsumerService {
         } catch (error: any) {
             console.error(`Error processing lamp command ${cmd.command}:`, error);
             
-            // Bei Fehler trotzdem letzten bekannten Zustand mit Fehlerinfo zurückgeben
             if (this.amqpChannel) {
                 const errorState = {
-                    ...this.lastKnownState,  // Verwende lastKnownState statt expectedState
+                    ...this.lastKnownState,
                     isMockDevice: true,
                     error: {
                         message: error.message || 'Unbekannter Fehler',

@@ -4,28 +4,24 @@ import { createTplinkDeviceConnection } from './config/tplink';
 import { MockLampDevice } from './config/mockLamp';
 
 async function main() {
-    let device;
+    let device: any;
     let isMock = false;
     
     try {
-        // Versuche, eine Verbindung zur echten Lampe herzustellen
         console.log("Versuche Verbindung zur echten Lampe herzustellen...");
         device = await createTplinkDeviceConnection();
         console.log("Erfolgreich mit echter Lampe verbunden!");
     } catch (err) {
-        // Wenn keine Verbindung möglich ist, verwende MockDevice als Fallback
         console.warn("Echte Lampe nicht erreichbar, verwende MockDevice für initialen Start", err);
         device = new MockLampDevice();
         isMock = true;
     }
 
-    // Consumer startet immer - mit echter Lampe oder MockDevice
     const consumer = new RabbitMQConsumerService(device, isMock);
     await consumer.start();
     console.log("Consumer wurde gestartet und ist bereit, Befehle zu empfangen.");
 
-    // Im Hintergrund periodisch versuchen, die echte Lampe zu erreichen
-    startReconnectAttempts();
+    startReconnectAttempts(consumer);
 
     process.on('SIGINT', async () => {
         console.log("Shutting down...");
@@ -35,16 +31,20 @@ async function main() {
     });
 }
 
-// Optional: Periodische Reconnect-Versuche im Hintergrund
-function startReconnectAttempts() {
+function startReconnectAttempts(consumer: RabbitMQConsumerService) {
     setInterval(async () => {
         try {
-            await createTplinkDeviceConnection();
+            const device = await createTplinkDeviceConnection();
+            consumer.setDevice(device);
+            consumer.setIsMock(false);
+
             console.log("Verbindung zur echten Lampe ist möglich.");
         } catch (err) {
             console.log("Echte Lampe weiterhin nicht erreichbar.");
+            consumer.setDevice(new MockLampDevice());
+            consumer.setIsMock(true);
         }
-    }, 30000); // Alle 30 Sekunden prüfen
+    }, 30000);
 }
 
 main();
