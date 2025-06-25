@@ -166,6 +166,4 @@ socket.onmessage = (event) => {
   brightness = backendLampState.brightness;
   colorHex = backendLampState.color;
   update(false);
-
-  // Update your frontend UI accordingly
 };

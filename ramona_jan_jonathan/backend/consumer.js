@@ -105,6 +105,8 @@ async function consume(device) {
                 if (newState.color !== lampState.color) {
                     lampState.color = newState.color;
                     await device.setColour(lampState.color);
+
+                    await device.setBrightness(lampState.brightness);
                     
                     console.log(`Setting color to ${lampState.color}`);
                 }
