@@ -78,10 +78,32 @@ function pickedColor(color) {
     update();
 }
 
-// Send only once the slider is released
+const indicator = document.getElementById("brightnessIndicator");
+
+function updateIndicator() {
+    const value = brightnessSlider.value;
+    const min = brightnessSlider.min;
+    const max = brightnessSlider.max;
+
+    // Convert value to percentage
+    let percentage = (value - min) / (max - min);
+
+    // Clamp percentage to stay within visible bounds
+    const minPercent = 0.03; // 3% from left
+    const maxPercent = 0.975; // 97% from left
+    percentage = Math.max(minPercent, Math.min(maxPercent, percentage));
+
+    indicator.style.left = `calc(${percentage * 100}% - 1px)`;
+}
+
+
+brightnessSlider.addEventListener("input", updateIndicator);
+window.addEventListener("load", updateIndicator);
+
+
 brightnessSlider.addEventListener('change', () => {
     brightness = brightnessSlider.value;
-    update(); // Send the brightness value only here
+    update();
 });
 
 
@@ -138,13 +160,11 @@ function update(sendToBackend = true) {
         bulbFillPath.style.fill = "#1c1c1c"
     }
 
-    // Update brightness (alpha)
     const alpha = (brightness / 100).toFixed(2);
     console.log("Brightness (alpha):", alpha);
     img.style.setProperty('--glow-alpha', alpha);
 
-    // Update color (RGB)
-    // Convert hex color to rgb
+  
     
     const rgb = hexToRgb(colorHex);
     img.style.setProperty('--glow-rgb', `${rgb.r}, ${rgb.g}, ${rgb.b}`);
