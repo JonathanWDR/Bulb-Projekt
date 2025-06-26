@@ -108,6 +108,6 @@ Alle Gruppenmitglieder haben gemeinsam an der Architektur, Implementierung und D
 
 ## 6. Matrikelnummern
 
-- Leon: [Matrikelnummer eintragen]
+- Leon: 6550883
 - Luca: 6949663
 - Monika: 1396397
