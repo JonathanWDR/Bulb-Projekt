@@ -78,13 +78,9 @@ body {
 .color-circle.warmwhite        { background-color: hsl(61, 100%, 81%); }
 .color-circle.red        { background-color: hsl(0, 100%, 50%); }
 .color-circle.orange     { background-color: hsl(30, 100%, 50%); }
-.color-circle.amber      { background-color: hsl(45, 100%, 50%); }
 .color-circle.yellow     { background-color: hsl(60, 100%, 50%); }
-.color-circle.lime       { background-color: hsl(75, 100%, 50%); }
 .color-circle.green      { background-color: hsl(120, 100%, 50%); }
-.color-circle.turquoise  { background-color: hsl(160, 100%, 50%); }
 .color-circle.cyan       { background-color: hsl(180, 100%, 50%); }
-.color-circle.skyblue    { background-color: hsl(200, 100%, 50%); }
 .color-circle.blue       { background-color: hsl(240, 100%, 50%); }
 .color-circle.indigo     { background-color: hsl(275, 100%, 50%); }
 .color-circle.violet     { background-color: hsl(290, 100%, 50%); }
@@ -92,11 +88,6 @@ body {
 .color-circle.pink       { background-color: hsl(340, 100%, 50%); }
 
 
-/*Helligkeit*/
-/* Slider container */
-
-
-/*Text input*/
 .text-input-container {
     display: flex;
     justify-content: center;
@@ -176,8 +167,6 @@ body {
 
 }
 
-
-/* Hidden native slider with full coverage */
 #brightness {
     position: absolute;
     top: 0;

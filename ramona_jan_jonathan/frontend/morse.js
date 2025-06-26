@@ -25,11 +25,11 @@ function textToMorse(text) {
 
 async function blinkMorse(morseString) {
     const delay = (ms) => new Promise(res => setTimeout(res, ms));
-    const ditDuration = 200;
+    const ditDuration = 150;
 
-    
-    toggleLampState(true);
-    await delay(5*ditDuration); // wait before starting to blink
+    previousLampState = isLampOn; // Save current state
+    toggleLampState(false);
+    await delay(7*ditDuration); // wait before starting to blink
 
     for (let i = 0; i < morseString.length; i++) {
         const symbol = morseString[i];
@@ -52,9 +52,9 @@ async function blinkMorse(morseString) {
         }
     }
 
-    // Turn lamp back on at the end
-    await delay(5*ditDuration); // wait before turning on
-    toggleLampState(true);
+
+    await delay(7*ditDuration); // wait before turning on
+    toggleLampState(previousLampState);
 }
 
 
@@ -66,10 +66,6 @@ inputField.addEventListener("keydown", (event) => {
         const text = inputField.value.trim();
         if (!text) return;
 
-        if (!img.classList.contains("glow-on")) {
-            alert("Lampe ist aus – bitte zuerst einschalten.");
-            return;
-        }
 
         const morse = textToMorse(text);
         console.log("Morse:", morse);
@@ -77,4 +73,4 @@ inputField.addEventListener("keydown", (event) => {
 
         inputField.value = ""; // nach Senden leeren
     }
-});
+});//- . ... -
