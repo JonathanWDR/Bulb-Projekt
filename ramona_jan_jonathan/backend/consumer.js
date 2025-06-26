@@ -77,8 +77,13 @@ async function consume(device) {
             console.log('📩 Received from queue (consumer):', newMsg);
 
             parsedMsg = JSON.parse(newMsg);
+            const deviceInfo = await device.getDeviceInfo();
 
-            if (parsedMsg.action) {
+            lampState.poweredOn = deviceInfo.device_on;
+            lampState.brightness = deviceInfo.brightness;
+            lampState.color = hsvToHex(deviceInfo.hue, deviceInfo.saturation, 100);
+
+            if (parsedMsg.action === 'getState') {
                 console.log('Action found:', parsedMsg.action);
                 broadcastState();
             }else{
@@ -109,21 +114,6 @@ async function consume(device) {
                     await device.setBrightness(lampState.brightness);
                     
                     console.log(`Setting color to ${lampState.color}`);
-                }
-
-                const deviceInfo = await device.getDeviceInfo();
-                
-                const deviceState = {
-                    poweredOn: deviceInfo.device_on,
-                    brightness: deviceInfo.brightness,
-                    color: hsvToHex(deviceInfo.hue, deviceInfo.saturation, 100)
-                };
-                if( deviceState.poweredOn !== lampState.poweredOn ||
-                    deviceState.brightness !== lampState.brightness ||
-                    deviceState.color !== lampState.color) {
-                    console.log('Error updating lamp state.', deviceInfo);
-                    console.log('Current Lamp State:', lampState);
-                    console.log('Expected Lamp State:', deviceState);
                 }
             }
             ch.ack(msg);
@@ -163,4 +153,4 @@ function hsvToHex(h, s, v) {
     return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
 }
 
-//initConsumer();
+initConsumer();

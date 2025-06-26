@@ -161,7 +161,6 @@ function update(sendToBackend = true) {
     }
 
     const alpha = (brightness / 100).toFixed(2);
-    console.log("Brightness (alpha):", alpha);
     img.style.setProperty('--glow-alpha', alpha);
 
   
@@ -180,10 +179,20 @@ function update(sendToBackend = true) {
 const socket = new WebSocket('ws://localhost:8081');
 
 socket.onmessage = (event) => {
-  const backendLampState = JSON.parse(event.data);
-  console.log('Lamp state received from backend:', backendLampState);
-  isLampOn = backendLampState.poweredOn;
-  brightness = backendLampState.brightness;
-  colorHex = backendLampState.color;
-  update(false);
+    const backendLampState = JSON.parse(event.data);
+    console.log('Lamp state received from backend:', backendLampState);
+    isLampOn = backendLampState.poweredOn;
+    brightness = backendLampState.brightness;
+    colorHex = backendLampState.color;
+    
+    brightnessSlider.value = brightness;
+    update(false);
+    brightnessSlider.value = brightness;
+
+    updateIndicator();
+    console.log("Updated from backend:", {
+        poweredOn: isLampOn,
+        brightness,
+        color: colorHex
+    });
 };
