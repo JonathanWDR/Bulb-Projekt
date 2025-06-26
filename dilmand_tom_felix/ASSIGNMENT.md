@@ -1,4 +1,4 @@
-# Smart Lamp Control - Architektur und Funktionsweise
+# Smart Lamp Control Dilmand Saado (MtrNr. 9511296), Tom Weber (MtrNr. 1705171), Felix Erhard (MtrNr. 3394927) - Architektur und Funktionsweise
 
 ## Gewählte Architektur
 

@@ -11,7 +11,6 @@ RABBITMQ_DEFAULT_USER=guest
 RABBITMQ_DEFAULT_PASS=guest
 TPLINK_EMAIL= <TP_MAIL>
 TPLINK_PASSWORD=<TP_PASSWORT>
-TPLINK_DEVICE_ID=<TP_DEVICE_ID>
 TPLINK_DEVICE_IP=<TP_DEVICE_ID>
 ```
 
@@ -37,3 +36,7 @@ Daruter fallen: Ein-/Ausschalten, Farbänderungen, Anpassung der Helligkeit, sow
 <img src="./image.png" width="60%" alt="Beschreibung des Bildes">
 
 
+## Assignees
+Dilmand Saado (MtrNr. 9511296)
+Tom Weber (MtrNr. 1705171)
+Felix Erhard (MtrNr. 3394927)
