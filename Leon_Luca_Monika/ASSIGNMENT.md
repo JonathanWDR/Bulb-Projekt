@@ -1,13 +1,5 @@
 # Ausarbeitung – LLM-Light-Control
 
-**Software Engineering II – IoT-Projekt**  
-**Abgabe: 27.06.2025, 20:00 Uhr**  
-**Gruppe:** Leon, Luca, Monika  
-**Dozent:** Mathis Neunzig  
-**E-Mail:** mathis.neunzig@gmail.com
-
----
-
 ## 1. Gewählte Architektur und Begründung
 
 Wir haben uns für eine **Event-Driven-Architecture** entschieden, wie in der Aufgabenstellung gefordert. Die Kommunikation zwischen Frontend/Backend (Producer) und der Lampensteuerung (Consumer) erfolgt asynchron über **RabbitMQ** als Message Broker.
@@ -73,39 +65,7 @@ RabbitMQ wurde als Message Broker gewählt, da es folgende Vorteile bietet:
 
 ---
 
-## 3. Erfüllte Anforderungen
-
-- **An- und Ausschalten:**  
-  Über die UI kann die Lampe ein- und ausgeschaltet werden.
-
-- **Helligkeit bearbeiten:**  
-  Die Helligkeit ist von 0 bis 100 einstellbar.
-
-- **Farbe ändern:**  
-  Die Farbe kann als Hex-Wert gesetzt werden.
-
-- **Morse-Code:**  
-  Texteingaben werden in Morsecode umgewandelt und durch Blinken der Lampe dargestellt.
-
----
-
-## 4. Besonderheiten & Hinweise
-
-- **RabbitMQ muss lokal installiert und gestartet sein** (siehe README).
-- **Zugangsdaten für die Lampe** werden in einer `.env`-Datei im Consumer-Ordner hinterlegt.
-- **Demo-Modus:** Ohne echte Lampe werden die Befehle simuliert.
-- **Statusanzeige:** Live im Browser unter `consumer/status.html`.
-- **Queues können im RabbitMQ-Web-UI** ([http://localhost:15672](http://localhost:15672), guest/guest) eingesehen werden.
-
----
-
-## 5. Zusammenarbeit
-
-Alle Gruppenmitglieder haben gemeinsam an der Architektur, Implementierung und Dokumentation gearbeitet. Die Arbeit erfolgte kollaborativ über GitHub.
-
----
-
-## 6. Matrikelnummern
+## 3. Matrikelnummern
 
 - Leon: 6550883
 - Luca: 6949663
