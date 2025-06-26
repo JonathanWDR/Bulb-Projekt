@@ -166,6 +166,13 @@ async function consumeLampCommands() {
               const morseCode = plainText.toUpperCase().split('').map(c => morseTable[c] || '').join(' ');
               console.log(`Showing Morse code: ${morseCode}`);
 
+              
+              await device.turnOff();
+              lampState.poweredOn = false;
+              broadcastLampState();
+              await new Promise(res => setTimeout(res, 1000)); // Kurze Pause vor dem Blinken
+
+
               async function blinkMorse(code) {
                 let i = 0;
                 while (i < code.length) {

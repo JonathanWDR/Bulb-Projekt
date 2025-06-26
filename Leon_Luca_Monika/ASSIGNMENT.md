@@ -34,7 +34,6 @@ RabbitMQ wurde als Message Broker gewählt, da es folgende Vorteile bietet:
 
 - **Apache Kafka:** Kafka ist für sehr große Datenmengen und Echtzeit-Streaming optimiert. Es ist daher für unser Projekt überdimensioniert, da wir keine hohen Durchsatzanforderungen haben.
 - **Redis:** Redis ist ein schneller In-Memory-Datenspeicher, der auch als Message Broker verwendet werden kann. Allerdings fehlen Redis einige Funktionen wie komplexe Routing-Mechanismen und persistente Speicherung.
-- **ActiveMQ:** ActiveMQ ist ebenfalls ein AMQP-basierter Broker, jedoch ist RabbitMQ in der Community verbreiteter und bietet bessere Integrationsmöglichkeiten mit modernen Technologien.
 
 ---
 
