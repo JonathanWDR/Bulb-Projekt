@@ -21,27 +21,24 @@ const colorPreview = document.getElementById('colorPreview');
             const centerX = rect.width / 2;
             const centerY = rect.height / 2;
             
-            // Get position relative to center
             const posX = event.clientX - rect.left - centerX;
             const posY = event.clientY - rect.top - centerY;
             
-            // Calculate distance from center (0 to 1)
             const radius = Math.min(rect.width, rect.height) / 2;
             const distance = Math.sqrt(posX * posX + posY * posY);
             const normalizedDistance = Math.min(distance / radius, 1);
             
-            // Calculate angle (0 to 360 degrees)
+
             let angle = Math.atan2(posY, posX) * (180 / Math.PI);
-            angle = (angle + 360) % 360; // Normalize to 0-360
+            angle = (angle + 360) % 360;
             
-            // Calculate hue (0-360) - adjust for color wheel starting position
+
             const hue = (angle + 90) % 360;
             
-            // Calculate saturation based on distance from center (0-100%)
-            const saturation = Math.round(normalizedDistance * 100); // 0–100
-            const lightness = 100 - normalizedDistance * 50; // 100 (center) → 50 (edge)
+
+            const saturation = Math.round(normalizedDistance * 100);
+            const lightness = 100 - normalizedDistance * 50;
             
-            // Create color values
             const hslColor = `hsl(${Math.round(hue)}, ${saturation}%, ${lightness}%)`;
             const hexColor = hslToHex(hue, saturation, lightness);
 
@@ -60,7 +57,7 @@ const colorPreview = document.getElementById('colorPreview');
         colorWheel.addEventListener('mousedown', function(event) {
             isDragging = true;
             updateColorFromPosition(event);
-            event.preventDefault(); // Prevent text selection
+            event.preventDefault();
         });
 
         document.addEventListener('mousemove', function(event) {
@@ -73,12 +70,12 @@ const colorPreview = document.getElementById('colorPreview');
             if (isDragging) {
                 isDragging = false;
                 colorPreview.style.opacity = '0';
-                // Call pickedColor function with the final color
+
                 pickedColor(currentColor);
             }
         });
 
-        // Touch events for mobile support
+
         colorWheel.addEventListener('touchstart', function(event) {
             isDragging = true;
             const touch = event.touches[0];
@@ -98,7 +95,6 @@ const colorPreview = document.getElementById('colorPreview');
             if (isDragging) {
                 isDragging = false;
                 colorPreview.style.opacity = '0';
-                // Call pickedColor function with the final color
                 pickedColor(currentColor);
             }
         });

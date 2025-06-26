@@ -27,37 +27,35 @@ async function blinkMorse(morseString) {
     const delay = (ms) => new Promise(res => setTimeout(res, ms));
     const ditDuration = 150;
 
-    previousLampState = isLampOn; // Save current state
+    previousLampState = isLampOn;
     toggleLampState(false);
-    await delay(7*ditDuration); // wait before starting to blink
+    await delay(7*ditDuration);
 
     for (let i = 0; i < morseString.length; i++) {
         const symbol = morseString[i];
 
         if (symbol === '.') {
             toggleLampState(true);
-            await delay(ditDuration); // 1 unit on
+            await delay(ditDuration);
             toggleLampState(false);
-            await delay(ditDuration); // 1 unit gap
+            await delay(ditDuration);
         } else if (symbol === '-') {
             toggleLampState(true);
-            await delay(ditDuration * 3); // 3 units on
+            await delay(ditDuration * 3);
             toggleLampState(false);
-            await delay(ditDuration); // 1 unit gap
+            await delay(ditDuration);
         } else if (symbol === ' ') {
-            // Check if it's a word gap (multiple spaces)
+
             const isWordGap = morseString[i + 1] === ' ';
-            await delay(ditDuration * (isWordGap ? 7 : 3)); // 7 units for word, 3 for letter
-            if (isWordGap) i++; // Skip next space if already handled
+            await delay(ditDuration * (isWordGap ? 7 : 3));
+            if (isWordGap) i++;
         }
     }
 
 
-    await delay(7*ditDuration); // wait before turning on
+    await delay(7*ditDuration);
     toggleLampState(previousLampState);
 }
-
-
 
 const inputField = document.querySelector(".morse-input");
 
@@ -71,6 +69,6 @@ inputField.addEventListener("keydown", (event) => {
         console.log("Morse:", morse);
         blinkMorse(morse);
 
-        inputField.value = ""; // nach Senden leeren
+        inputField.value = "";
     }
-});//- . ... -
+});

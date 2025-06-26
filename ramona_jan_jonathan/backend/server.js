@@ -6,7 +6,7 @@ const cors = require('cors');
 const producer = require('./producer');
 console.log('🔑 Producer geladen:\n');
 
-require('./consumer'); // starts the consumer in the same Node process
+require('./consumer');
 console.log('🔑 Consumer geladen:\n');
 
 app.use(express.json());

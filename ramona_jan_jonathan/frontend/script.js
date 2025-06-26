@@ -1,14 +1,13 @@
-
 const img = document.getElementById("bulb-img");
 const bulbWrapper = document.getElementById("bulb-fill-wrapper");
-let bulbFillPath = null; // this will hold the actual <path> inside the SVG
+let bulbFillPath = null;
 
 const colorCircles = document.querySelectorAll('.color-circle');
 const brightnessSlider = document.getElementById("brightness");
 
-let isLampOn = false; // global lamp state
-let brightness = brightnessSlider.value; // default from slider
-let colorHex = "#ffdd22"; // default color
+let isLampOn = false;
+let brightness = brightnessSlider.value;
+let colorHex = "#ffdd22";
 
 fetch('./assets/black.svg')
   .then(res => res.text())
@@ -50,8 +49,6 @@ img.addEventListener("click", () => {
     toggleLampState(!isLampOn);
 });
 
-/*Farbregler*/
-
 function rgbToHex(rgb) {
     const [r, g, b] = rgb.split(',').map(n => parseInt(n.trim()));
     return "#" + [r, g, b].map(x => x.toString(16).padStart(2, '0')).join('');
@@ -85,12 +82,10 @@ function updateIndicator() {
     const min = brightnessSlider.min;
     const max = brightnessSlider.max;
 
-    // Convert value to percentage
     let percentage = (value - min) / (max - min);
 
-    // Clamp percentage to stay within visible bounds
-    const minPercent = 0.03; // 3% from left
-    const maxPercent = 0.975; // 97% from left
+    const minPercent = 0.03;
+    const maxPercent = 0.975;
     percentage = Math.max(minPercent, Math.min(maxPercent, percentage));
 
     indicator.style.left = `calc(${percentage * 100}% - 1px)`;
@@ -147,7 +142,7 @@ function update(sendToBackend = true) {
         const normalizedBrightness = brightness / 100;
         const curvedBrightness = Math.pow(normalizedBrightness, 1/3);
        
-        const minValue = 28; // #1c1c1c = 28 in decimal
+        const minValue = 28;
         const adjustedR = Math.round(minValue + (rgb.r - minValue) * curvedBrightness);
         const adjustedG = Math.round(minValue + (rgb.g - minValue) * curvedBrightness);
         const adjustedB = Math.round(minValue + (rgb.b - minValue) * curvedBrightness);
