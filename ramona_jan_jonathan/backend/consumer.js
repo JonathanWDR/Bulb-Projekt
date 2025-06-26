@@ -92,6 +92,8 @@ async function consume(device) {
                 if (newState.poweredOn !== lampState.poweredOn) {
                     lampState.poweredOn = newState.poweredOn;
                     if (lampState.poweredOn) {
+                        await device.setColour(newState.color)              // set color and brightness also turns the lamp on
+                        await device.setBrightness(newState.brightness);    // this way brightness and color can be set wihle the lamp is off
                         await device.turnOn();
                         console.log("Device turning on...");
                     } else {
@@ -102,17 +104,19 @@ async function consume(device) {
 
                 if (newState.brightness !== lampState.brightness) {
                     lampState.brightness = newState.brightness;
-                    await device.setBrightness(lampState.brightness);
+                    if(lampState.poweredOn) {
+                        await device.setBrightness(lampState.brightness);
+                    }
                     
                     console.log(`Setting brightness to ${lampState.brightness}%`);
                 }
 
                 if (newState.color !== lampState.color) {
                     lampState.color = newState.color;
-                    await device.setColour(lampState.color);
-
-                    await device.setBrightness(lampState.brightness);
-                    
+                    if(lampState.poweredOn) {
+                        await device.setColour(lampState.color);
+                        await device.setBrightness(lampState.brightness);
+                    }
                     console.log(`Setting color to ${lampState.color}`);
                 }
             }
