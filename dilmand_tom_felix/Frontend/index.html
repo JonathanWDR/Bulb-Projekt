@@ -106,6 +106,7 @@
     function updateLampView(state) {
         lampState = state;
         const { poweredOn, brightness, color, error, isMockDevice } = state;
+        console.log("Aktualisiere Lampenstatus:", lampState);
 
         lamp.style.backgroundColor = poweredOn ? color : "#222";
         lamp.style.opacity = poweredOn ? (brightness / 100).toString() : "0.2";
@@ -113,6 +114,13 @@
         brightnessInput.value = brightness;
         brightnessValue.textContent = `${brightness}%`;
         colorInput.value = color;
+
+        // Disable brightness and color controls when lamp is off
+        brightnessInput.disabled = !poweredOn;
+        colorInput.disabled = !poweredOn;
+        // Optional: Apply visual indication that controls are disabled
+        brightnessInput.style.opacity = poweredOn ? "1" : "0.5";
+        colorInput.style.opacity = poweredOn ? "1" : "0.5";
 
         let statusMsg = `Lampe ist ${poweredOn ? "AN" : "AUS"} | ${color} | ${brightness}%`;
         if (error) {
@@ -133,13 +141,17 @@
     });
 
     brightnessInput.addEventListener("input", () => {
-        const newBrightness = Number(brightnessInput.value);
-        sendCommand('brightness', newBrightness);
+        if (lampState.poweredOn) {
+            const newBrightness = Number(brightnessInput.value);
+            sendCommand('brightness', newBrightness);
+        }
     });
 
     colorInput.addEventListener("input", () => {
-        const newColor = colorInput.value;
-        sendCommand('color', newColor);
+        if (lampState.poweredOn) {
+            const newColor = colorInput.value;
+            sendCommand('color', newColor);
+        }
     });
 
     morseBtn.addEventListener("click", () => {

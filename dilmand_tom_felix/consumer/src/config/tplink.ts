@@ -8,6 +8,11 @@ const email = process.env.TPLINK_EMAIL;
 const password = process.env.TPLINK_PASSWORD;
 const deviceIP = process.env.TPLINK_DEVICE_IP;
 
+const lampState: ILampState = {
+    poweredOn: false,
+    brightness: 100,
+    color: '#ffffff'
+  };
 
 export async function createTplinkDeviceConnection(): Promise<ILampDevice> {
   if (!email || !password || !deviceIP) {
@@ -31,13 +36,6 @@ export async function createTplinkDeviceConnection(): Promise<ILampDevice> {
     throw new Error('Failed to connect to TP-Link device');
   }
 
-  // Initialize state object
-  const state: ILampState = {
-    poweredOn: false,
-    brightness: 100,
-    color: 'white'
-  };
-
   const enhancedDevice: ILampDevice = {
     // Original methods
     getDeviceInfo: device.getDeviceInfo,
@@ -48,31 +46,30 @@ export async function createTplinkDeviceConnection(): Promise<ILampDevice> {
     // Override methods to update local state
     turnOn: async () => {
       await device.turnOn();
-      state.poweredOn = true;
+      lampState.poweredOn = true;
     },
 
     turnOff: async () => {
       await device.turnOff();
-      state.poweredOn = false;
+      lampState.poweredOn = false;
     },
 
-    setBrightness: async (brightnessLevel?: number) => {
-      await device.setBrightness(brightnessLevel);
-      if (brightnessLevel !== undefined) {
-        state.brightness = brightnessLevel;
-      }
+    setBrightness: async (brightnessLevel: number) => {
+        await device.setBrightness(brightnessLevel);
+        lampState.brightness = brightnessLevel;
     },
 
     setColour: async (colour?: string) => {
       const hsl = hexToHSL(colour || '#FFFFFF'); // Default to white if no colour provided
       await device.setHSL(hsl.hue, hsl.sat, hsl.lum);
       if (colour) {
-        state.color = colour;
+        lampState.color = colour;
       }
     },
 
     getCurrentState: async (): Promise<ILampState> => {
-      return { ...state };
+      // Return a copy of the private state object
+      return { ...lampState };
     },
 
     setHSL: function (hue: number, sat: number, lum: number): Promise<void> {

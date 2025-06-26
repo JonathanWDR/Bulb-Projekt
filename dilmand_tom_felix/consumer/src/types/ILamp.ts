@@ -7,7 +7,7 @@ export interface ILampState {
 export interface ILampDevice {
     turnOn: () => Promise<void>;
     turnOff: () => Promise<void>;
-    setBrightness: (brightnessLevel?: number) => Promise<void>;
+    setBrightness: (brightnessLevel: number) => Promise<void>;
     setSaturation: (saturation: number) => Promise<void>;
     setHue: (hue: number) => Promise<void>;
     setColour: (colour?: string) => Promise<void>;
