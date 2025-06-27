@@ -4,10 +4,11 @@
 - npm init -y
 - npm install express amqplib cors
 
-- make sure .env exists
-    TP_EMAIL=<deine-email@example.com>
-    TP_PASSWORD=<dein-passwort>
-    TP_DEVICE_ID=<deine-device-id>
+- Connect the bulb with a network via the tapo mobile app
+
+- make sure .env exists, with the credentials used in the tapo app
+    TP_EMAIL=<email@example.com>
+    TP_PASSWORD=<password>
 
 - make sure docker-compose.yml exists
 
