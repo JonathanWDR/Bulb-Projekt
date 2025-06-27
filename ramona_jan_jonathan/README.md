@@ -21,4 +21,4 @@ node backend/server.js
 ### 4. Open in browser
 http://localhost:3000
 
-(Visit RabbitMQ UI at: http://localhost:15672 (user: guest, pass: guest))
+(Visit RabbitMQ Dashboard at: http://localhost:15672 (user: guest, pass: guest))
