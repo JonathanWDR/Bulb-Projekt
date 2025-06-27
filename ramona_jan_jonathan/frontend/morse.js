@@ -25,27 +25,32 @@ function textToMorse(text) {
 
 async function blinkMorse(morseString) {
     const delay = (ms) => new Promise(res => setTimeout(res, ms));
-    const ditDuration = 150;
+    const ditDuration = 200;
 
     previousLampState = isLampOn;
-    toggleLampState(false);
+    toggleLampState(true);
+    brightness = 1;
+    update();
     await delay(7*ditDuration);
 
     for (let i = 0; i < morseString.length; i++) {
         const symbol = morseString[i];
 
         if (symbol === '.') {
-            toggleLampState(true);
+            brightness = 100;
+            update();
             await delay(ditDuration);
-            toggleLampState(false);
+            brightness = 1;
+            update();
             await delay(ditDuration);
         } else if (symbol === '-') {
-            toggleLampState(true);
+            brightness = 100;
+            update();
             await delay(ditDuration * 3);
-            toggleLampState(false);
+            brightness = 1;
+            update();
             await delay(ditDuration);
         } else if (symbol === ' ') {
-
             const isWordGap = morseString[i + 1] === ' ';
             await delay(ditDuration * (isWordGap ? 7 : 3));
             if (isWordGap) i++;
