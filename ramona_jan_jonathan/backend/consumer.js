@@ -7,7 +7,6 @@ require('./websocket');
 
 const email = process.env.TP_EMAIL;
 const password = process.env.TP_PASSWORD;
-const deviceIdToFind = process.env.TP_DEVICE_ID;
 
 if (!email || !password) {
     throw new Error('Missing EMAIL, PASSWORD or DEVICE_ID in environment');
