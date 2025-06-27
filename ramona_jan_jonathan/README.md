@@ -3,6 +3,7 @@
 
 - npm init -y
 - npm install express amqplib cors
+- npm install tplink-bulbs
 
 - Connect the bulb with a network via the tapo mobile app
 
@@ -10,7 +11,6 @@
     - TP_EMAIL=<email@example.com>
     - TP_PASSWORD=<password>
 
-- make sure docker-compose.yml exists
 
 ## Run the project
 ### 1. Start RabbitMQ (docker desktop needs to be running)
