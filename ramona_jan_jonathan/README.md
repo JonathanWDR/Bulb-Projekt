@@ -19,7 +19,7 @@
 ### 2. Start backend server
 - node backend/server.js
 
-### 4. Open in browser
+### 3. Open in browser
 - http://localhost:3000
 
 - (Visit RabbitMQ Dashboard at: http://localhost:15672 (user: guest, pass: guest))
