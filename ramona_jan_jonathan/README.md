@@ -12,13 +12,13 @@
 - make sure docker-compose.yml exists
 
 ## Run the project
-# 1. Start RabbitMQ (docker desktop needs to be running)
+### 1. Start RabbitMQ (docker desktop needs to be running)
 docker-compose up -d
 
-# 2. Start backend server
+### 2. Start backend server
 node backend/server.js
 
-# 4. Open in browser
+### 4. Open in browser
 http://localhost:3000
 
 (Visit RabbitMQ UI at: http://localhost:15672 (user: guest, pass: guest))
