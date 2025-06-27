@@ -6,9 +6,9 @@
 
 - Connect the bulb with a network via the tapo mobile app
 
-- make sure .env exists, with the credentials used in the tapo app
-    TP_EMAIL=<email@example.com>
-    TP_PASSWORD=<password>
+- make sure .env exists in ./ramona_jan_jonathan/.env, with the credentials used in the tapo app:
+    - TP_EMAIL=<email@example.com>
+    - TP_PASSWORD=<password>
 
 - make sure docker-compose.yml exists
 
