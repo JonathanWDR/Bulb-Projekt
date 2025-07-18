@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Lamp Status Live</title>
+  <style>
+
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #222;
+      color: #eee;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+    }
+
+    h1 {
+        margin-top: 5vh;
+      letter-spacing: 2px;
+    }
+
+    .on {
+      color: #0f0;
+    }
+
+    .off {
+      color: #f33;
+    }
+
+    .lamp-container {
+      margin: 30px 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .lamp {
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      background: #444;
+      box-shadow: 0 0 40px 10px #111 inset;
+      margin-top: 30px;
+      margin-bottom: 15px;
+      transition: background 0.3s, box-shadow 0.3s;
+      border: 3px solid #666;
+    }
+
+    .lamp.on {
+      border-color: #fff;
+    }
+
+    .label {
+      font-size: 1.2em;
+      margin-bottom: 15px;
+      letter-spacing: 1px;
+    }
+
+    .lamp-status {
+      position: relative;
+      display: flex;
+      text-align: center;
+      border: 1px solid #666;
+      border-radius: 25px;
+      flex-direction: column;
+      width: 20vw;
+      height: auto;
+      padding: 10px;
+      margin-left: auto;
+      margin-right: auto;
+      line-height: 1.5em;
+      letter-spacing: 1px;
+    }
+
+  </style>
+</head>
+
+<body>
+    
+  <div class="lamp-container">
+    <h1>LAMP STATUS (live)</h1>
+    <div id="lamp" class="lamp"></div>
+    <div class="label">Lamp</div>
+  </div>
+
+   <div class="lamp-status">
+    <strong>Status:</strong> <span id="power"></span><br />
+    <strong>Brightness:</strong> <span id="brightness"></span><br />
+    <strong>Color:</strong> <span id="color"></span>
+  </div>
+
+  <script>
+    function hexToRgb(hex) {
+      // #RRGGBB oder #RGB
+      let c = hex.replace("#", "");
+      if (c.length === 3) c = c[0] + c[0] + c[1] + c[1] + c[2] + c[2];
+      const num = parseInt(c, 16);
+      return [(num >> 16) & 255, (num >> 8) & 255, num & 255];
+    }
+
+    function getLampColor(color, brightness, poweredOn) {
+      if (!poweredOn) return "#444";
+      if (!/^#[0-9A-F]{6}$/i.test(color)) return "#fff";
+      const [r, g, b] = hexToRgb(color);
+      // brightness von 0-100 auf 0.2-1.0 (damit Lampe nie ganz dunkel)
+      const factor = 0.2 + 0.8 * (brightness / 100);
+      return `rgb(${Math.round(r * factor)},${Math.round(
+        g * factor
+      )},${Math.round(b * factor)})`;
+    }
+
+    function getLampGlow(color, brightness, poweredOn) {
+      if (!poweredOn) return "0 0 40px 10px #111 inset";
+      if (!/^#[0-9A-F]{6}$/i.test(color)) color = "#fff";
+      const [r, g, b] = hexToRgb(color);
+      // brightness von 0-100 auf 0-1
+      const factor = brightness / 100;
+      // Glow-Intensität: min 10px, max 60px
+      const glow = 10 + 50 * factor;
+      return `0 0 ${Math.round(glow)}px ${Math.round(glow / 2)}px rgb(${r},${g},${b}), 0 0 40px 10px #111 inset`;
+    }
+
+    const ws = new WebSocket("ws://localhost:3002");
+    ws.onmessage = (event) => {
+      const state = JSON.parse(event.data);
+      document.getElementById("power").textContent = state.poweredOn
+        ? "ON"
+        : "OFF";
+      document.getElementById("power").className = state.poweredOn
+        ? "on"
+        : "off";
+      document.getElementById("brightness").textContent = state.brightness;
+      document.getElementById("color").textContent = state.color;
+
+      // Lampe optisch anpassen
+      const lamp = document.getElementById("lamp");
+      lamp.className = "lamp" + (state.poweredOn ? " on" : "");
+      lamp.style.background = getLampColor(
+        state.color,
+        state.brightness,
+        state.poweredOn
+      );
+      lamp.style.boxShadow = getLampGlow(
+        state.color,
+        state.brightness,
+        state.poweredOn
+      );
+    };
+  </script>
+</body>
+
+</html>

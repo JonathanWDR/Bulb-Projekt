@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lamp Control UI</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #232526 0%, #414345 100%);
+            color: #eee;
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
+        }
+        h1 {
+            text-align: center;
+            color: #fff;
+            margin-top: 40px;
+            letter-spacing: 2px;
+            font-size: 2.2rem;
+            text-shadow: 0 2px 8px #000a;
+        }
+        .container {
+            background: #222c;
+            max-width: 400px;
+            margin: 40px auto 0 auto;
+            border-radius: 18px;
+            box-shadow: 0 8px 32px #0006;
+            padding: 32px 24px 24px 24px;
+        }
+        .control-row {
+            margin: 28px 0 0 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+        label {
+            min-width: 90px;
+            text-align: right;
+            color: #b0b0b0;
+            font-size: 1rem;
+        }
+        button {
+            background: linear-gradient(90deg, #007BFF 60%, #0056b3 100%);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 22px;
+            font-size: 1rem;
+            font-weight: 500;
+            box-shadow: 0 2px 8px #0003;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+        }
+        button:hover {
+            background: linear-gradient(90deg, #0056b3 60%, #007BFF 100%);
+            transform: translateY(-2px) scale(1.04);
+        }
+        input[type="color"] {
+            border: none;
+            border-radius: 50%;
+            width: 44px;
+            height: 44px;
+            background: #181818;
+            box-shadow: 0 2px 8px #0003;
+            cursor: pointer;
+            margin-right: 8px;
+        }
+        input[type="range"] {
+            width: 140px;
+            accent-color: #007BFF;
+            margin: 0 10px;
+        }
+        .slider-value {
+            display: inline-block;
+            min-width: 32px;
+            text-align: left;
+            color: #fff;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+        input[type="text"] {
+            background: #222;
+            color: #eee;
+            border: 1px solid #444;
+            border-radius: 6px;
+            padding: 8px 12px;
+            font-size: 1rem;
+            width: 120px;
+            transition: border 0.2s;
+        }
+        input[type="text"]:focus {
+            border: 1.5px solid #007BFF;
+            outline: none;
+        }
+        @media (max-width: 500px) {
+            .container {
+                max-width: 98vw;
+                padding: 18px 4vw 18px 4vw;
+            }
+            .control-row {
+                flex-direction: column;
+                gap: 8px;
+            }
+            label {
+                min-width: unset;
+                text-align: left;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Lamp Control</h1>
+    <div class="container">
+        <div class="control-row">
+            <button id="turnOn">Turn On</button>
+            <button id="turnOff">Turn Off</button>
+        </div>
+        <div class="control-row">
+            <label for="brightness">Brightness:</label>
+            <input type="range" id="brightness" min="1" max="100" value="100">
+            <span class="slider-value" id="brightnessValue">100</span>
+            <button id="setBrightness">Set</button>
+        </div>
+        <div class="control-row">
+            <label for="colorPicker">Color:</label>
+            <input type="color" id="colorPicker" value="#ffffff">
+            <button id="setColor">Set</button>
+        </div>
+        <div class="control-row">
+            <label for="morseInput">Morse:</label>
+            <input type="text" id="morseInput" placeholder="TEST">
+            <button id="showMorse">Send</button>
+        </div>
+    </div>
+    <script>
+        const API_URL = "http://localhost:3001";
+
+        document.getElementById('turnOn').addEventListener('click', async () => {
+            await fetch(`${API_URL}/lamp/state`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ state: true })
+            });
+        });
+
+        document.getElementById('turnOff').addEventListener('click', async () => {
+            await fetch(`${API_URL}/lamp/state`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ state: false })
+            });
+        });
+
+        // Brightness Slider
+        const brightnessSlider = document.getElementById('brightness');
+        const brightnessValue = document.getElementById('brightnessValue');
+        brightnessSlider.addEventListener('input', () => {
+            brightnessValue.textContent = brightnessSlider.value;
+        });
+
+        document.getElementById('setBrightness').addEventListener('click', async () => {
+            const brightness = parseInt(brightnessSlider.value, 10);
+            if (!isNaN(brightness) && brightness >= 1 && brightness <= 100) {
+                await fetch(`${API_URL}/lamp/brightness`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ brightness })
+                });
+            } else {
+                alert('Brightness must be between 1 and 100.');
+            }
+        });
+
+        document.getElementById('setColor').addEventListener('click', async () => {
+            const color = document.getElementById('colorPicker').value;
+            await fetch(`${API_URL}/lamp/color`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ color })
+            });
+        });
+
+        document.getElementById('showMorse').addEventListener('click', async () => {
+            const morseCode = document.getElementById('morseInput').value.trim();
+            await fetch(`${API_URL}/lamp/morse`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ morse: morseCode })
+            });
+        });
+    </script>
+</body>
+</html>
