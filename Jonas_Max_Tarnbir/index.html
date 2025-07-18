@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="de">
+    <head>
+        <meta charset="UTF-8" />
+        <title>Lampensteuerung</title>
+    </head>
+    <body>
+        <h1>Ich bin eine Lampensteuerung</h1>
+        <button onclick="power('on')">An</button>
+        <button onclick="power('off')">Aus</button>
+        <br><br>
+        Farbe:
+        <input type="text" id="color" value=""/>
+        <button onclick="setColor()">Setzen</button>
+        <br><br>
+        Helligkeit
+        <input type="number" id="brightness" value="100" min="0" max="100"/>
+        <button onclick="setBrightness()">Setzen</button>
+        <br><br>
+        Morsecode Text:
+        <input type="text" id="morseText" value=""/>
+        <button onclick="blinkMorsecode()">Senden</button>
+        <br><br>
+        <div id="result"></div>
+        <script>
+            function power(state){
+                fetch('http://localhost:3000/power', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({value: state})
+                }).then(res => res.text()).then(msg => document.getElementById('result').innerText = msg)
+            }
+            function setColor(){
+                fetch('http://localhost:3000/color', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({value: document.getElementById('color').value})
+                }).then(res => res.text()).then(msg => document.getElementById('result').innerText = msg)
+            }
+            function setBrightness(){
+                fetch('http://localhost:3000/brightness', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({value: Number(document.getElementById('brightness').value)})
+                }).then(res => res.text()).then(msg => document.getElementById('result').innerText = msg)
+            }
+            function blinkMorsecode (){
+                fetch('http://localhost:3000/morse', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({value: document.getElementById('morseText').value})
+                }).then(res => res.text()).then(msg => document.getElementById('result').innerText = msg)
+            }
+        </script>
+    </body>
+</html>

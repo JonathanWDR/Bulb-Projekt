@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="de">
+    <head>
+        <meta charset="UTF-8" />
+        <title>Lampenstatus</title>
+    </head>
+    <body>
+        <h1>Ich bin eine Lampenstatusanzeige</h1>
+        
+        <div id="connectionStatus">WebSocket: Nicht verbunden</div>
+        <div id="lampConnectionStatus">Lampe: Nicht verbunden</div>
+        
+        <div id="powerStatus">
+            <h3>AUS</h3>
+        </div>
+        
+        <p>Helligkeit: <span id="brightnessValue">100</span>%</p>
+        <p>Farbe: <span id="colorValue">unbekannt</span></p>
+        <p>Letzte Aktualisierung: <span id="lastUpdate">-</span></p>
+
+        <script>
+            var socket = new WebSocket('ws://localhost:8080');
+            
+            socket.onopen = function() {
+                document.getElementById('connectionStatus').textContent = 'WebSocket: Verbunden';
+            };
+            
+            socket.onmessage = function(event) {
+                var data = JSON.parse(event.data);
+                
+                var lampStatusDiv = document.getElementById('lampConnectionStatus');
+                if (data.connected) {
+                    lampStatusDiv.textContent = 'Lampe: Verbunden';
+                    lampStatusDiv.style.color = 'green';
+                } else {
+                    lampStatusDiv.textContent = 'Lampe: Nicht verbunden';
+                    lampStatusDiv.style.color = 'red';
+                }
+                
+                var powerDiv = document.getElementById('powerStatus');
+                if (data.poweredOn) {
+                    powerDiv.innerHTML = '<h3>AN</h3>';
+                } else {
+                    powerDiv.innerHTML = '<h3>AUS</h3>';
+                }
+                
+                document.getElementById('brightnessValue').textContent = data.brightness;
+                document.getElementById('colorValue').textContent = data.color;
+                
+                var now = new Date();
+                document.getElementById('lastUpdate').textContent = now.getHours() + ':' + now.getMinutes() + ':' + now.getSeconds();
+            };
+            
+            socket.onclose = function() {
+                document.getElementById('connectionStatus').textContent = 'WebSocket: Verbindung verloren';
+            };
+        </script>
+    </body>
+</html>
