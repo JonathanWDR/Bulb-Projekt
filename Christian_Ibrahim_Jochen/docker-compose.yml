@@ -1,0 +1,50 @@
+version: "3.8"
+
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
+  producer:
+    build:
+      context: ./
+      dockerfile: backend/producer/Dockerfile
+    environment:
+      RABBIT_URL: "amqp://rabbitmq"
+    ports:
+      - "3000:3000"
+    depends_on:
+      - rabbitmq
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  consumer:
+    build:
+      context: ./
+      dockerfile: backend/consumer/Dockerfile
+    env_file:
+      - .env
+    environment:
+      RABBIT_URL: "amqp://rabbitmq"
+    depends_on:
+      - rabbitmq
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "8080:80"
+    depends_on:
+      - producer
+      - consumer
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
