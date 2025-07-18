@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lampensteuerung</title>
+    <style>
+      html {
+        height: 100%;
+      }
+      body {
+        font-family: sans-serif;
+        background: #f0f2f5;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        padding: 20px;
+        box-sizing: border-box;
+      }
+      h1 {
+        text-align: center;
+        color: #333;
+        margin-bottom: 2rem;
+      }
+
+      .card {
+        background: white;
+        padding: 2rem;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        width: 100%;
+        max-width: 400px;
+        box-sizing: border-box;
+      }
+
+      .card section {
+        margin-bottom: 1.5rem;
+        border-bottom: 1px solid #eee;
+        padding-bottom: 1.5rem;
+      }
+      .card section:last-child {
+        margin-bottom: 0;
+        padding-bottom: 0;
+        border-bottom: none;
+      }
+
+      h2 {
+        margin-top: 0;
+        font-size: 1.2rem;
+      }
+
+      button,
+      input {
+        margin: 0.5rem 0;
+        display: block;
+        width: 100%;
+        box-sizing: border-box;
+      }
+      input[type="text"],
+      button {
+        padding: 0.75rem;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+      }
+      button {
+        background-color: #007bff;
+        color: white;
+        border-color: #007bff;
+        cursor: pointer;
+      }
+      button:hover {
+        background-color: #0056b3;
+      }
+      input[type="color"] {
+        padding: 0;
+        width: 100%;
+        height: 40px;
+        border: 1px solid #ccc;
+        cursor: pointer;
+      }
+      label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: bold;
+      }
+      .slider-container {
+        padding: 0 8px;
+        display: flex;
+        align-items: center;
+      }
+      .slider-container input[type="range"] {
+        width: 100%;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>💡 Lampensteuerung</h1>
+
+    <div class="card">
+      <section>
+        <h2>Grundfunktionen</h2>
+        <button onclick="sendCommand({ type: 'basic', command: 'on' })">
+          Einschalten
+        </button>
+        <button onclick="sendCommand({ type: 'basic', command: 'off' })">
+          Ausschalten
+        </button>
+      </section>
+
+      <section>
+        <h2>Farbe setzen</h2>
+        <button onclick="sendCommand({ type: 'basic', command: 'red' })">
+          Rot
+        </button>
+        <button onclick="sendCommand({ type: 'basic', command: 'green' })">
+          Grün
+        </button>
+        <button onclick="sendCommand({ type: 'basic', command: 'blue' })">
+          Blau
+        </button>
+      </section>
+
+      <section>
+        <h2>Eigene Farbe wählen</h2>
+        <input type="color" id="colorPicker" value="#ffffff" />
+        <button onclick="setColor()">Farbe setzen</button>
+      </section>
+
+      <section>
+        <h2>Helligkeit</h2>
+        <label for="brightness" id="brightnessLabel">50%</label>
+        <div class="slider-container">
+          <input
+            id="brightness"
+            type="range"
+            min="1"
+            max="100"
+            value="50"
+            oninput="updateBrightness(this.value)"
+          />
+        </div>
+      </section>
+
+      <section>
+        <h2>Morsecode senden</h2>
+        <input id="morseText" type="text" placeholder="Text eingeben" />
+        <button onclick="sendMorse()">Senden</button>
+      </section>
+    </div>
+
+    <script>
+      let brightnessTimeout;
+
+      async function sendCommand(payload) {
+        console.log("Sending command:", payload);
+        try {
+          await fetch("/api/command", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          });
+        } catch (error) {
+          console.error("Failed to send command:", error);
+        }
+      }
+
+      function setColor() {
+        const colorValue = document.getElementById("colorPicker").value;
+        sendCommand({ type: "color", value: colorValue });
+      }
+
+      function updateBrightness(value) {
+        document.getElementById("brightnessLabel").innerText = value + "%";
+        clearTimeout(brightnessTimeout);
+        brightnessTimeout = setTimeout(() => {
+          sendCommand({ type: "brightness", value });
+        }, 250);
+      }
+
+      function sendMorse() {
+        const text = document.getElementById("morseText").value;
+        if (text) {
+          sendCommand({ type: "morse", text });
+        }
+      }
+    </script>
+  </body>
+</html>
