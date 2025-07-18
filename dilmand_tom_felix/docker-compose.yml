@@ -1,0 +1,55 @@
+version: '3.8'
+
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"   # AMQP port
+      - "15672:15672" # Management UI
+      - "15674:15674" # WebStomp port
+    environment:
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
+    configs:
+      - source: rabbitmq-plugins
+        target: /etc/rabbitmq/enabled_plugins
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "check_port_connectivity"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
+    stop_grace_period: 30s
+
+  consumer:
+    build: ./consumer
+    ports:
+      - "4000:4000"  # Macht die Status-API des Consumers von außen erreichbar
+    environment:
+      - RABBITMQ_URL=amqp://${RABBITMQ_DEFAULT_USER}:${RABBITMQ_DEFAULT_PASS}@rabbitmq:5672
+      - TPLINK_EMAIL=${TPLINK_EMAIL}
+      - TPLINK_PASSWORD=${TPLINK_PASSWORD}
+      - TPLINK_DEVICE_IP=${TPLINK_DEVICE_IP}
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
+  frontend:
+    build: ./Frontend
+    ports:
+      - "8080:80"
+    depends_on:
+      - rabbitmq
+
+configs:
+  rabbitmq-plugins:
+    content: "[rabbitmq_management, rabbitmq_web_stomp]." 
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  rabbitmq_data:

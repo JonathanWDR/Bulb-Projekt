@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Smart Lamp UI (WebSocket)</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@stomp/stompjs@7.0.0/bundles/stomp.umd.min.js"></script>
+</head>
+<body>
+<h1>💡 Smart Lamp Steuerung (Live via WebSocket)</h1>
+
+<div class="lamp" id="lamp"></div>
+<div class="status-box" id="statusBox">Verbinde mit Server...</div>
+
+<section class="controls">
+    <button id="toggleBtn">Lampe Einschalten</button>
+    <label for="brightness">🔆 Helligkeit:</label>
+    <input type="range" id="brightness" min="0" max="100" value="100">
+    <span id="brightnessValue">100%</span>
+    <label for="color">🎨 Farbe:</label>
+    <input type="color" id="color" value="#ffffff">
+    <label for="morseInput">📡 Morsecode-Nachricht:</label>
+    <input type="text" id="morseInput" placeholder="Text eingeben...">
+    <button id="morseBtn">Morsecode abspielen</button>
+</section>
+
+<script>
+    const toggleBtn = document.getElementById("toggleBtn");
+    const brightnessInput = document.getElementById("brightness");
+    const brightnessValue = document.getElementById("brightnessValue");
+    const colorInput = document.getElementById("color");
+    const statusBox = document.getElementById("statusBox");
+    const lamp = document.getElementById("lamp");
+    const morseInput = document.getElementById("morseInput");
+    const morseBtn = document.getElementById("morseBtn");
+
+    let lampState = {
+        poweredOn: false,
+        brightness: 100,
+        color: "#ffffff"
+    };
+
+    updateLampView(lampState);
+    
+    const RABBITMQ_URL = `ws://localhost:15674/ws`;
+    const RABBITMQ_USER = "guest"; 
+    const RABBITMQ_PASS = "guest";
+    const COMMAND_QUEUE = "/queue/lamp-commands";
+    const STATUS_TOPIC = "/exchange/lamp-status";
+
+    const stompClient = new StompJs.Client({
+        brokerURL: RABBITMQ_URL,
+        connectHeaders: {
+            login: RABBITMQ_USER,
+            passcode: RABBITMQ_PASS,
+        },
+        reconnectDelay: 5000,
+        debug: (str) => console.log(new Date(), str)
+    });
+
+    stompClient.onConnect = (frame) => {
+        console.log('Erfolgreich mit RabbitMQ verbunden!', frame);
+        updateStatus("Verbunden. Warte auf Status...", true);
+
+        stompClient.subscribe(STATUS_TOPIC, (message) => {
+            const newStatus = JSON.parse(message.body);
+            console.log("Neuer Status empfangen:", newStatus);
+            updateLampView(newStatus);
+        });
+
+        sendCommand('get_status');
+    };
+
+    stompClient.onStompError = (frame) => {
+        console.error('Broker-Fehler:', frame.headers['message'], frame.body);
+        updateStatus(`Verbindungsfehler: ${frame.headers['message']}`, false);
+    };
+
+    function sendCommand(command, value = null) {
+        if (!stompClient.connected) {
+            console.error("Kann Befehl nicht senden, Client ist nicht verbunden.");
+            updateStatus("Nicht verbunden!", false);
+            return;
+        }
+
+        const payload = { 
+            command, 
+            value,
+            currentState: {
+                poweredOn: lampState.poweredOn,
+                brightness: lampState.brightness,
+                color: lampState.color
+            }
+        };
+
+        stompClient.publish({
+            destination: COMMAND_QUEUE,
+            body: JSON.stringify(payload),
+            headers: { 'persistent': 'true' }
+        });
+        console.log("Befehl gesendet:", payload);
+
+        updateStatus(`Befehl gesendet: ${command}${value !== null ? " (" + value + ")" : ""} ...`, true);
+    }
+
+    function updateLampView(state) {
+        lampState = state;
+        const { poweredOn, brightness, color, error, isMockDevice } = state;
+        console.log("Aktualisiere Lampenstatus:", lampState);
+
+        lamp.style.backgroundColor = poweredOn ? color : "#222";
+        lamp.style.opacity = poweredOn ? (brightness / 100).toString() : "0.2";
+        toggleBtn.textContent = poweredOn ? "Lampe Ausschalten" : "Lampe Einschalten";
+        brightnessInput.value = brightness;
+        brightnessValue.textContent = `${brightness}%`;
+        colorInput.value = color;
+
+        // Disable brightness and color controls when lamp is off
+        brightnessInput.disabled = !poweredOn;
+        colorInput.disabled = !poweredOn;
+        // Optional: Apply visual indication that controls are disabled
+        brightnessInput.style.opacity = poweredOn ? "1" : "0.5";
+        colorInput.style.opacity = poweredOn ? "1" : "0.5";
+
+        let statusMsg = `Lampe ist ${poweredOn ? "AN" : "AUS"} | ${color} | ${brightness}%`;
+        if (error) {
+            statusMsg = `Fehler: ${error.message}`;
+        } else if (isMockDevice) {
+            statusMsg += " ⚠️ (Mock-Modus)";
+        }
+        updateStatus(statusMsg, !error);
+    }
+
+    function updateStatus(message, success = true) {
+        statusBox.textContent = message;
+        statusBox.style.backgroundColor = success ? "#e3f2fd" : "#ffebee";
+    }
+
+    toggleBtn.addEventListener("click", () => {
+        sendCommand(lampState.poweredOn ? 'off' : 'on');
+    });
+
+    brightnessInput.addEventListener("input", () => {
+        if (lampState.poweredOn) {
+            const newBrightness = Number(brightnessInput.value);
+            sendCommand('brightness', newBrightness);
+        }
+    });
+
+    colorInput.addEventListener("input", () => {
+        if (lampState.poweredOn) {
+            const newColor = colorInput.value;
+            sendCommand('color', newColor);
+        }
+    });
+
+    morseBtn.addEventListener("click", () => {
+        const text = morseInput.value;
+        if (text) sendCommand('morse', text);
+    });
+
+    stompClient.activate();
+
+</script>
+</body>
+</html>
