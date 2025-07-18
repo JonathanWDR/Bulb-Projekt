@@ -1,0 +1,107 @@
+openapi: 3.1.0
+info:
+  title: Kasa Bulb Queue API
+  version: 1.0.0
+  description: >
+    HTTP API for enqueueing TP-Link Kasa bulb commands.
+    Requests are queued in RabbitMQ and consumed by the bulb‐controller service.
+servers:
+  - url: http://localhost:3000
+    description: Local development server
+
+paths:
+  /api/command:
+    post:
+      summary: Enqueue a bulb command
+      description: |
+        Posts a command object to be processed by the consumer.
+        Supported commands: `on`, `off`, `toggle`, `brightness`, `brightnessUp`, `brightnessDown`, `color`, `colorTemperature`, etc.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Command'
+            examples:
+              turn-on:
+                summary: Turn the bulb on
+                value:
+                  command: on
+              set-brightness:
+                summary: Set brightness to 75%
+                value:
+                  command: brightness
+                  value: 75
+      responses:
+        '202':
+          description: Command accepted and queued
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QueuedResponse'
+        '400':
+          description: Invalid payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Server error (failed to enqueue)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  schemas:
+    Command:
+      type: object
+      required:
+        - command
+      properties:
+        command:
+          type: string
+          description: The action to perform on the bulb
+          enum:
+            - on
+            - off
+            - toggle
+            - brightness
+            - brightnessUp
+            - brightnessDown
+            - color
+            - colorTemperature
+        value:
+          oneOf:
+            - type: integer
+              description: Numeric value (e.g. brightness %, color temp in Kelvin)
+            - type: string
+              description: Hex string for color (e.g. "#FF00FF")
+          description: Optional parameter for the command
+      example:
+        command: brightness
+        value: 50
+
+    QueuedResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: queued
+        command:
+          type: string
+          example: on
+        value:
+          oneOf:
+            - type: integer
+            - type: string
+          nullable: true
+      description: Acknowledgement that the command has been queued
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+      description: Error message
+
