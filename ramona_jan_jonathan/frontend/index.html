@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Bulb UI</title>
+    <link rel="stylesheet" href="./style.css">
+    <link rel="stylesheet" href="./colorpicker/colorpicker.css">
+</head>
+
+<body>
+
+    <div class="preview_picker_row">
+        <div class="bulb-container">
+            <img src="./assets/off_white.svg" alt="bulb-img" class="glow-img glow-on" id="bulb-img">
+            <div class="glow-fill" id="bulb-fill-wrapper"></div>
+        </div>
+        <div class="container">
+            <div class="white-circle-bg"></div>
+            <div class="box" id="colorWheel"></div>
+        </div>
+        <div class="color-preview" id="colorPreview"></div>
+    </div>
+
+
+    <div class="color-picker">
+        <div class="color-circle warmwhite"></div>
+        <div class="color-circle yellow"></div>
+        <div class="color-circle orange"></div>
+        <div class="color-circle red"></div>
+        <div class="color-circle pink"></div>
+        <div class="color-circle magenta"></div>
+        <div class="color-circle violet"></div>
+        <div class="color-circle indigo"></div>
+        <div class="color-circle blue"></div>
+        <div class="color-circle cyan"></div>
+        <div class="color-circle green"></div>
+    </div>
+
+    <div class="brightness-gradient">
+        <div class="brightness-indicator" id="brightnessIndicator"></div>
+        <input type="range" id="brightness" min="1" max="100" value="100">
+    </div>
+
+
+
+
+    <div class="text-input-container">
+        <input id="morseInput" type="text" placeholder="Type in your message to morse..." class="morse-input" />
+    </div>
+
+    <script src="./script.js"></script>
+    <script src="./morse.js"></script>
+    <script src="./colorpicker/colorpicker.js"></script>
+</body>
+
+</html>
