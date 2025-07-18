@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Glühbirnen Steuerung</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Smart Glühbirnen Steuerung</h1>
+        
+        <div class="lightbulb-container">
+            <div class="lightbulb" id="lightbulb">
+                <div class="bulb"></div>
+                <div class="base"></div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <div class="control-group">
+                <label class="switch">
+                    <input type="checkbox" id="powerToggle">
+                    <span class="slider"></span>
+                </label>
+                <span class="control-label">Ein/Aus</span>
+            </div>
+
+            <div class="control-group">
+                <label for="brightness">Helligkeit (%):</label>
+                <input type="text" id="brightness" inputmode="numeric" pattern="[0-9]*" maxlength="3" class="nice-input" placeholder="0-100">
+                <button id="applyBrightness">Helligkeit anwenden</button>
+            </div>
+
+            <div class="color-controls">
+                <h3>Farbeinstellungen</h3>
+                
+                <div class="control-group">
+                    <label for="colorPicker">Farbe:</label>
+                    <input type="color" id="colorPicker" value="#ffcc00" class="color-input">
+                </div>
+
+                <div class="control-group">
+                    <label for="hexColor">Hex-Code:</label>
+                    <input type="text" id="hexColor" class="nice-input" value="#ffcc00" maxlength="7" placeholder="#000000">
+                </div>
+                
+                <div class="control-group">
+                    <button id="applyColor">Farbe anwenden</button>
+                </div>
+            </div>
+
+            <div class="morse-section">
+                <h3>Morse Code</h3>
+                <div class="control-group">
+                    <input type="text" id="morseInput" placeholder="Text für Morse Code eingeben">
+                    <button id="sendMorse">Morse Code senden</button>
+                </div>
+                <div class="morse-display">
+                    <p>Morse Code: <span id="morseOutput"></span></p>
+                    <p>Status: <span id="morseStatus">Bereit</span></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
