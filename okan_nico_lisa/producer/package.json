@@ -1,0 +1,12 @@
+{
+  "name": "producer",
+  "version": "1.0.0",
+  "description": "",
+  "main": "api.js",
+  "author": "Okan, Lisa, Nico",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^5.1.0",
+    "amqplib": "^0.10.8"
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "name": "consumer",
+  "version": "1.0.0",
+  "description": "",
+  "license": "ISC",
+  "author": "Okan, Lisa, Nico",
+  "type": "module",
+  "main": "consumer.mjs",
+  "dependencies": {
+    "amqplib": "^0.10.8",
+    "dotenv": "^16.5.0",
+    "tplink-bulbs": "^1.1.2"
+  }
+}
